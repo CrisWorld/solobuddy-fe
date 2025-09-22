@@ -4,97 +4,11 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { TourGuideCard, TourGuideData } from "@/components/common/tour-guide-card"
-
-const tourGuides: TourGuideData[] = [
-  {
-    id: 1,
-    name: "Nguyen Minh Hoang Quoc",
-    rating: 4.96,
-    reviews: 672,
-    location: "Da Nang",
-    availability: "Available now",
-    availabilityColor: "green",
-    timeSlot: "08:00-22:00",
-    price: 50.32,
-    image: "/asian-male-tour-guide-with-glasses-and-map.jpg",
-    languages: ["Vario 160"],
-    specialties: ["Photography", "Food", "History"],
-  },
-  {
-    id: 2,
-    name: "Do En Nguyen",
-    rating: 4.56,
-    reviews: 460,
-    location: "Da Nang",
-    availability: "Available now",
-    availabilityColor: "green",
-    timeSlot: "07:00-22:00",
-    price: 49.92,
-    image: "/young-asian-male-tour-guide-smiling.jpg",
-    languages: ["Honda"],
-    specialties: ["Photography", "Food"],
-  },
-  {
-    id: 3,
-    name: "Nguyen Van Khanh",
-    rating: 4.47,
-    reviews: 540,
-    location: "Da Nang",
-    availability: "Available now",
-    availabilityColor: "green",
-    timeSlot: "08:00-22:00",
-    price: 48.52,
-    image: "/placeholder-fr6cz.png",
-    languages: ["Vinfat"],
-    specialties: ["History"],
-  },
-  {
-    id: 4,
-    name: "Nguyen Thi Quynh Nhu",
-    rating: 4.96,
-    reviews: 672,
-    location: "Da Nang",
-    availability: "Available now",
-    availabilityColor: "green",
-    timeSlot: "15:00-22:00",
-    price: 40.32,
-    image: "/young-asian-female-tour-guide-with-glasses.jpg",
-    languages: ["Vespa"],
-    specialties: ["Photography", "Food"],
-  },
-  {
-    id: 5,
-    name: "Nguyen Thi Lan",
-    rating: 4.96,
-    reviews: 672,
-    location: "Da Nang",
-    availability: "Available now",
-    availabilityColor: "green",
-    timeSlot: "15:00-22:00",
-    price: 39.32,
-    image: "/female-tour-guide-with-hat-outdoors.jpg",
-    languages: ["Vario 160"],
-    specialties: ["Food", "History"],
-  },
-  {
-    id: 6,
-    name: "Le Duong Bao Lam",
-    rating: 4.96,
-    reviews: 672,
-    location: "Da Nang",
-    availability: "Available now",
-    availabilityColor: "green",
-    timeSlot: "15:00-22:00",
-    price: 35.32,
-    image: "/young-male-tour-guide-with-hat-and-backpack.jpg",
-    languages: ["Vario 160"],
-    specialties: ["Photography", "History"],
-  },
-]
+import { useApp } from "@/lib/app-context"
 
 export function TourGuides() {
   const [favorites, setFavorites] = useState<number[]>([])
-
+  const { allTourGuides } = useApp();
   const toggleFavorite = (id: number) => {
     setFavorites((prev) => (prev.includes(id) ? prev.filter((fav) => fav !== id) : [...prev, id]))
   }
@@ -168,14 +82,13 @@ export function TourGuides() {
 
         {/* Tour Guides Grid */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-          {tourGuides.map((guide) => (
+          {allTourGuides.map((guide) => (
             <TourGuideCard
               key={guide.id}
               guide={guide}
               variant="grid"
               isFavorite={favorites.includes(guide.id)}
               onToggleFavorite={toggleFavorite}
-              onViewDetails={(id) => console.log("View details for guide", id)}
             />
           ))}
         </div>
@@ -189,7 +102,7 @@ export function TourGuides() {
               <div className="w-2 h-2 bg-black rounded-full"></div>
               <div className="w-2 h-2 bg-black rounded-full"></div>
             </div>
-            Load More Tours
+            Load More Tour Guides
           </Button>
         </div>
       </div>

@@ -10,6 +10,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Plus, Send, Star, MapPin, Heart } from "lucide-react"
 import { useApp } from "@/lib/app-context"
+import { SuggestionCard } from "@/components/common/suggestion-card"
+import { TourGuide } from "@/stores/types/types"
 
 interface Message {
   id: number
@@ -19,20 +21,12 @@ interface Message {
   tourGuides?: TourGuide[]
 }
 
-interface TourGuide {
-  id: number
-  name: string
-  location: string
-  price: string
-  rating: number
-  languages: string[]
-  specialties: string[]
-  avatar: string
-}
+
 
 export function ChatContent() {
   const [message, setMessage] = useState("")
   const [isLoading, setIsLoading] = useState(false)
+  const { allTourGuides} = useApp();
   const [messages, setMessages] = useState<Message[]>([
     {
       id: 1,
@@ -47,26 +41,8 @@ export function ChatContent() {
         "Great! Based on what you shared — you're interested in local history, photography, and trying local food — I've found a few tour guides who are a perfect match for you! 🌴\n\nHere are some guides you might enjoy exploring with: 👇",
       timestamp: new Date(Date.now() - 4 * 60 * 1000),
       tourGuides: [
-        {
-          id: 1,
-          name: "Do En Nguyen",
-          location: "Da Nang",
-          price: "49.92$ per day",
-          rating: 4.56,
-          languages: ["Vietnamese", "English"],
-          specialties: ["Photography", "Food", "History"],
-          avatar: "/asian-male-tour-guide-with-glasses-and-map.jpg",
-        },
-        {
-          id: 2,
-          name: "Nguyen Truong Giang",
-          location: "Da Nang",
-          price: "49.92$ per day",
-          rating: 4.52,
-          languages: ["Vietnamese", "English"],
-          specialties: ["Photography", "Food", "History"],
-          avatar: "/asian-male-tour-guide-with-glasses-and-map.jpg",
-        },
+        allTourGuides[0],
+        allTourGuides[1],
       ],
     },
   ])
@@ -165,84 +141,15 @@ export function ChatContent() {
                     </div>
 
                     {/* Tour Guide Cards */}
-                    {msg.tourGuides && (
-                      <div className="mt-4 space-y-4">
-                        {msg.tourGuides.map((guide) => (
-                          <Card key={guide.id} className="bg-white shadow-sm">
-                            <CardContent className="p-4">
-                              <div className="flex items-start gap-4">
-                                <Avatar className="h-12 w-12">
-                                  <AvatarImage src={guide.avatar || "/placeholder.svg"} />
-                                  <AvatarFallback>
-                                    {guide.name
-                                      .split(" ")
-                                      .map((n) => n[0])
-                                      .join("")}
-                                  </AvatarFallback>
-                                </Avatar>
+                    {msg.tourGuides?.map((guide) => (
+                    <SuggestionCard
+                        key={guide.id}
+                        guide={guide}
+                        favouriteGuides={favouriteGuides}
+                        toggleFavourite={toggleFavourite}
+                    />
+                    ))}
 
-                                <div className="flex-1">
-                                  <div className="flex items-start justify-between">
-                                    <div>
-                                      <h3 className="font-semibold text-foreground">{guide.name}</h3>
-                                      <div className="flex items-center gap-1 text-sm text-muted-foreground mt-1">
-                                        <MapPin className="h-3 w-3" />
-                                        {guide.location}
-                                        <span className="mx-2">•</span>
-                                        <span>{guide.price}</span>
-                                      </div>
-                                    </div>
-
-                                    <div className="flex items-center gap-2">
-                                      <div className="flex items-center gap-1">
-                                        <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                                        <span className="text-sm font-medium">{guide.rating}</span>
-                                      </div>
-                                      <Button
-                                        variant="ghost"
-                                        size="icon"
-                                        onClick={() => toggleFavourite(guide.id)}
-                                        className="h-8 w-8"
-                                      >
-                                        <Heart
-                                          className={`h-4 w-4 ${
-                                            favouriteGuides.includes(guide.id)
-                                              ? "fill-red-500 text-red-500"
-                                              : "text-gray-400"
-                                          }`}
-                                        />
-                                      </Button>
-                                    </div>
-                                  </div>
-
-                                  <div className="flex flex-wrap gap-2 mt-3">
-                                    {guide.languages.map((lang) => (
-                                      <Badge key={lang} variant="secondary" className="text-xs">
-                                        {lang}
-                                      </Badge>
-                                    ))}
-                                  </div>
-
-                                  <div className="flex flex-wrap gap-2 mt-2">
-                                    {guide.specialties.map((specialty) => (
-                                      <Badge key={specialty} variant="outline" className="text-xs">
-                                        {specialty}
-                                      </Badge>
-                                    ))}
-                                  </div>
-
-                                  <div className="flex justify-end mt-3">
-                                    <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
-                                      Detail
-                                    </Button>
-                                  </div>
-                                </div>
-                              </div>
-                            </CardContent>
-                          </Card>
-                        ))}
-                      </div>
-                    )}
                   </div>
                 </div>
               )}

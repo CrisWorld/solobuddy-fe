@@ -7,6 +7,7 @@ import { ChevronDown, Globe, Menu, X } from "lucide-react"
 import { LoginModal } from "./login-modal"
 import { SignUpModal } from "./signup-modal"
 import { Logo } from "./Logo"
+import Link from "next/link"
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -53,6 +54,11 @@ export function Header() {
               >
                 Sign In
               </Button>
+              <Link href="/chat">
+                <Button className="bg-primary text-white hover:bg-primary/90 rounded-full px-6 transition-transform transform hover:scale-105 active:scale-95">
+                  Get Started
+                </Button>
+              </Link>
             </div>
 
             {/* Mobile Menu Button */}
@@ -78,6 +84,11 @@ export function Header() {
                 >
                   Signin
                 </Button>
+                <Link href="/chat">
+                  <Button className="justify-start bg-primary text-white hover:bg-primary/90 rounded-full px-6 transition-transform transform hover:scale-105 active:scale-95">
+                    Get Started
+                  </Button>
+                </Link>
               </nav>
             </div>
           )}

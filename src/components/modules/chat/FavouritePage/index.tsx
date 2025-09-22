@@ -12,7 +12,7 @@ const allTourGuides: TourGuideData[] = [
     id: 1,
     name: "Do En Nguyen",
     location: "Da Nang",
-    price: "49.92$ per day",
+    price: 800000,
     rating: 4.56,
     languages: ["Vietnamese", "English"],
     specialties: ["Photography", "Food", "History"],
@@ -23,7 +23,7 @@ const allTourGuides: TourGuideData[] = [
     id: 2,
     name: "Nguyen Truong Giang",
     location: "Da Nang",
-    price: "49.92$ per day",
+    price: 900000,
     rating: 4.52,
     languages: ["Vietnamese", "English"],
     specialties: ["Photography", "Food", "History"],
@@ -34,7 +34,7 @@ const allTourGuides: TourGuideData[] = [
     id: 3,
     name: "Linh Pham",
     location: "Ho Chi Minh City",
-    price: "55.00$ per day",
+    price: 1000000,
     rating: 4.78,
     languages: ["Vietnamese", "English", "French"],
     specialties: ["Culture", "Shopping", "Nightlife"],
@@ -45,7 +45,7 @@ const allTourGuides: TourGuideData[] = [
     id: 4,
     name: "Minh Tran",
     location: "Hanoi",
-    price: "45.00$ per day",
+    price: 1000000,
     rating: 4.65,
     languages: ["Vietnamese", "English", "Japanese"],
     specialties: ["History", "Architecture", "Street Food"],
@@ -56,7 +56,7 @@ const allTourGuides: TourGuideData[] = [
     id: 5,
     name: "Thao Nguyen",
     location: "Hoi An",
-    price: "42.00$ per day",
+    price: 1000000,
     rating: 4.89,
     languages: ["Vietnamese", "English", "Korean"],
     specialties: ["Crafts", "Cooking", "Culture"],
@@ -67,7 +67,7 @@ const allTourGuides: TourGuideData[] = [
     id: 6,
     name: "Duc Le",
     location: "Nha Trang",
-    price: "38.50$ per day",
+    price: 1000000,
     rating: 4.43,
     languages: ["Vietnamese", "English", "Russian"],
     specialties: ["Beach", "Water Sports", "Seafood"],
@@ -150,8 +150,6 @@ export function FavouritePage() {
                     variant="list"
                     isFavorite={true}
                     onToggleFavorite={toggleFavourite}
-                    onViewDetails={(id) => console.log("View details for guide", id)}
-                    onBookNow={(id) => console.log("Book guide", id)}
                   />
                 ))}
               </div>

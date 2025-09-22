@@ -1,5 +1,6 @@
 "use client"
 
+import { TourGuide } from "@/stores/types/types"
 import { createContext, useContext, useState, type ReactNode } from "react"
 
 type Page = "chat" | "tour-guide" | "favourite" | "journey" | "profile"
@@ -17,7 +18,78 @@ interface AppContextType {
     status: "upcoming" | "completed"
   }>
   addBookedTour: (tour: any) => void
+  allTourGuides: TourGuide[]
 }
+
+const allTourGuides: TourGuide[] = [
+  {
+    id: 1,
+    name: "Do En Nguyen",
+    location: "Da Nang",
+    price: 950000, // 950k VND
+    rating: 4.56,
+    languages: ["Vietnamese", "English"],
+    specialties: ["Photography", "Food", "History"],
+    avatar: "/asian-male-tour-guide-with-glasses-and-map.jpg",
+    description: "Passionate photographer and food enthusiast with 5 years of guiding experience.",
+  },
+  {
+    id: 2,
+    name: "Nguyen Truong Giang",
+    location: "Da Nang",
+    price: 980000,
+    rating: 4.52,
+    languages: ["Vietnamese", "English"],
+    specialties: ["Photography", "Food", "History"],
+    avatar: "/asian-male-tour-guide-with-glasses-and-map.jpg",
+    description: "Local historian specializing in cultural tours and authentic dining experiences.",
+  },
+  {
+    id: 3,
+    name: "Linh Pham",
+    location: "Ho Chi Minh City",
+    price: 1200000,
+    rating: 4.78,
+    languages: ["Vietnamese", "English", "French"],
+    specialties: ["Culture", "Shopping", "Nightlife"],
+    avatar: "/asian-woman-tour-guide.jpg",
+    description: "Energetic guide who knows all the best spots for shopping and nightlife in Saigon.",
+  },
+  {
+    id: 4,
+    name: "Minh Tran",
+    location: "Hanoi",
+    price: 870000,
+    rating: 4.65,
+    languages: ["Vietnamese", "English", "Japanese"],
+    specialties: ["History", "Architecture", "Street Food"],
+    avatar: "/asian-man-tour-guide-hanoi.jpg",
+    description: "Architecture enthusiast with deep knowledge of Hanoi's historical sites and street food scene.",
+  },
+  {
+    id: 5,
+    name: "Thao Nguyen",
+    location: "Hoi An",
+    price: 820000,
+    rating: 4.89,
+    languages: ["Vietnamese", "English", "Korean"],
+    specialties: ["Crafts", "Cooking", "Culture"],
+    avatar: "/asian-woman-tour-guide-hoi-an.jpg",
+    description: "Traditional craft expert offering hands-on cooking classes and cultural immersion experiences.",
+  },
+  {
+    id: 6,
+    name: "Duc Le",
+    location: "Nha Trang",
+    price: 890000,
+    rating: 4.43,
+    languages: ["Vietnamese", "English", "Russian"],
+    specialties: ["Beach", "Water Sports", "Seafood"],
+    avatar: "/asian-man-tour-guide-beach.jpg",
+    description: "Beach and water sports specialist with extensive knowledge of coastal activities and fresh seafood.",
+  },
+]
+
 
 const AppContext = createContext<AppContextType | undefined>(undefined)
 
@@ -59,6 +131,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         toggleFavourite,
         bookedTours,
         addBookedTour,
+        allTourGuides
       }}
     >
       {children}
