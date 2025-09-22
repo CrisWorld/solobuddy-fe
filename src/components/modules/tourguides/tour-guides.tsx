@@ -2,12 +2,10 @@
 
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Card, CardContent } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Star, Heart, MapPin, DollarSign } from "lucide-react"
+import { TourGuideCard, TourGuideData } from "@/components/common/tour-guide-card"
 
-const tourGuides = [
+const tourGuides: TourGuideData[] = [
   {
     id: 1,
     name: "Nguyen Minh Hoang Quoc",
@@ -20,7 +18,7 @@ const tourGuides = [
     price: 50.32,
     image: "/asian-male-tour-guide-with-glasses-and-map.jpg",
     languages: ["Vario 160"],
-    specialties: ["Honda"],
+    specialties: ["Photography", "Food", "History"],
   },
   {
     id: 2,
@@ -34,7 +32,7 @@ const tourGuides = [
     price: 49.92,
     image: "/young-asian-male-tour-guide-smiling.jpg",
     languages: ["Honda"],
-    specialties: [],
+    specialties: ["Photography", "Food"],
   },
   {
     id: 3,
@@ -48,7 +46,7 @@ const tourGuides = [
     price: 48.52,
     image: "/placeholder-fr6cz.png",
     languages: ["Vinfat"],
-    specialties: [],
+    specialties: ["History"],
   },
   {
     id: 4,
@@ -62,7 +60,7 @@ const tourGuides = [
     price: 40.32,
     image: "/young-asian-female-tour-guide-with-glasses.jpg",
     languages: ["Vespa"],
-    specialties: [],
+    specialties: ["Photography", "Food"],
   },
   {
     id: 5,
@@ -76,7 +74,7 @@ const tourGuides = [
     price: 39.32,
     image: "/female-tour-guide-with-hat-outdoors.jpg",
     languages: ["Vario 160"],
-    specialties: [],
+    specialties: ["Food", "History"],
   },
   {
     id: 6,
@@ -90,7 +88,7 @@ const tourGuides = [
     price: 35.32,
     image: "/young-male-tour-guide-with-hat-and-backpack.jpg",
     languages: ["Vario 160"],
-    specialties: [],
+    specialties: ["Photography", "History"],
   },
 ]
 
@@ -171,85 +169,25 @@ export function TourGuides() {
         {/* Tour Guides Grid */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
           {tourGuides.map((guide) => (
-            <Card key={guide.id} className="overflow-hidden hover:shadow-lg transition-shadow">
-              <div className="relative">
-                <img src={guide.image || "/placeholder.svg"} alt={guide.name} className="w-full h-64 object-cover" />
-                <div className="absolute top-4 left-4">
-                  <Badge
-                    variant="secondary"
-                    className={`${
-                      guide.timeSlot.includes("08:00")
-                        ? "bg-green-100 text-green-800"
-                        : guide.timeSlot.includes("07:00")
-                          ? "bg-blue-100 text-blue-800"
-                          : "bg-orange-100 text-orange-800"
-                    }`}
-                  >
-                    {guide.timeSlot}
-                  </Badge>
-                </div>
-                <button
-                  onClick={() => toggleFavorite(guide.id)}
-                  className="absolute top-4 right-4 p-2 bg-white rounded-full shadow-md hover:shadow-lg transition-shadow"
-                >
-                  <Heart
-                    className={`w-5 h-5 ${
-                      favorites.includes(guide.id) ? "fill-red-500 text-red-500" : "text-gray-400"
-                    }`}
-                  />
-                </button>
-                <div className="absolute bottom-4 right-4 bg-white px-2 py-1 rounded-full">
-                  <div className="flex items-center gap-1">
-                    <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                    <span className="text-sm font-semibold">{guide.rating}</span>
-                    <span className="text-xs text-muted-foreground">({guide.reviews} reviews)</span>
-                  </div>
-                </div>
-              </div>
-
-              <CardContent className="p-6">
-                <div className="space-y-4">
-                  <div>
-                    <h3 className="font-semibold text-lg text-foreground mb-2">{guide.name}</h3>
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
-                      <div className={`w-2 h-2 rounded-full bg-${guide.availabilityColor}-500`}></div>
-                      <span>{guide.availability}</span>
-                      <MapPin className="w-4 h-4 ml-2" />
-                      <span>{guide.location}</span>
-                    </div>
-                    <div className="flex flex-wrap gap-1">
-                      {guide.languages.map((lang, index) => (
-                        <Badge key={index} variant="outline" className="text-xs">
-                          {lang}
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-1">
-                      <DollarSign className="w-4 h-4 text-muted-foreground" />
-                      <span className="text-xl font-bold text-foreground">${guide.price}</span>
-                      <span className="text-sm text-muted-foreground">/ day</span>
-                    </div>
-                    <Button variant="outline" size="sm">
-                      Detail
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+            <TourGuideCard
+              key={guide.id}
+              guide={guide}
+              variant="grid"
+              isFavorite={favorites.includes(guide.id)}
+              onToggleFavorite={toggleFavorite}
+              onViewDetails={(id) => console.log("View details for guide", id)}
+            />
           ))}
         </div>
 
         {/* Load More Button */}
         <div className="text-center">
-          <Button variant="outline" size="lg" className="bg-black text-white hover:bg-black/90 rounded-full px-8">
+          <Button variant="outline" size="lg" className="bg-black text-black hover:bg-white/90 rounded-full px-8">
             <div className="w-6 h-6 grid grid-cols-2 gap-0.5 mr-2">
-              <div className="w-2 h-2 bg-white rounded-full"></div>
-              <div className="w-2 h-2 bg-white rounded-full"></div>
-              <div className="w-2 h-2 bg-white rounded-full"></div>
-              <div className="w-2 h-2 bg-white rounded-full"></div>
+              <div className="w-2 h-2 bg-black rounded-full"></div>
+              <div className="w-2 h-2 bg-black rounded-full"></div>
+              <div className="w-2 h-2 bg-black rounded-full"></div>
+              <div className="w-2 h-2 bg-black rounded-full"></div>
             </div>
             Load More Tours
           </Button>

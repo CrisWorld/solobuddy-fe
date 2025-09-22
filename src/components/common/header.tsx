@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { ChevronDown, Globe, Menu, X } from "lucide-react"
 import { LoginModal } from "./login-modal"
 import { SignUpModal } from "./signup-modal"
+import { Logo } from "./Logo"
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -17,12 +18,7 @@ export function Header() {
       <header className="bg-white border-b border-border sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            {/* Logo */}
-            <div className="flex items-center gap-2">
-              <Image src="/images/coconut-logo.png" alt="SoloBuddy" width={40} height={40} className="rounded-full" />
-              <span className="text-xl font-bold text-foreground">SoloBuddy</span>
-            </div>
-
+            <Logo textClass="text-foreground" />
             {/* Desktop Navigation */}
             <nav className="hidden lg:flex items-center gap-8">
               <div className="flex items-center gap-1 cursor-pointer hover:text-primary">

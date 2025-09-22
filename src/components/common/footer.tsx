@@ -2,6 +2,7 @@ import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Phone } from "lucide-react"
+import { Logo } from "./Logo"
 
 export function Footer() {
   return (
@@ -10,10 +11,7 @@ export function Footer() {
         <div className="grid lg:grid-cols-5 gap-8">
           {/* Brand Section */}
           <div className="lg:col-span-2">
-            <div className="flex items-center gap-2 mb-6">
-              <Image src="/images/coconut-logo.png" alt="SoloBuddy" width={40} height={40} className="rounded-full" />
-              <span className="text-xl font-bold">SoloBuddy</span>
-            </div>
+            <Logo textClass="text-white" />
             <p className="text-gray-300 leading-relaxed mb-6 max-w-md">
               Dive into local recommendations for a truly authentic experience.
             </p>
