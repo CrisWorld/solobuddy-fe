@@ -1,0 +1,132 @@
+"use client"
+
+import { useState } from "react"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Sparkles, Star, Phone } from "lucide-react"
+
+export function HeroSection() {
+  const [destination, setDestination] = useState("")
+
+  return (
+    <section className="relative bg-gradient-to-br from-yellow-50 to-orange-50 overflow-hidden">
+      {/* Background decorative elements */}
+      <div className="absolute inset-0">
+        <div className="absolute top-20 left-10 w-8 h-8 text-yellow-300 opacity-60">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+          </svg>
+        </div>
+        <div className="absolute top-40 right-20 w-6 h-6 text-orange-300 opacity-40">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+          </svg>
+        </div>
+        <div className="absolute bottom-20 left-20 w-4 h-4 text-yellow-400 opacity-50">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <circle cx="12" cy="12" r="10" />
+          </svg>
+        </div>
+        <div className="absolute top-60 right-10 w-12 h-12 text-orange-200 opacity-30">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" />
+          </svg>
+        </div>
+      </div>
+
+      <div className="container mx-auto px-4 py-16 lg:py-24">
+        <div className="grid lg:grid-cols-2 gap-12 items-center">
+          {/* Left Content */}
+          <div className="space-y-8">
+            <div className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-full text-sm font-medium">
+              <Sparkles className="w-4 h-4" />
+              Explore the World
+            </div>
+
+            <div className="space-y-6">
+              <h1 className="text-4xl lg:text-6xl font-bold text-foreground leading-tight text-balance">
+                Discover the World's Wonders, One Solo Journey at a Time
+              </h1>
+
+              <p className="text-lg text-muted-foreground leading-relaxed">
+                Embrace the freedom. Explore the unknown. Travel solo, live fully.
+              </p>
+            </div>
+
+            {/* Search Section */}
+            <div className="bg-white p-6 rounded-2xl shadow-lg border border-border">
+              <div className="flex flex-col sm:flex-row gap-4">
+                <div className="flex-1">
+                  <Input
+                    placeholder="Where do you wanna go ?"
+                    value={destination}
+                    onChange={(e) => setDestination(e.target.value)}
+                    className="h-12 text-base"
+                  />
+                </div>
+                <Button className="h-12 px-8 bg-black hover:bg-black/90 text-white rounded-full">
+                  <Sparkles className="w-4 h-4 mr-2" />
+                  AI Suggestion
+                </Button>
+              </div>
+            </div>
+
+            {/* Rating */}
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <div className="flex">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />
+                  ))}
+                </div>
+                <span className="font-semibold">5.0 Stars</span>
+              </div>
+              <span className="text-muted-foreground">69k reviews</span>
+            </div>
+          </div>
+
+          {/* Right Content - Hero Image */}
+          <div className="relative">
+            <div className="relative z-10">
+              <img src="/happy-solo-female-traveler-with-backpack-and-suitc.jpg" alt="Solo traveler" className="w-full h-auto rounded-2xl" />
+            </div>
+
+            {/* Floating Elements */}
+            <div className="absolute top-4 right-4 bg-white p-3 rounded-xl shadow-lg border border-border z-20">
+              <div className="flex items-center gap-2">
+                <Phone className="w-4 h-4 text-red-500" />
+                <div>
+                  <div className="text-xs text-muted-foreground">Hotline Booking</div>
+                  <div className="text-sm font-semibold">1-800-222-8888</div>
+                </div>
+              </div>
+            </div>
+
+            <div className="absolute bottom-4 left-4 bg-white p-3 rounded-xl shadow-lg border border-border z-20">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 bg-gray-200 rounded-full"></div>
+                <div className="w-8 h-8 bg-gray-300 rounded-full -ml-2"></div>
+                <div className="w-8 h-8 bg-gray-400 rounded-full -ml-2"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Payment Methods */}
+      <div className="border-t border-border bg-white/50">
+        <div className="container mx-auto px-4 py-8">
+          <div className="flex flex-wrap justify-center items-center gap-8 opacity-60">
+            <img src="/paypal-logo.png" alt="PayPal" className="h-8" />
+            <img src="/stripe-logo.png" alt="Stripe" className="h-8" />
+            <img src="/payoneer-logo.png" alt="Payoneer" className="h-8" />
+            <img src="/visa-logo-generic.png" alt="Visa" className="h-8" />
+            <img src="/cash-app-logo.jpg" alt="Cash App" className="h-8" />
+            <img src="/bitcoin-logo.png" alt="Bitcoin" className="h-8" />
+            <img src="/discover-logo.png" alt="Discover" className="h-8" />
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
