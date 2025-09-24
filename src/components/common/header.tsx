@@ -1,116 +1,156 @@
 "use client"
 
-import { useState } from "react"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
-import { ChevronDown, Globe, Menu, X } from "lucide-react"
-import { LoginModal } from "./login-modal"
-import { SignUpModal } from "./signup-modal"
+import { ChevronDown, Menu, X } from "lucide-react"
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "@/components/ui/dropdown-menu"
 import { Logo } from "./Logo"
 import Link from "next/link"
+import { useState } from "react"
+import { useAuth } from "../layout/AuthLayout"
+import { motion, AnimatePresence } from "framer-motion"
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const [isLoginOpen, setIsLoginOpen] = useState(false)
-  const [isSignUpOpen, setIsSignUpOpen] = useState(false)
+  const { user, logout, openLogin } = useAuth()
 
   return (
-    <>
-      <header className="bg-white border-b border-border sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <Logo textClass="text-foreground" />
-            {/* Desktop Navigation */}
-            <nav className="hidden lg:flex items-center gap-8">
-              <div className="flex items-center gap-1 cursor-pointer hover:text-primary">
-                <span>Home</span>
-                <ChevronDown className="w-4 h-4" />
-              </div>
-              <div className="flex items-center gap-1 cursor-pointer hover:text-primary">
-                <span>Tours</span>
-                <ChevronDown className="w-4 h-4" />
-              </div>
-              <div className="flex items-center gap-1 cursor-pointer hover:text-primary">
-                <span>Destinations</span>
-                <ChevronDown className="w-4 h-4" />
-              </div>
-              <div className="flex items-center gap-1 cursor-pointer hover:text-primary">
-                <span>Pages</span>
-                <ChevronDown className="w-4 h-4" />
-              </div>
-              <div className="flex items-center gap-1 cursor-pointer hover:text-primary">
-                <span>Blog</span>
-                <ChevronDown className="w-4 h-4" />
-              </div>
-              <span className="cursor-pointer hover:text-primary">Contact</span>
-            </nav>
+    <header className="bg-white border-b border-border sticky top-0 z-50">
+      <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+        <Logo textClass="text-foreground" />
 
-            {/* Right Side */}
-            <div className="hidden lg:flex items-center gap-4">
-              <Button
-                variant="ghost"
-                onClick={() => setIsLoginOpen(true)}
-                className="text-foreground hover:text-primary"
-              >
+        {/* Desktop */}
+        <div className="hidden lg:flex items-center gap-4">
+          {user ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <div className="flex items-center gap-2 cursor-pointer">
+                  <Image
+                    src={user.avatar || "/default-avatar.png"}
+                    alt={user.name}
+                    width={32}
+                    height={32}
+                    className="rounded-full"
+                  />
+                  <span>{user.name}</span>
+                  <ChevronDown className="w-4 h-4" />
+                </div>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={logout}>Logout</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <>
+              <Button variant="ghost" onClick={openLogin}>
                 Sign In
               </Button>
-              <Link href="/chat">
-                <Button className="bg-primary text-white hover:bg-primary/90 rounded-full px-6 transition-transform transform hover:scale-105 active:scale-95">
+              
+            </>
+          )}
+          <Link href="/chat">
+                <Button className="bg-primary text-white rounded-full px-6">
                   Get Started
                 </Button>
               </Link>
-            </div>
+        </div>
 
-            {/* Mobile Menu Button */}
-            <Button variant="ghost" size="icon" className="lg:hidden" onClick={() => setIsMenuOpen(!isMenuOpen)}>
-              {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-            </Button>
-          </div>
+        {/* Mobile toggle */}
+        <Button
+          variant="ghost"
+          size="icon"
+          className="lg:hidden"
+          onClick={() => setIsMenuOpen(!isMenuOpen)}
+        >
+          {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+        </Button>
+      </div>
 
-          {/* Mobile Menu */}
-          {isMenuOpen && (
-            <div className="lg:hidden mt-4 pb-4 border-t border-border">
-              <nav className="flex flex-col gap-4 pt-4">
-                <span className="cursor-pointer hover:text-primary">Home</span>
-                <span className="cursor-pointer hover:text-primary">Tours</span>
-                <span className="cursor-pointer hover:text-primary">Destinations</span>
-                <span className="cursor-pointer hover:text-primary">Pages</span>
-                <span className="cursor-pointer hover:text-primary">Blog</span>
-                <span className="cursor-pointer hover:text-primary">Contact</span>
+      {/* Mobile sidebar */}
+      <AnimatePresence>
+        {isMenuOpen && (
+          <>
+            {/* Overlay */}
+            <motion.div
+              className="fixed inset-0 bg-black/40 z-40"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsMenuOpen(false)}
+            />
+
+            {/* Sidebar */}
+            <motion.div
+              className="fixed right-0 top-0 h-full w-64 bg-white shadow-lg z-50 flex flex-col"
+              initial={{ x: "100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "100%" }}
+              transition={{ type: "tween", duration: 0.3 }}
+            >
+              <div className="p-4 flex justify-between items-center border-b border-border">
+                <Logo textClass="text-foreground" />
                 <Button
                   variant="ghost"
-                  onClick={() => setIsLoginOpen(true)}
-                  className="justify-start text-foreground hover:text-primary"
+                  size="icon"
+                  onClick={() => setIsMenuOpen(false)}
                 >
-                  Signin
+                  <X className="w-6 h-6" />
                 </Button>
-                <Link href="/chat">
-                  <Button className="justify-start bg-primary text-white hover:bg-primary/90 rounded-full px-6 transition-transform transform hover:scale-105 active:scale-95">
+              </div>
+
+              <div className="flex-1 p-4 flex flex-col gap-4">
+                {user ? (
+                  <>
+                    <div className="flex items-center gap-2">
+                      <Image
+                        src={user.avatar || "/default-avatar.png"}
+                        alt={user.name}
+                        width={40}
+                        height={40}
+                        className="rounded-full"
+                      />
+                      <span className="font-medium">{user.name}</span>
+                    </div>
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        logout()
+                        setIsMenuOpen(false)
+                      }}
+                    >
+                      Logout
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        openLogin()
+                        setIsMenuOpen(false)
+                      }}
+                    >
+                      Sign In
+                    </Button>                    
+                  </>
+                )}
+
+                {/* Link khác (vd: Chat) */}
+                <Link href="/chat" onClick={() => setIsMenuOpen(false)}>
+                  <Button variant="ghost" className="w-full bg-primary text-white rounded-full px-6">
                     Get Started
                   </Button>
                 </Link>
-              </nav>
-            </div>
-          )}
-        </div>
-      </header>
-
-      <LoginModal
-        isOpen={isLoginOpen}
-        onClose={() => setIsLoginOpen(false)}
-        onSwitchToSignUp={() => {
-          setIsLoginOpen(false)
-          setIsSignUpOpen(true)
-        }}
-      />
-      <SignUpModal
-        isOpen={isSignUpOpen}
-        onClose={() => setIsSignUpOpen(false)}
-        onSwitchToLogin={() => {
-          setIsSignUpOpen(false)
-          setIsLoginOpen(true)
-        }}
-      />
-    </>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+    </header>
   )
 }

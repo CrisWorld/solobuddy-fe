@@ -1,0 +1,103 @@
+'use client'
+
+import { endpoints } from "@/config";
+import { baseApi } from "../base";
+import webLocalStorage from "@/lib/webLocalStorage";
+
+interface RegisterRequest {
+  name: string;
+  email: string;
+  password: string;
+}
+
+interface LoginRequest {
+  email: string;
+  password: string;
+}
+
+interface AuthResponse {
+  user: {
+    id: string;
+    email: string;
+    name: string;
+    role: string;
+  };
+  tokens: {
+    access: {
+      token: string;
+      expires: string;
+    };
+    refresh: {
+      token: string;
+      expires: string;
+    };
+  };
+}
+
+interface LogoutRequest {
+  refreshToken: string;
+}
+
+export const authApi = baseApi.injectEndpoints({
+  endpoints: (build) => ({
+    register: build.mutation<AuthResponse, RegisterRequest>({
+      query: (body) => ({
+        url: `${endpoints.authEndpoints.REGISTER}`,
+        method: "POST",
+        body,
+      }),
+      extraOptions: { skipAuth: true },
+      async onQueryStarted(arg, { queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled;
+          webLocalStorage.set("tokens", data.tokens);
+          webLocalStorage.set("user", data.user);
+        } catch (err) {
+          console.error("Register failed", err);
+        }
+      },
+    }),
+
+    login: build.mutation<AuthResponse, LoginRequest>({
+      query: (body) => ({
+        url: `${endpoints.authEndpoints.LOGIN}`,
+        method: "POST",
+        body,
+      }),
+      extraOptions: { skipAuth: true },
+      async onQueryStarted(arg, { queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled;
+          webLocalStorage.set("tokens", data.tokens);
+          webLocalStorage.set("user", data.user);
+        } catch (err) {
+          console.error("Login failed", err);
+        }
+      },
+    }),
+
+    logout: build.mutation<void, LogoutRequest>({
+      query: (body) => ({
+        url: `${endpoints.authEndpoints.LOGOUT}`,
+        method: "POST",
+        body,
+      }),
+      extraOptions: { skipAuth: false },
+      async onQueryStarted(arg, { queryFulfilled }) {
+        try {
+          await queryFulfilled;
+          localStorage.removeItem("tokens");
+          localStorage.removeItem("user");
+        } catch (err) {
+          console.error("Logout failed", err);
+        }
+      },
+    }),
+  }),
+});
+
+export const {
+  useRegisterMutation,
+  useLoginMutation,
+  useLogoutMutation,
+} = authApi;

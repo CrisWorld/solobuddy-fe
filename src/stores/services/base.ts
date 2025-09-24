@@ -1,5 +1,5 @@
 import { constants } from "@/config";
-import webStorageClient from "@/utils/cookieStorageClient";
+import webStorageClient from "@/lib/cookieStorageClient";
 import { createApi, fetchBaseQuery, BaseQueryFn } from "@reduxjs/toolkit/query/react";
 import { FetchArgs, FetchBaseQueryError } from '@reduxjs/toolkit/query';
 

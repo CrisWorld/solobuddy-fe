@@ -1,7 +1,11 @@
 "use client"
 
+import { store } from "@/stores"
 import { TourGuide } from "@/stores/types/types"
 import { createContext, useContext, useState, type ReactNode } from "react"
+import { Provider } from "react-redux"
+import { useToast } from "./useToast"
+import { ToastContainer } from "@/components/common/toast-message"
 
 type Page = "chat" | "tour-guide" | "favourite" | "journey" | "profile"
 
@@ -19,6 +23,8 @@ interface AppContextType {
   }>
   addBookedTour: (tour: any) => void
   allTourGuides: TourGuide[]
+  showToast: (message: string, type?: "success" | "error" | "info") => void
+  removeToast: (id: string) => void
 }
 
 const allTourGuides: TourGuide[] = [
@@ -94,15 +100,15 @@ const allTourGuides: TourGuide[] = [
 const AppContext = createContext<AppContextType | undefined>(undefined)
 
 export function AppProvider({ children }: { children: ReactNode }) {
-  const [currentPage, setCurrentPage] = useState<Page>("chat")
-  const [favouriteGuides, setFavouriteGuides] = useState<number[]>([])
+  const [currentPage, setCurrentPage] = useState<Page>("chat");
+  const [favouriteGuides, setFavouriteGuides] = useState<number[]>([]);
   const [bookedTours, setBookedTours] = useState<
     Array<{
-      id: number
-      guideName: string
-      location: string
-      date: string
-      status: "upcoming" | "completed"
+      id: number;
+      guideName: string;
+      location: string;
+      date: string;
+      status: "upcoming" | "completed";
     }>
   >([
     {
@@ -112,15 +118,20 @@ export function AppProvider({ children }: { children: ReactNode }) {
       date: "2024-01-15",
       status: "upcoming",
     },
-  ])
+  ]);
+
+  // Toast hook
+  const toast = useToast();
 
   const toggleFavourite = (guideId: number) => {
-    setFavouriteGuides((prev) => (prev.includes(guideId) ? prev.filter((id) => id !== guideId) : [...prev, guideId]))
-  }
+    setFavouriteGuides((prev) =>
+      prev.includes(guideId) ? prev.filter((id) => id !== guideId) : [...prev, guideId]
+    );
+  };
 
   const addBookedTour = (tour: any) => {
-    setBookedTours((prev) => [...prev, tour])
-  }
+    setBookedTours((prev) => [...prev, tour]);
+  };
 
   return (
     <AppContext.Provider
@@ -131,12 +142,17 @@ export function AppProvider({ children }: { children: ReactNode }) {
         toggleFavourite,
         bookedTours,
         addBookedTour,
-        allTourGuides
+        allTourGuides,
+        showToast: toast.showToast,
+        removeToast: toast.removeToast,
       }}
     >
-      {children}
+      <Provider store={store}>
+        {children}
+        <ToastContainer toasts={toast.toasts} onRemove={toast.removeToast} />
+      </Provider>
     </AppContext.Provider>
-  )
+  );
 }
 
 export function useApp() {

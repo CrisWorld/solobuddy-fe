@@ -14,6 +14,7 @@ import {
 } from "lucide-react"
 import { format } from "date-fns"
 import { useApp } from "@/lib/app-context"
+import { formatPrice } from "@/lib/utils"
 
 // Mock data như cũ
 const getTourGuideDetails = (id: number) => {
@@ -25,7 +26,7 @@ const getTourGuideDetails = (id: number) => {
       rating: 4.94,
       reviews: 360,
       location: "Da Nang City, Vietnam",
-      price: 49.92,
+      price: 950000,
       joinedYear: 2024,
       isVerified: true,
       isQualityChecked: true,
@@ -57,7 +58,7 @@ I specialize in cultural experiences, photography tours, and culinary adventures
           image: "/da-nang-street-food.jpg",
           rating: 4.95,
           reviews: 68,
-          price: 29,
+          price: 500000,
         },
         {
           id: 2,
@@ -66,7 +67,7 @@ I specialize in cultural experiences, photography tours, and culinary adventures
           image: "/hue-imperial-city.jpg",
           rating: 4.92,
           reviews: 76,
-          price: 40,
+          price: 200000,
         },
         {
           id: 3,
@@ -75,7 +76,7 @@ I specialize in cultural experiences, photography tours, and culinary adventures
           image: "/hoi-an-lanterns.jpg",
           rating: 4.85,
           reviews: 94,
-          price: 25,
+          price: 200000,
         },
         {
           id: 4,
@@ -85,7 +86,7 @@ I specialize in cultural experiences, photography tours, and culinary adventures
           image: "/ba-na-hills-golden-bridge.jpg",
           rating: 4.88,
           reviews: 131,
-          price: 55,
+          price: 200000,
         },
       ],
       userReviews: [
@@ -213,7 +214,7 @@ export function TourGuideDetailPage({ guideId }: { guideId: number }) {
                     </div>
 
                     <div className="text-right mt-4">
-                      <div className="text-2xl font-bold text-foreground">${guide.price}</div>
+                      <div className="text-2xl font-bold text-foreground">{formatPrice(guide.price)}</div>
                       <div className="text-sm text-muted-foreground">/ day</div>
                     </div>
                   </div>
@@ -298,7 +299,7 @@ export function TourGuideDetailPage({ guideId }: { guideId: number }) {
                             <span className="text-xs font-medium">{tour.rating}</span>
                             <span className="text-xs text-muted-foreground">({tour.reviews})</span>
                           </div>
-                          <div className="text-sm font-bold text-foreground">${tour.price} / day</div>
+                          <div className="text-sm font-bold text-foreground">{formatPrice(tour.price)} / day</div>
                         </div>
                       </div>
                     </div>
@@ -430,11 +431,6 @@ export function TourGuideDetailPage({ guideId }: { guideId: number }) {
                     onClick={handleBookNow}
                   >
                     Book Now
-                  </Button>
-
-                  <Button variant="outline" className="w-full mb-6 bg-transparent" onClick={handleQuickMessage}>
-                    <MessageCircle className="h-4 w-4 mr-2" />
-                    Quick Message
                   </Button>
 
                   {/* Guide Info */}
