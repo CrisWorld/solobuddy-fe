@@ -11,10 +11,16 @@ const authEndpoints = {
   LOGIN: '/auth/login',
   LOGOUT: '/auth/logout',
 };
-
+const tourGuideEndpoints = {
+  GET_TOUR_GUIDES: '/tour-guides',
+  GET_TOUR_GUIDE_BY_ID: '' ,
+  BOOK_TOUR: '',
+  GET_BOOKED_TOURS: '' ,
+};
 export default {
   demoEndpoints,
   geminiEndpoints,
-  authEndpoints
+  authEndpoints,
+  tourGuideEndpoints,
 }
 

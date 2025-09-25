@@ -1,33 +1,149 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Search } from "lucide-react"
-import { useApp } from "@/lib/app-context"
 import { TourGuideCard } from "@/components/common/tour-guide-card"
+import { useDebounce } from "@/lib/useDebounce"
+import { TourGuideRequest, useGetTourGuidesMutation } from "@/stores/services/tour-guide/tour-guide"
+import { TourGuide } from "@/stores/types/types"
+import { formatLanguage, formatLocation, formatSpecialty, formatVehicle, languages, locations, specialtyTypes, vehicleTypes } from "@/lib/utils"
+import { Button } from "@/components/ui/button"
 
 export function TourGuidePage() {
-  const [searchQuery, setSearchQuery] = useState("")
-  const [locationFilter, setLocationFilter] = useState("all")
-  const [specialtyFilter, setSpecialtyFilter] = useState("all")
-  const { favouriteGuides, toggleFavourite } = useApp()
-  const { allTourGuides} = useApp();
-  const filteredGuides = allTourGuides.filter((guide) => {
-    const matchesSearch =
-      guide.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      guide.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      guide.specialties.some((s) => s.toLowerCase().includes(searchQuery.toLowerCase()))
+  const [tourGuides, setTourGuides] = useState<TourGuide[]>([])
+  const [currentPage, setCurrentPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
+  const [totalResults, setTotalResults] = useState(0)
+  const [limit, setLimit] = useState(6)
+  const [isFetching, setIsFetching] = useState(false)
+  const [isLoadingMore, setIsLoadingMore] = useState(false)
 
-    const matchesLocation = locationFilter === "all" || guide.location === locationFilter
-    const matchesSpecialty = specialtyFilter === "all" || guide.specialties.includes(specialtyFilter)
 
-    return matchesSearch && matchesLocation && matchesSpecialty
-  })
 
-  const locations = Array.from(new Set(allTourGuides.map((guide) => guide.location)))
-  const specialties = Array.from(new Set(allTourGuides.flatMap((guide) => guide.specialties)))
+  // Filter states
+  const [experienceYears, setExperienceYears] = useState<string>("any")
+  const [location, setLocation] = useState<string>("all")
+  const [priceRange, setPriceRange] = useState<string>("any")
+  const [vehicle, setVehicle] = useState<string>("all")
+  const [specialty, setSpecialty] = useState<string>("all")
+  const [language, setLanguage] = useState<string>("all")
+  const [searchName, setSearchName] = useState<string>("")
+  const debouncedSearch = useDebounce(searchName, 500)
 
+  const [getTourGuides] = useGetTourGuidesMutation()
+
+  const buildFilterRequest = (page: number): TourGuideRequest => {
+    const filter: any = {}
+
+    if (experienceYears && experienceYears !== "any") {
+      const [min] = experienceYears.split('-').map(Number)
+      filter.experienceYears = { operator: "$gte", value: min }
+    }
+
+    if (location && location !== "all") {
+      filter.location = { operator: "$eq", value: location }
+    }
+
+    if (language && language !== "all") {
+      filter.languages = { operator: "$in", value: [language] }
+    }
+
+    if (priceRange && priceRange !== "any") {
+      const [min] = priceRange.split('-').map(Number)
+      filter.pricePerDay = { operator: "$gte", value: min }
+    }
+
+    if (vehicle && vehicle !== "all") {
+      filter.vehicle = { operator: "$eq", value: vehicle }
+    }
+
+    if (specialty && specialty !== "all") {
+      filter.specialties = { operator: "$in", value: [specialty] }
+    }
+
+    if (debouncedSearch.trim()) {
+      filter['user.name'] = { operator: "$regex", value: debouncedSearch.trim() }
+    }
+
+    return {
+      filter: Object.keys(filter).length > 0 ? filter : undefined,
+      options: {
+        sortBy: "createdAt",
+        limit,
+        page
+      }
+    }
+  }
+
+  const fetchNewFilter = async () => {
+    if (isFetching) return;
+    setIsFetching(true);
+
+    try {
+      const request = buildFilterRequest(1);
+      
+      const response = await getTourGuides(request).unwrap();
+      
+      setTourGuides(response.results); 
+      setTotalPages(response.totalPages);
+      setTotalResults(response.totalResults);
+    } catch (error) {
+      console.error("Failed to fetch tour guides:", error);
+    } finally {
+      setIsFetching(false);
+    }
+  };
+
+  const fetchMoreGuides = async () => {
+    if (isLoadingMore) return;
+    setIsLoadingMore(true);
+
+    try {
+      const request = buildFilterRequest(currentPage);
+      const response = await getTourGuides(request).unwrap();
+
+      setTourGuides(prev => [...prev, ...response.results]); // Thêm vào danh sách hiện có
+      setTotalPages(response.totalPages);
+      setTotalResults(response.totalResults);
+    } catch (error) {
+      console.error("Failed to fetch more tour guides:", error);
+    } finally {
+      setIsLoadingMore(false);
+    }
+  };
+
+  // Sửa lại phần effects
+  // Effect cho initial load và filter changes
+  useEffect(() => {
+    if (isFetching) return;
+    setCurrentPage(1);
+    fetchNewFilter();
+  }, [experienceYears, location, language, priceRange, vehicle, specialty, debouncedSearch]);
+
+  // Effect riêng cho load more
+  useEffect(() => {
+    if (currentPage > 1) {
+      fetchMoreGuides();
+    }
+  }, [currentPage])
+
+  const handleLoadMore = () => {
+    if (currentPage < totalPages && !isLoadingMore) {
+      setCurrentPage(prev => prev + 1)
+    }
+  }
+
+  const resetFilters = () => {
+    setExperienceYears("any")
+    setLocation("all")
+    setPriceRange("any")
+    setVehicle("all")
+    setSpecialty("all")
+    setLanguage("all")
+    setSearchName("")
+  }
   return (
     <div className="flex-1 flex flex-col bg-gray-50">
       {/* Header */}
@@ -38,43 +154,97 @@ export function TourGuidePage() {
           {/* Search and Filters */}
           <div className="flex flex-col md:flex-row gap-4">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Search guides, locations, or specialties..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
+                type="text"
+                placeholder="Search by name..."
+                value={searchName}
+                onChange={(e) => setSearchName(e.target.value)}
+                className="w-56"
               />
             </div>
 
             <div className="flex gap-2">
-              <Select value={locationFilter} onValueChange={setLocationFilter}>
-                <SelectTrigger className="w-40">
+              <Select value={location} onValueChange={setLocation}>
+                <SelectTrigger className="w-32">
                   <SelectValue placeholder="Location" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Locations</SelectItem>
-                  {locations.map((location) => (
-                    <SelectItem key={location} value={location}>
-                      {location}
+                  {locations.map(loc => (
+                    <SelectItem key={loc} value={loc}>
+                      {formatLocation(loc)}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
 
-              <Select value={specialtyFilter} onValueChange={setSpecialtyFilter}>
+              {/* Language */}
+              <Select value={language} onValueChange={setLanguage}>
+                <SelectTrigger className="w-32">
+                  <SelectValue placeholder="Language" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Languages</SelectItem>
+                  {languages.map(lang => (
+                    <SelectItem key={lang} value={lang}>
+                      {formatLanguage(lang)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              {/* Price Range */}
+              <Select value={priceRange} onValueChange={setPriceRange}>
+                <SelectTrigger className="w-32">
+                  <SelectValue placeholder="Price" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="any">Any Price</SelectItem>
+                  <SelectItem value="50">From $50</SelectItem>
+                  <SelectItem value="100">From $100</SelectItem>
+                  <SelectItem value="150">From $150</SelectItem>
+                  <SelectItem value="200">From $200</SelectItem>
+                </SelectContent>
+              </Select>
+
+              {/* Vehicle */}
+              <Select value={vehicle} onValueChange={setVehicle}>
+                <SelectTrigger className="w-32">
+                  <SelectValue placeholder="Vehicle" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Any Vehicle</SelectItem>
+                  {vehicleTypes.map(v => (
+                    <SelectItem key={v} value={v}>
+                      {formatVehicle(v)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              {/* Specialty */}
+              <Select value={specialty} onValueChange={setSpecialty}>
                 <SelectTrigger className="w-40">
                   <SelectValue placeholder="Specialty" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Specialties</SelectItem>
-                  {specialties.map((specialty) => (
-                    <SelectItem key={specialty} value={specialty}>
-                      {specialty}
+                  {specialtyTypes.map(s => (
+                    <SelectItem key={s} value={s}>
+                      {formatSpecialty(s)}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
+
+              {/* Reset Filters */}
+              <Button
+                variant="outline"
+                onClick={resetFilters}
+                className="px-4"
+              >
+                Reset Filters
+              </Button>
             </div>
           </div>
         </div>
@@ -84,25 +254,45 @@ export function TourGuidePage() {
       <div className="flex-1 p-6 overflow-y-auto">
         <div className="max-w-6xl mx-auto">
           <div className="mb-4 text-sm text-muted-foreground">
-            Showing {filteredGuides.length} of {allTourGuides.length} tour guides
+            Showing {tourGuides.length} of {totalResults} tour guides
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredGuides.map((guide) => (
+            {tourGuides.map((guide) => (
               <TourGuideCard
                 key={guide.id}
                 guide={guide}
                 variant="list"
-                isFavorite={favouriteGuides.includes(guide.id)}
-                onToggleFavorite={toggleFavourite}
+                isFavorite={false}
+                onToggleFavorite={() => { }}
               />
             ))}
           </div>
 
-          {filteredGuides.length === 0 && (
+          {tourGuides.length === 0 && (
             <div className="text-center py-12">
               <div className="text-muted-foreground mb-2">No tour guides found</div>
               <div className="text-sm text-muted-foreground">Try adjusting your search or filters</div>
+            </div>
+          )}
+          {/* Load More Button */}
+          {tourGuides.length > 0 && currentPage < totalPages && (
+            <div className="text-center">
+              <Button
+                variant="outline"
+                size="lg"
+                className="bg-black text-black hover:bg-gray-800 rounded-full px-8"
+                onClick={handleLoadMore}
+                disabled={isLoadingMore}
+              >
+                <div className="w-6 h-6 grid grid-cols-2 gap-0.5 mr-2">
+                  <div className="w-2 h-2 bg-black rounded-full"></div>
+                  <div className="w-2 h-2 bg-black rounded-full"></div>
+                  <div className="w-2 h-2 bg-black rounded-full"></div>
+                  <div className="w-2 h-2 bg-black rounded-full"></div>
+                </div>
+                {isLoadingMore ? 'Loading...' : 'Load More Tour Guides'}
+              </Button>
             </div>
           )}
         </div>

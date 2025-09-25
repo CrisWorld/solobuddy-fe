@@ -6,7 +6,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Star, Heart, MapPin } from "lucide-react"
 import { useRouter } from "next/navigation"
-import { formatPrice } from "@/lib/utils"
+import { formatLanguage, formatLocation, formatPrice, formatSpecialty } from "@/lib/utils"
 
 export interface TourGuideData {
     id: number
@@ -83,14 +83,14 @@ export function TourGuideCard({
                             {guide.name}
                         </h3>
                         <span className="text-base font-bold text-foreground">
-                            {formatPrice(guide.price)}
+                            {formatPrice(guide.price)+"/day"}
                         </span>
                     </div>
 
                     {/* Availability + location */}
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                         <MapPin className="w-4 h-4 ml-2" />
-                        <span>{guide.location}</span>
+                        <span>{formatLocation(guide.location)}</span>
                     </div>
 
                     {/* Languages */}
@@ -102,7 +102,7 @@ export function TourGuideCard({
                                     variant="outline"
                                     className="text-[11px] px-2 py-0.5"
                                 >
-                                    {lang}
+                                    {formatLanguage(lang)}
                                 </Badge>
                             ))}
                         </div>
@@ -117,7 +117,7 @@ export function TourGuideCard({
                                     variant="secondary"
                                     className="text-[11px] px-2 py-0.5"
                                 >
-                                    {specialty}
+                                    {formatSpecialty(specialty)}
                                 </Badge>
                             ))}
                         </div>
@@ -163,7 +163,7 @@ export function TourGuideCard({
                                 <h3 className="font-semibold text-foreground truncate">{guide.name}</h3>
                                 <div className="flex items-center gap-1 text-sm text-muted-foreground mt-1">
                                     <MapPin className="h-3 w-3 flex-shrink-0" />
-                                    <span className="truncate">{guide.location}</span>
+                                    <span className="truncate">{formatLocation(guide.location)}</span>
                                 </div>
                             </div>
 
@@ -185,7 +185,7 @@ export function TourGuideCard({
                                 <span className="text-sm font-medium">{guide.rating}</span>
                             </div>
                             <span className="text-sm text-muted-foreground">•</span>
-                            <span className="text-sm font-medium text-primary">{formatPrice(guide.price)}</span>
+                            <span className="text-sm font-medium text-primary">{formatPrice(guide.price)+"/day"}</span>
                         </div>
 
                         {guide.description && (
@@ -195,7 +195,7 @@ export function TourGuideCard({
                         <div className="flex flex-wrap gap-1 mt-3">
                             {guide.languages.slice(0, 2).map((lang) => (
                                 <Badge key={lang} variant="secondary" className="text-xs">
-                                    {lang}
+                                    {formatLanguage(lang)}
                                 </Badge>
                             ))}
                             {guide.languages.length > 2 && (
@@ -208,7 +208,7 @@ export function TourGuideCard({
                         <div className="flex flex-wrap gap-1 mt-2">
                             {guide.specialties.slice(0, 3).map((specialty) => (
                                 <Badge key={specialty} variant="outline" className="text-xs">
-                                    {specialty}
+                                    {formatSpecialty(specialty)}
                                 </Badge>
                             ))}
                         </div>
