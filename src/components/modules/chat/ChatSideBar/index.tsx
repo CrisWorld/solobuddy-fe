@@ -11,10 +11,12 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { MessageCircle, MapPin, Heart, Route, User, LogOut } from "lucide-react"
 import { Logo } from "@/components/common/Logo"
+import { useAuth } from "@/components/layout/AuthLayout"
 
 export function ChatSidebar() {
   const pathname = usePathname()
   const router = useRouter()
+  const { user, logout, openLogin } = useAuth()
 
   const menuItems = [
     { id: "chat", label: "Chat", icon: MessageCircle, href: "/chat" },
@@ -57,10 +59,20 @@ export function ChatSidebar() {
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="w-full justify-start gap-3 h-10">
               <Avatar className="h-6 w-6">
-                <AvatarImage src="/placeholder.svg?height=24&width=24" />
-                <AvatarFallback>AR</AvatarFallback>
+                <Image
+                  src={user?.avatar || "/default-avatar.png"}
+                  alt={user?.name || "Traveler"}
+                  width={24}
+                  height={24}
+                  className="rounded-full"
+                />
+                <AvatarFallback>
+                  {user?.name?.[0]?.toUpperCase() || "T"}
+                </AvatarFallback>
               </Avatar>
-              <span className="text-sm">Alexa Rawles</span>
+              <span className="text-sm truncate">
+                {user?.name || "Traveler"}
+              </span>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-48">
@@ -68,10 +80,17 @@ export function ChatSidebar() {
               <User className="h-4 w-4 mr-2" />
               Profile
             </DropdownMenuItem>
-            <DropdownMenuItem>
-              <LogOut className="h-4 w-4 mr-2" />
-              Logout
-            </DropdownMenuItem>
+            {user ? (
+              <DropdownMenuItem onClick={logout}>
+                <LogOut className="h-4 w-4 mr-2" />
+                Logout
+              </DropdownMenuItem>
+            ) : (
+              <DropdownMenuItem onClick={openLogin}>
+                <LogOut className="h-4 w-4 mr-2" />
+                Sign In
+              </DropdownMenuItem>
+            )}
           </DropdownMenuContent>
         </DropdownMenu>
       </div>

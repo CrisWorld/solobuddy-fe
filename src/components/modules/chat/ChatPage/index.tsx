@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Card, CardContent } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
-import { Plus, Send, Star, MapPin, Heart, ChevronDown, ChevronUp } from "lucide-react"
+import { Plus, Send, Star, MapPin, Heart, ChevronDown, ChevronUp, MessageCircle } from "lucide-react"
 import { useApp } from "@/lib/app-context"
 import { SuggestionCard } from "@/components/common/suggestion-card"
 import { TourGuide } from "@/stores/types/types"
@@ -79,7 +79,7 @@ export function ChatContent() {
         tourGuides: response.guides.mappedResults
       }
       setMessages(prev => [...prev, aiMessage])
-      
+
       // Auto-collapse if there are more than 2 guides
       setExpandedResponses(prev => ({
         ...prev,
@@ -108,29 +108,59 @@ export function ChatContent() {
     }
   }
 
+  const handleNewChat = () => {
+    setMessages([]);
+    setMessage("");
+    setExpandedResponses({});
+  };
+
   return (
-    <div className="flex-1 flex flex-col bg-[#f5f7fb]"> {/* Updated background color */}
-      {/* Header */}
+    <div className="flex-1 flex flex-col bg-[#f5f7fb]">
+      {/* Header - Updated */}
       <div className="bg-white border-b border-border p-4 shadow-sm">
-        <div className="max-w-2xl mx-auto flex items-center justify-between">
-          <Button variant="outline" className="gap-2 bg-transparent hover:bg-gray-50">
+        <div className="flex items-center justify-between">
+          <h1 className="text-2xl font-bold text-foreground">AI Assistant</h1>
+          <Button
+            variant="outline"
+            className="gap-2 bg-transparent hover:bg-gray-50"
+            onClick={handleNewChat}
+          >
             <Plus className="h-4 w-4" />
             New chat
           </Button>
-          <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon" className="hover:bg-gray-50">
-              <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <circle cx="12" cy="12" r="3" />
-                <path d="M12 1v6m0 6v6m11-7h-6m-6 0H1" />
-              </svg>
-            </Button>
-          </div>
         </div>
       </div>
 
+
+
       {/* Chat Messages */}
       <div className="flex-1 p-4 md:p-6 overflow-y-auto">
-        <div className="max-w-2xl mx-auto space-y-4"> {/* Reduced spacing */}
+        <div className="max-w-2xl mx-auto space-y-4">
+          {/* Welcome Banner - New */}
+          {messages.length === 0 && (
+            <div className="flex flex-col items-center justify-center py-8 px-4 text-center">
+              <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center mb-4">
+                <MessageCircle className="h-6 w-6 text-primary" />
+              </div>
+              <h2 className="text-lg font-semibold mb-2">
+                Welcome to SoloBuddy Assistant!
+              </h2>
+              <p className="text-sm text-muted-foreground max-w-md">
+                I'm here to help you find the perfect tour guide.
+                Ask me anything about locations, languages, specialties, or specific requirements!
+              </p>
+              <div className="mt-4 p-3 bg-white rounded-lg shadow-sm">
+                <p className="text-sm font-medium mb-2">Try asking:</p>
+                <div className="space-y-2 text-sm text-muted-foreground">
+                  <p>"Find me an English-speaking guide in Vietnam"</p>
+                  <p>"I need a guide who specializes in food tours"</p>
+                  <p>"Show guides with experience over 5 years"</p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Existing messages */}
           {messages.map((msg) => (
             <div key={msg.id}>
               {msg.type === "user" ? (
@@ -193,6 +223,7 @@ export function ChatContent() {
             </div>
           ))}
 
+          {/* Existing loading state */}
           {isLoading && (
             <div className="flex gap-3">
               <Avatar className="h-8 w-8 mt-1 flex-shrink-0 ring-2 ring-primary/10">
@@ -215,7 +246,7 @@ export function ChatContent() {
         </div>
       </div>
 
-      {/* Message Input */}
+      {/* Existing message input */}
       <div className="bg-white border-t border-border p-4 shadow-sm">
         <div className="max-w-2xl mx-auto">
           <div className="flex gap-2">
