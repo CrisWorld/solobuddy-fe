@@ -1,80 +1,102 @@
 'use client'
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { endpoints } from "@/config";
-export interface MessageType {
-    role: string,
-    parts: [{ text: string }],
+import { TourGuide } from "@/stores/types/types";
+import { baseApi } from "../base";
+
+// Define types for the request and response
+interface Message {
+  role: string;
+  text: string;
 }
 
-const generateConfig = {
-    "generationConfig": {
-        "response_mime_type": "application/json",
-        "response_schema": {
-            "type": "object",
-            "properties": {
-                "response_text": {
-                    "type": "string",
-                    "description": "Phản hồi từ AI về tình trạng của bệnh nhân"
-                },
-                "suggested_specialty": {
-                    "type": "array",
-                    "items": {
-                        "type": "object",
-                        "properties": {
-                            "id": {
-                                "type": "string",
-                                "description": "ID của chuyên khoa được AI gợi ý từ danh sách"
-                            },
-                            "specialtyName": {
-                                "type": "string",
-                                "description": "Tên chuyên khoa được AI gợi ý từ danh sách"
-                            },
-                            "constant": {
-                                "type": "string",
-                                "description": "Chuyên khoa được AI gợi ý từ danh sách"
-                            }
-                        },
-                    },
-                    "description": "Các chuyên khoa được AI gợi ý từ danh sách, có thể gợi ý nhiều chuyên khoa. Lưu ý: chỉ gợi ý khi bệnh nhân có vấn đề sức khỏe và cần một cuộc hẹn với bác sĩ chuyên khoa"
-                }
-            },
-            "required": ["response_text", "suggested_specialty"]
-        }
-    }
+interface MongoFilter {
+  [key: string]: {
+    operator: string;
+    value: any;
+  };
 }
 
-export const geminiApis = createApi({
-    reducerPath: 'geminiApis', // Đặt tên cho reducer
-    baseQuery: fetchBaseQuery({
-        baseUrl: `${endpoints.geminiEndpoints.TEXT_GENERATION}`, // Đặt baseUrl cho API
+interface AIResponse {
+  response_text: string;
+  mongo_filter: MongoFilter;
+}
+
+// Define API response interface
+interface APITourGuide {
+  _id: string;
+  languages: string[];
+  photos: string[];
+  ratingAvg: number;
+  ratingCount: number;
+  isActive: boolean;
+  availableDates: string[];
+  specialties: string[];
+  userId: string;
+  bio: string;
+  pricePerDay: number;
+  location: string;
+  experienceYears: number;
+  vehicle: string;
+  favourites: any[];
+  createdAt: string;
+  updatedAt: string;
+  user: {
+    name: string;
+    email: string;
+  };
+}
+
+// Add mapping function
+const mapAPIToTourGuide = (apiGuide: APITourGuide): TourGuide => {
+  return {
+    id: parseInt(apiGuide._id.substring(18), 16), // Convert last 6 chars of _id to number
+    name: apiGuide.user.name,
+    location: apiGuide.location,
+    price: apiGuide.pricePerDay,
+    rating: apiGuide.ratingAvg,
+    languages: apiGuide.languages,
+    specialties: apiGuide.specialties,
+    avatar: '/default-avatar.png', // Use first photo as avatar or empty string
+    description: apiGuide.bio
+  };
+};
+
+interface GuideResponse {
+  results: APITourGuide[]; // Change to APITourGuide
+  page: number;
+  limit: number;
+  totalPages: number;
+  totalResults: number;
+}
+
+interface AnswerResponse {
+  response: AIResponse;
+  guides: GuideResponse;
+}
+
+// Create the API endpoint with mapping
+export const geminiApi = baseApi.injectEndpoints({
+  endpoints: (build) => ({
+    postAnswer: build.mutation<{ response: AIResponse; guides: GuideResponse & { mappedResults: TourGuide[] } }, { messages: Message[] }>({
+      query: (body) => ({
+        url: endpoints.geminiEndpoints.SEND_MESSAGE,
+        method: 'POST',
+        body,
+      }),
+      transformResponse: (response: { response: AIResponse; guides: GuideResponse }) => {
+        return {
+          ...response,
+          guides: {
+            ...response.guides,
+            mappedResults: response.guides.results.map(mapAPIToTourGuide)
+          }
+        };
+      },
     }),
-    endpoints: (build) => ({
-        postAnswer: build.mutation<any, { messages: MessageType[] }>({
-            query: (params) => ({
-                url: `?key=${process.env.NEXT_PUBLIC_GEMINI_API_KEY}`,
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                flashError: true,
-                body: {
-                    contents: params.messages.map((message) => {
-                        return {
-                            role: message.role,
-                            parts: message.parts.map((part) => {
-                                return {
-                                    text: part.text
-                                }
-                            })
-                        }
-                    }),
-                    ...generateConfig,
-                },
-            }),
-        }),
-    }),
+  }),
 });
 
 export const {
-    usePostAnswerMutation
-} = geminiApis;
+  usePostAnswerMutation
+} = geminiApi;

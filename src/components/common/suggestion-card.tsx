@@ -7,7 +7,8 @@ import { Button } from "@/components/ui/button"
 import { Heart, Star, MapPin } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { TourGuide } from "@/stores/types/types"
-import { formatPrice } from "@/lib/utils"
+import { formatLanguage, formatLocation, formatPrice, formatSpecialty } from "@/lib/utils"
+
 interface SuggestionCardProps {
   guide: TourGuide
   favouriteGuides: number[]
@@ -22,8 +23,9 @@ export function SuggestionCard({ guide, favouriteGuides, toggleFavourite }: Sugg
   }
 
   return (
-    <Card key={guide.id} className="bg-white shadow-sm">
-      <CardContent className="p-4">
+    <Card key={guide.id} className="bg-white shadow-sm relative">
+      {/* thêm pb-12 để chừa chỗ cho nút */}
+      <CardContent >
         <div className="flex items-start gap-4">
           <Avatar className="h-12 w-12">
             <AvatarImage src={guide.avatar || "/placeholder.svg"} />
@@ -41,7 +43,7 @@ export function SuggestionCard({ guide, favouriteGuides, toggleFavourite }: Sugg
                 <h3 className="font-semibold text-foreground">{guide.name}</h3>
                 <div className="flex items-center gap-1 text-sm text-muted-foreground mt-1">
                   <MapPin className="h-3 w-3" />
-                  {guide.location}
+                  {formatLocation(guide.location)}
                   <span className="mx-2">•</span>
                   <span>{formatPrice(guide.price)}</span>
                 </div>
@@ -72,7 +74,7 @@ export function SuggestionCard({ guide, favouriteGuides, toggleFavourite }: Sugg
             <div className="flex flex-wrap gap-2 mt-3">
               {guide.languages.map((lang) => (
                 <Badge key={lang} variant="secondary" className="text-xs">
-                  {lang}
+                  {formatLanguage(lang)}
                 </Badge>
               ))}
             </div>
@@ -80,21 +82,20 @@ export function SuggestionCard({ guide, favouriteGuides, toggleFavourite }: Sugg
             <div className="flex flex-wrap gap-2 mt-2">
               {guide.specialties.map((specialty) => (
                 <Badge key={specialty} variant="outline" className="text-xs">
-                  {specialty}
+                  {formatSpecialty(specialty)}
                 </Badge>
               ))}
             </div>
-
-            <div className="flex justify-end mt-3">
-              <Button
-                className="bg-primary text-primary-foreground hover:bg-primary/90"
-                onClick={handleDetail}
-              >
-                Detail
-              </Button>
-            </div>
           </div>
         </div>
+
+        {/* Button ở góc phải dưới */}
+        <Button
+          className="absolute bottom-4 right-4 bg-primary text-primary-foreground hover:bg-primary/90"
+          onClick={handleDetail}
+        >
+          Detail
+        </Button>
       </CardContent>
     </Card>
   )
