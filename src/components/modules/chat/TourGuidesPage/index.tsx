@@ -8,7 +8,7 @@ import { TourGuideCard } from "@/components/common/tour-guide-card"
 import { useDebounce } from "@/lib/useDebounce"
 import { TourGuideRequest, useGetTourGuidesMutation } from "@/stores/services/tour-guide/tour-guide"
 import { TourGuide } from "@/stores/types/types"
-import { formatLanguage, formatLocation, formatSpecialty, formatVehicle, languages, locations, specialtyTypes, vehicleTypes } from "@/lib/utils"
+import { createRegexPattern, formatLanguage, formatLocation, formatSpecialty, formatVehicle, languages, locations, specialtyTypes, vehicleTypes } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 
 export function TourGuidePage() {
@@ -30,7 +30,7 @@ export function TourGuidePage() {
   const [specialty, setSpecialty] = useState<string>("all")
   const [language, setLanguage] = useState<string>("all")
   const [searchName, setSearchName] = useState<string>("")
-  const debouncedSearch = useDebounce(searchName, 500)
+  const debouncedSearch = useDebounce(searchName, 300)
 
   const [getTourGuides] = useGetTourGuidesMutation()
 
@@ -64,7 +64,10 @@ export function TourGuidePage() {
     }
 
     if (debouncedSearch.trim()) {
-      filter['user.name'] = { operator: "$regex", value: debouncedSearch.trim() }
+      filter.user_name = {
+        operator: "$regex",
+        value: createRegexPattern(debouncedSearch)
+      }
     }
 
     return {
@@ -83,10 +86,10 @@ export function TourGuidePage() {
 
     try {
       const request = buildFilterRequest(1);
-      
+
       const response = await getTourGuides(request).unwrap();
-      
-      setTourGuides(response.results); 
+
+      setTourGuides(response.results);
       setTotalPages(response.totalPages);
       setTotalResults(response.totalResults);
     } catch (error) {

@@ -1,5 +1,9 @@
 import { TourGuideDetailPage } from "@/components/modules/chat/TourGuideDetailPage";
 
-export default function GuideDetailPage({ params }: { params: string }) {
-  return <TourGuideDetailPage guideId={Number(params)} />
+interface PageProps {
+    params: { guideId: string }
+}
+
+export default function GuideDetailPage({ params }: PageProps) {
+  return <TourGuideDetailPage guideId={params.guideId} />
 }

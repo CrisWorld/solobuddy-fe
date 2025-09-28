@@ -7,6 +7,9 @@ export function cn(...inputs: ClassValue[]) {
 // export const formatPrice = (price: number) => {
 //     return price.toLocaleString("vi-VN", { style: "currency", currency: "VND" })
 // }
+export const createRegexPattern = (searchTerm: string): string => {
+  return `.*${searchTerm.trim()}.*`;
+};
 
 // Backend constants
 export const vehicleTypes = ['car', 'van', 'bus', 'motorcycle', 'bicycle', 'walking', 'other']

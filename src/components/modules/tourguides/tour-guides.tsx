@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input"
 import { TourGuideCard } from "@/components/common/tour-guide-card"
 import { TourGuide } from "@/stores/types/types"
 import { TourGuideRequest, useGetTourGuidesMutation } from "@/stores/services/tour-guide/tour-guide"
-import { formatLanguage, formatLocation, formatSpecialty, formatVehicle, languages, vehicleTypes, locations, specialtyTypes } from "@/lib/utils"
+import { formatLanguage, formatLocation, formatSpecialty, formatVehicle, languages, vehicleTypes, locations, specialtyTypes, createRegexPattern } from "@/lib/utils"
 import { useDebounce } from "@/lib/useDebounce"
 import { set } from "lodash"
 
@@ -28,7 +28,7 @@ export function TourGuides() {
   const [specialty, setSpecialty] = useState<string>("all")
   const [language, setLanguage] = useState<string>("all")
   const [searchName, setSearchName] = useState<string>("")
-  const debouncedSearch = useDebounce(searchName, 500)
+  const debouncedSearch = useDebounce(searchName, 300)
 
   const [getTourGuides] = useGetTourGuidesMutation()
 
@@ -61,7 +61,10 @@ export function TourGuides() {
     }
 
     if (debouncedSearch.trim()) {
-      filter['user.name'] = { operator: "$regex", value: debouncedSearch.trim() }
+      filter.user_name = {
+        operator: "$regex",
+        value: createRegexPattern(debouncedSearch)
+      }
     }
 
     return {

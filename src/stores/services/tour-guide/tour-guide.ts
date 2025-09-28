@@ -2,7 +2,7 @@
 
 import { endpoints } from "@/config";
 import { baseApi } from "../base";
-import { TourGuide } from "@/stores/types/types";
+import { Favourite, TourGuide, UpdateResponse } from "@/stores/types/types";
 // payload khi gọi API
 export interface TourGuideFilter {
   [key: string]: {
@@ -50,6 +50,126 @@ export const mapTourGuideApiResponse = (res: any): TourGuideResponse => {
   }
 }
 
+
+
+// Add new interface for tour guide detail
+export interface TourGuideDetail {
+  id: string;
+  languages: string[];
+  photos: string[];
+  ratingAvg: number;
+  ratingCount: number;
+  isActive: boolean;
+  availableDates: string[];
+  specialties: string[];
+  userId: string;
+  bio: string;
+  pricePerDay: number;
+  location: string;
+  experienceYears: number;
+  vehicle: string;
+  favourites: Favourite[]; 
+  dayInWeek?: number[];
+  isRecur?: boolean;
+  user: {
+    id: string;
+    avatar?: string;
+    name: string;
+    email: string;
+    country?: string;
+  };
+}
+
+// Update mapping function to use the new type
+export const mapTourGuideDetailResponse = (data: any): TourGuideDetail => {
+  return {
+    id: data._id,
+    languages: data.languages || [],
+    photos: data.photos || [],
+    ratingAvg: data.ratingAvg || 0,
+    ratingCount: data.ratingCount || 0,
+    isActive: data.isActive || false,
+    availableDates: data.availableDates || [],
+    specialties: data.specialties || [],
+    userId: data.userId || "",
+    bio: data.bio || "",
+    pricePerDay: data.pricePerDay || 0,
+    location: data.location || "",
+    experienceYears: data.experienceYears || 0,
+    vehicle: data.vehicle || "",
+    favourites: (data.favourites || []) as Favourite[],
+    user: {
+      id: data.user?._id || "",
+      avatar: data.user?.avatar || "/default-avatar.png",
+      name: data.user?.name || "",
+      email: data.user?.email || ""
+    }
+  };
+};
+
+// Add interfaces for the new API
+export interface Tour {
+  id: string;
+  deleted: boolean;
+  title: string;
+  description: string;
+  price: number;
+  duration: string;
+  guideId: string;
+  unit?: string;
+}
+
+export interface GetToursByGuideRequest {
+  filter: {
+    guideId: string;
+  };
+  options: {
+    sortBy?: string;
+    limit?: number;
+    page?: number;
+    populate?: string;
+  };
+}
+
+export interface GetToursByGuideResponse {
+  results: Tour[];
+  page: number;
+  limit: number;
+  totalPages: number;
+  totalResults: number;
+}
+
+export interface CreateTourRequest {
+  title: string;
+  description: string;
+  price: number;
+  unit: string;
+  duration: string;
+}
+
+// interface cho request update
+export interface UpdateTourGuideProfileRequest {
+  bio?: string;
+  pricePerDay?: number;
+  location?: string;
+  languages?: string[];
+  experienceYears?: number;
+  photos?: string[];
+  vehicle?: string;
+  specialties?: string[];
+  favourites?: string[];
+}
+
+export interface UpdateAvailableDatesRequest {
+  addDates: string[];    // luôn có nhưng có thể []
+  removeDates: string[]; // luôn có nhưng có thể []
+}
+
+export interface UpdateWorkDaysRequest {
+  isRecur: boolean;
+  dayInWeek: number[]; // 0 -> 6
+}
+
 export const tourGuideApi = baseApi.injectEndpoints({
   endpoints: (build) => ({
     getTourGuides: build.mutation<TourGuideResponse, TourGuideRequest>({
@@ -60,7 +180,76 @@ export const tourGuideApi = baseApi.injectEndpoints({
       }),
       transformResponse: (response: any) => mapTourGuideApiResponse(response),
     }),
+    getTourGuideDetail: build.query<TourGuideDetail, string>({
+      query: (id) => ({
+        url: `${endpoints.tourGuideEndpoints.GET_TOUR_GUIDE_DETAIL}/${id}`,
+        method: "GET"
+      }),
+      transformResponse: (response: any) => mapTourGuideDetailResponse(response),
+    }),
+    getToursByGuide: build.mutation<GetToursByGuideResponse, GetToursByGuideRequest>({
+      query: (body) => ({
+        url: endpoints.tourEndpoints.GET_TOURS,
+        method: 'POST',
+        body
+      })
+    }),
+    createTour: build.mutation<Tour, CreateTourRequest>({
+      query: (body) => ({
+        url: endpoints.tourGuideEndpoints.CREATE_TOUR,
+        method: 'POST',
+        body
+      })
+    }),
+    // thêm API update profile (không cần id, đã có JWT xác thực)
+    updateTourGuideProfile: build.mutation<UpdateResponse, UpdateTourGuideProfileRequest>({
+      query: (body) => ({
+        url: endpoints.tourGuideEndpoints.UPDATE_TOUR_GUIDE_PROFILE,
+        method: "PATCH",
+        body,
+      }),
+      transformResponse: (response: any): UpdateResponse => {
+        if (response?.success) {
+          return { success: true };
+        }
+        return { success: false, message: response?.message || "Update failed" };
+      },
+    }),
+    updateAvailableDates: build.mutation<UpdateResponse, UpdateAvailableDatesRequest>({
+      query: (body) => ({
+        url: endpoints.tourGuideEndpoints.UPDATE_AVAILABLE_DATES,
+        method: "PATCH",
+        body,
+      }),
+      transformResponse: (response: any): UpdateResponse => {
+        if (response?.success) {
+          return { success: true };
+        }
+        return { success: false, message: response?.message || "Update available dates failed" };
+      },
+    }),
+    updateWorkDays: build.mutation<UpdateResponse, UpdateWorkDaysRequest>({
+      query: (body) => ({
+        url: endpoints.tourGuideEndpoints.UPDATE_WORK_DAYS,
+        method: "PATCH",
+        body,
+      }),
+      transformResponse: (response: any): UpdateResponse => {
+        if (response?.success) {
+          return { success: true };
+        }
+        return { success: false, message: response?.message || "Update work days failed" };
+      },
+    }),
   }),
-})
+});
 
-export const { useGetTourGuidesMutation } = tourGuideApi
+export const { 
+  useGetTourGuidesMutation,
+  useGetTourGuideDetailQuery,
+  useGetToursByGuideMutation,
+  useCreateTourMutation,
+  useUpdateTourGuideProfileMutation,
+  useUpdateAvailableDatesMutation,
+  useUpdateWorkDaysMutation
+} = tourGuideApi;

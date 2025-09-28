@@ -12,14 +12,29 @@ const authEndpoints = {
 };
 const tourGuideEndpoints = {
   GET_TOUR_GUIDES: '/tour-guides',
-  GET_TOUR_GUIDE_BY_ID: '',
+  GET_TOUR_GUIDE_DETAIL: '/tour-guides/detail',
+  CREATE_TOUR: '/tour-guides/tour',
+  UPDATE_TOUR_GUIDE_PROFILE: '/tour-guides/profile',
+  UPDATE_AVAILABLE_DATES: '/tour-guides/available-dates',
+  UPDATE_WORK_DAYS: '/tour-guides/work-days',
   BOOK_TOUR: '',
-  GET_BOOKED_TOURS: '',
 };
+const tourEndpoints = {
+  GET_TOURS: '/tours',
+}
+const reviewEndpoints = {
+  GET_REVIEWS: '/reviews',
+}
+const userEndpoints = {
+  GET_PROFILE: '/users/private/me',
+}
 export default {
   demoEndpoints,
   geminiEndpoints,
   authEndpoints,
   tourGuideEndpoints,
+  reviewEndpoints,
+  tourEndpoints,
+  userEndpoints,
 }
 
