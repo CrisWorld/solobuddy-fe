@@ -3,6 +3,7 @@
 import { endpoints } from "@/config";
 import { baseApi } from "../base";
 import { Favourite, TourGuide, UpdateResponse } from "@/stores/types/types";
+import { FetchBaseQueryMeta } from '@reduxjs/toolkit/query';
 // payload khi gọi API
 export interface TourGuideFilter {
   [key: string]: {
@@ -68,7 +69,7 @@ export interface TourGuideDetail {
   location: string;
   experienceYears: number;
   vehicle: string;
-  favourites: Favourite[]; 
+  favourites: Favourite[];
   dayInWeek?: number[];
   isRecur?: boolean;
   user: {
@@ -208,11 +209,11 @@ export const tourGuideApi = baseApi.injectEndpoints({
         method: "PATCH",
         body,
       }),
-      transformResponse: (response: any): UpdateResponse => {
-        if (response?.success) {
+      transformResponse: (response: any, meta: FetchBaseQueryMeta | undefined): UpdateResponse => {
+        if (meta?.response?.status === 200) {
           return { success: true };
         }
-        return { success: false, message: response?.message || "Update failed" };
+        return { success: false, message: response?.message || "Update tour guide profile failed" };
       },
     }),
     updateAvailableDates: build.mutation<UpdateResponse, UpdateAvailableDatesRequest>({
@@ -221,11 +222,11 @@ export const tourGuideApi = baseApi.injectEndpoints({
         method: "PATCH",
         body,
       }),
-      transformResponse: (response: any): UpdateResponse => {
-        if (response?.success) {
+      transformResponse: (response: any, meta: FetchBaseQueryMeta | undefined): UpdateResponse => {
+        if (meta?.response?.status === 200) {
           return { success: true };
         }
-        return { success: false, message: response?.message || "Update available dates failed" };
+        return { success: false, message: response?.message || "Update dates failed" };
       },
     }),
     updateWorkDays: build.mutation<UpdateResponse, UpdateWorkDaysRequest>({
@@ -234,8 +235,8 @@ export const tourGuideApi = baseApi.injectEndpoints({
         method: "PATCH",
         body,
       }),
-      transformResponse: (response: any): UpdateResponse => {
-        if (response?.success) {
+      transformResponse: (response: any, meta: FetchBaseQueryMeta | undefined): UpdateResponse => {
+        if (meta?.response?.status === 200) {
           return { success: true };
         }
         return { success: false, message: response?.message || "Update work days failed" };
@@ -244,7 +245,7 @@ export const tourGuideApi = baseApi.injectEndpoints({
   }),
 });
 
-export const { 
+export const {
   useGetTourGuidesMutation,
   useGetTourGuideDetailQuery,
   useGetToursByGuideMutation,

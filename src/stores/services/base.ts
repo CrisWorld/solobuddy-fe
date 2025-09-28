@@ -1,5 +1,5 @@
 import { constants } from "@/config";
-import webStorageClient from "@/lib/cookieStorageClient";
+import cookieStorageClient from "@/lib/cookieStorageClient";
 import { createApi, fetchBaseQuery, BaseQueryFn } from "@reduxjs/toolkit/query/react";
 import { FetchArgs, FetchBaseQueryError } from '@reduxjs/toolkit/query';
 
@@ -11,7 +11,7 @@ const baseQuery: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, C
   const baseQuery = fetchBaseQuery({
     baseUrl: constants.API_SERVER,
     prepareHeaders: (headers) => {
-      const accessToken = webStorageClient.getToken();
+      const accessToken = cookieStorageClient.getToken();
       headers.set('Access-Control-Allow-Origin', '*'); // Allow all origins
       // Skip setting the Authorization header if skipAuth is passed
       if (!extraOptions?.skipAuth && accessToken) {

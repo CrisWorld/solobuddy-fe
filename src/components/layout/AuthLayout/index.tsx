@@ -4,6 +4,7 @@ import { createContext, useContext, useEffect, useState } from "react"
 import webLocalStorage from "@/lib/webLocalStorage"
 import { LoginModal } from "@/components/common/login-modal"
 import { RegisterModal } from "@/components/common/signup-modal"
+import { useRouter } from "next/navigation"
 
 type User = {
   id: string
@@ -33,7 +34,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User>(null)
   const [isLoginOpen, setIsLoginOpen] = useState(false)
   const [isRegisterOpen, setIsRegisterOpen] = useState(false)
-
+  const router = useRouter()
   useEffect(() => {
     const storedUser = webLocalStorage.get("user")
     setUser(storedUser)
@@ -43,6 +44,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     localStorage.removeItem("user")
     localStorage.removeItem("tokens")
     setUser(null)
+    router.push("/")
   }
 
   const openLogin = () => {

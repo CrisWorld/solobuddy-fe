@@ -9,7 +9,7 @@ import { useRouter } from "next/navigation"
 import { formatLanguage, formatLocation, formatPrice, formatSpecialty } from "@/lib/utils"
 
 export interface TourGuideData {
-    id: number
+    id: string
     name: string
     rating: number
     reviews?: number
@@ -26,7 +26,7 @@ interface TourGuideCardProps {
     guide: TourGuideData
     variant?: "grid" | "list"
     isFavorite?: boolean
-    onToggleFavorite?: (id: number) => void
+    onToggleFavorite?: (id: string) => void
 }
 
 export function TourGuideCard({
@@ -36,7 +36,7 @@ export function TourGuideCard({
     onToggleFavorite
 }: TourGuideCardProps) {
     const router = useRouter();
-    const handleDetailClick = (id: number) => {
+    const handleDetailClick = (id: string) => {
         router.push(`/tour-guides/${id}`);
     }
     if (variant === "grid") {

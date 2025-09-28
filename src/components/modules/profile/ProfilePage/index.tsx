@@ -1,140 +1,440 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Edit, Mail, Check, X } from "lucide-react"
-
-interface UserProfile {
-  fullName: string
-  nickName: string
-  email: string
-  gender: string
-  country: string
-  language: string
-  timeZone: string
-  avatar: string
-}
+import { Switch } from "@/components/ui/switch"
+import { Badge } from "@/components/ui/badge"
+import { Skeleton } from "@/components/ui/skeleton"
+import { useToast } from "@/components/ui/use-toast"
+import { Edit, Check, X, Upload, Star, AlertCircle } from "lucide-react"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { TourGuideProfile, useGetProfileQuery, UserProfile } from "@/stores/services/user/userApi"
+import { 
+  useUpdateTourGuideProfileMutation,
+  useUpdateAvailableDatesMutation,
+  useUpdateWorkDaysMutation,
+  UpdateTourGuideProfileRequest,
+  UpdateAvailableDatesRequest,
+  UpdateWorkDaysRequest
+} from "@/stores/services/tour-guide/tour-guide"
+import { countries, favourites, formatPrice, formatSpecialty, formatVehicle, languages, specialtyTypes, vehicleTypes } from "@/lib/utils"
+import { PhotoUpload } from "@/components/common/photo-upload"
+import { DaySelector } from "@/components/common/day-selector"
+import { CalendarPicker } from "@/components/common/calendar-picker"
+import { uploadToCloudinary } from "@/lib/cloundinary"
 
 export function ProfilePage() {
-  const [isEditing, setIsEditing] = useState(false)
-  const [profile, setProfile] = useState<UserProfile>({
-    fullName: "Alexa Rawles",
-    nickName: "Alex",
-    email: "alexarawles@gmail.com",
-    gender: "Female",
-    country: "United States",
-    language: "English",
-    timeZone: "UTC-5 (EST)",
-    avatar: "/placeholder.svg?height=80&width=80",
-  })
+  const { toast } = useToast()
+  const [isEditingProfile, setIsEditingProfile] = useState(false)
+  const [isEditingTourGuide, setIsEditingTourGuide] = useState(false)
 
-  const [editedProfile, setEditedProfile] = useState<UserProfile>(profile)
+  // Fetch user profile data
+  const { data: profileData, isLoading, error, refetch } = useGetProfileQuery()
 
-  const handleSave = () => {
-    setProfile(editedProfile)
-    setIsEditing(false)
+  // Mutations for updating tour guide data
+  const [updateTourGuideProfile, { isLoading: isUpdatingProfile }] = useUpdateTourGuideProfileMutation()
+  const [updateAvailableDates, { isLoading: isUpdatingDates }] = useUpdateAvailableDatesMutation()
+  const [updateWorkDays, { isLoading: isUpdatingWorkDays }] = useUpdateWorkDaysMutation()
+
+  // Local state for editing
+  const [editedProfile, setEditedProfile] = useState<UserProfile | null>(null)
+  const [editedTourGuideProfile, setEditedTourGuideProfile] = useState<TourGuideProfile | null>(null)
+
+  // Store original data for comparison
+  const [originalTourGuideProfile, setOriginalTourGuideProfile] = useState<TourGuideProfile | null>(null)
+
+  // Initialize editing state when data is loaded
+  useEffect(() => {
+    if (profileData) {
+      setEditedProfile({
+        id: profileData.id,
+        name: profileData.name,
+        email: profileData.email,
+        country: profileData.country,
+        role: profileData.role,
+        isEmailVerified: profileData.isEmailVerified,
+        avatar: profileData.avatar,
+        createdAt: profileData.createdAt,
+        updatedAt: profileData.updatedAt,
+      })
+
+      // If user is a guide and has tour guide profile
+      if (profileData.role === "guide" && profileData.tourGuides && profileData.tourGuides.length > 0) {
+        const tourGuideData = profileData.tourGuides[0]
+        setEditedTourGuideProfile(tourGuideData)
+        setOriginalTourGuideProfile(tourGuideData)
+      }
+    }
+  }, [profileData])
+
+  const handleSaveProfile = async () => {
+    if (!editedProfile) return
+    
+    try {
+      // TODO: Add API call to update user profile
+      // await updateProfile(editedProfile)
+      
+      setIsEditingProfile(false)
+      toast({
+        title: "Success",
+        description: "Profile updated successfully",
+      })
+      // Refetch data to get updated profile
+      refetch()
+    } catch (error) {
+      console.error('Failed to update profile:', error)
+      toast({
+        title: "Error",
+        description: "Failed to update profile",
+        variant: "destructive",
+      })
+    }
   }
 
-  const handleCancel = () => {
-    setEditedProfile(profile)
-    setIsEditing(false)
+  const handleCancelProfile = () => {
+    if (profileData) {
+      setEditedProfile({
+        id: profileData.id,
+        name: profileData.name,
+        email: profileData.email,
+        country: profileData.country,
+        role: profileData.role,
+        isEmailVerified: profileData.isEmailVerified,
+        avatar: profileData.avatar,
+        createdAt: profileData.createdAt,
+        updatedAt: profileData.updatedAt,
+      })
+    }
+    setIsEditingProfile(false)
   }
 
-  const countries = [
-    "United States",
-    "Canada",
-    "United Kingdom",
-    "Australia",
-    "Germany",
-    "France",
-    "Japan",
-    "South Korea",
-    "Singapore",
-    "Vietnam",
-  ]
+  const handleSaveTourGuide = async () => {
+    if (!editedTourGuideProfile || !originalTourGuideProfile) return
+    
+    try {
+      const isUpdating = isUpdatingProfile || isUpdatingDates || isUpdatingWorkDays
+      if (isUpdating) return // Prevent multiple simultaneous requests
 
-  const languages = [
-    "English",
-    "Spanish",
-    "French",
-    "German",
-    "Japanese",
-    "Korean",
-    "Vietnamese",
-    "Chinese",
-    "Portuguese",
-    "Italian",
-  ]
+      // 1. Update basic tour guide profile info
+      const profileChanges: UpdateTourGuideProfileRequest = {}
+      let hasProfileChanges = false
 
-  const timeZones = [
-    "UTC-12 (Baker Island)",
-    "UTC-11 (Samoa)",
-    "UTC-10 (Hawaii)",
-    "UTC-9 (Alaska)",
-    "UTC-8 (PST)",
-    "UTC-7 (MST)",
-    "UTC-6 (CST)",
-    "UTC-5 (EST)",
-    "UTC-4 (AST)",
-    "UTC-3 (BRT)",
-    "UTC-2 (GST)",
-    "UTC-1 (Azores)",
-    "UTC+0 (GMT)",
-    "UTC+1 (CET)",
-    "UTC+2 (EET)",
-    "UTC+3 (MSK)",
-    "UTC+4 (GST)",
-    "UTC+5 (PKT)",
-    "UTC+6 (BST)",
-    "UTC+7 (ICT)",
-    "UTC+8 (CST)",
-    "UTC+9 (JST)",
-    "UTC+10 (AEST)",
-    "UTC+11 (NCT)",
-    "UTC+12 (NZST)",
-  ]
+      if (editedTourGuideProfile.bio !== originalTourGuideProfile.bio) {
+        profileChanges.bio = editedTourGuideProfile.bio
+        hasProfileChanges = true
+      }
+      if (editedTourGuideProfile.pricePerDay !== originalTourGuideProfile.pricePerDay) {
+        profileChanges.pricePerDay = editedTourGuideProfile.pricePerDay
+        hasProfileChanges = true
+      }
+      if (editedTourGuideProfile.location !== originalTourGuideProfile.location) {
+        profileChanges.location = editedTourGuideProfile.location
+        hasProfileChanges = true
+      }
+      if (JSON.stringify(editedTourGuideProfile.languages) !== JSON.stringify(originalTourGuideProfile.languages)) {
+        profileChanges.languages = editedTourGuideProfile.languages
+        hasProfileChanges = true
+      }
+      if (editedTourGuideProfile.experienceYears !== originalTourGuideProfile.experienceYears) {
+        profileChanges.experienceYears = editedTourGuideProfile.experienceYears
+        hasProfileChanges = true
+      }
+      if (JSON.stringify(editedTourGuideProfile.photos) !== JSON.stringify(originalTourGuideProfile.photos)) {
+        profileChanges.photos = editedTourGuideProfile.photos
+        hasProfileChanges = true
+      }
+      if (editedTourGuideProfile.vehicle !== originalTourGuideProfile.vehicle) {
+        profileChanges.vehicle = editedTourGuideProfile.vehicle
+        hasProfileChanges = true
+      }
+      if (JSON.stringify(editedTourGuideProfile.specialties) !== JSON.stringify(originalTourGuideProfile.specialties)) {
+        profileChanges.specialties = editedTourGuideProfile.specialties
+        hasProfileChanges = true
+      }
+      
+      // Handle favourites - convert to string array for API
+      const editedFavouriteNames = editedTourGuideProfile.favourites.map(f => f.name)
+      const originalFavouriteNames = originalTourGuideProfile.favourites.map(f => f.name)
+      if (JSON.stringify(editedFavouriteNames) !== JSON.stringify(originalFavouriteNames)) {
+        profileChanges.favourites = editedFavouriteNames
+        hasProfileChanges = true
+      }
+
+      // 2. Update available dates
+      const originalDates = new Set(originalTourGuideProfile.availableDates)
+      const editedDates = new Set(editedTourGuideProfile.availableDates)
+      
+      const addDates = editedTourGuideProfile.availableDates.filter(date => !originalDates.has(date))
+      const removeDates = originalTourGuideProfile.availableDates.filter(date => !editedDates.has(date) || date < new Date().toISOString().split('T')[0])
+      
+      const hasDateChanges = addDates.length > 0 || removeDates.length > 0
+
+      // 3. Update work days
+      const hasWorkDayChanges = 
+        editedTourGuideProfile.isRecur !== originalTourGuideProfile.isRecur ||
+        JSON.stringify(editedTourGuideProfile.dayInWeek) !== JSON.stringify(originalTourGuideProfile.dayInWeek)
+
+      // Execute API calls
+      const promises = []
+
+      if (hasProfileChanges) {
+        promises.push(updateTourGuideProfile(profileChanges))
+      }
+
+      if (hasDateChanges) {
+        const dateRequest: UpdateAvailableDatesRequest = {
+          addDates,
+          removeDates
+        }
+        promises.push(updateAvailableDates(dateRequest))
+      }
+
+      if (hasWorkDayChanges) {
+        const workDayRequest: UpdateWorkDaysRequest = {
+          isRecur: editedTourGuideProfile.isRecur || false,
+          dayInWeek: editedTourGuideProfile.dayInWeek || []
+        }
+        promises.push(updateWorkDays(workDayRequest))
+      }
+
+      if (promises.length === 0) {
+        setIsEditingTourGuide(false)
+        toast({
+          title: "No Changes",
+          description: "No changes were made to save",
+        })
+        return
+      }
+
+      const results = await Promise.all(promises)
+      
+      console.log('API Results:', results)
+      
+      const allSuccessful = results.every(result => {
+        const hasData = 'data' in result && result.data
+        const isSuccess = hasData && result.data.success === true
+        return isSuccess
+      })
+      
+      console.log('All successful:', allSuccessful)
+      
+      if (allSuccessful) {
+        setIsEditingTourGuide(false)
+        toast({
+          title: "Success",
+          description: "Tour guide profile updated successfully",
+        })
+        // Refetch data to get updated profile
+        refetch()
+      } else {
+        // Handle partial success or failures
+        const failedResults = results.filter(result => {
+          const hasData = 'data' in result && result.data
+          return !hasData || !result.data.success
+        })
+        
+        console.error('Failed results:', failedResults)
+        
+        // Check if any succeeded
+        const succeededCount = results.filter(result => 'data' in result && result.data && result.data.success).length
+        const totalCount = results.length
+        
+        if (succeededCount > 0 && succeededCount < totalCount) {
+          toast({
+            title: "Partial Update",
+            description: `${succeededCount}/${totalCount} updates succeeded. Some changes were saved.`,
+            variant: "destructive",
+          })
+        } else if (succeededCount === 0) {
+          toast({
+            title: "Update Failed",
+            description: "Failed to save changes. Please try again.",
+            variant: "destructive",
+          })
+        }
+        
+        // If some succeeded, still refetch to get partial updates
+        if (succeededCount > 0) {
+          refetch()
+        }
+      }
+    } catch (error) {
+      console.error('Failed to update tour guide profile:', error)
+      toast({
+        title: "Error",
+        description: "Failed to update tour guide profile",
+        variant: "destructive",
+      })
+    }
+  }
+
+  const handleCancelTourGuide = () => {
+    if (originalTourGuideProfile) {
+      setEditedTourGuideProfile({ ...originalTourGuideProfile })
+    }
+    setIsEditingTourGuide(false)
+  }
+
+  const handleAvatarUpload = async (file: File) => {
+  if (!editedProfile) return;
+
+  const url = await uploadToCloudinary(file); // upload thật sự
+  if (!url) return;
+
+  setEditedProfile({ ...editedProfile, avatar: url });
+};
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="flex-1 flex flex-col bg-background">
+        <div className="bg-card border-b border-border p-6">
+          <div className="max-w-4xl mx-auto flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <Skeleton className="h-20 w-20 rounded-full" />
+              <div>
+                <Skeleton className="h-8 w-48 mb-2" />
+                <Skeleton className="h-4 w-64 mb-1" />
+                <Skeleton className="h-6 w-24" />
+              </div>
+            </div>
+            <Skeleton className="h-10 w-32" />
+          </div>
+        </div>
+        <div className="flex-1 p-6 overflow-y-auto">
+          <div className="max-w-4xl mx-auto space-y-6">
+            <Card>
+              <CardHeader>
+                <Skeleton className="h-6 w-48" />
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {[...Array(4)].map((_, i) => (
+                    <div key={i} className="space-y-2">
+                      <Skeleton className="h-4 w-16" />
+                      <Skeleton className="h-12 w-full" />
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="flex-1 flex flex-col bg-background">
+        <div className="flex-1 p-6">
+          <div className="max-w-4xl mx-auto">
+            <Alert variant="destructive">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>
+                Failed to load profile data. Please try refreshing the page.
+              </AlertDescription>
+            </Alert>
+            <Button onClick={() => refetch()} className="mt-4">
+              Retry
+            </Button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // No data state
+  if (!profileData || !editedProfile) {
+    return (
+      <div className="flex-1 flex flex-col bg-background">
+        <div className="flex-1 p-6">
+          <div className="max-w-4xl mx-auto">
+            <Alert>
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>
+                No profile data available.
+              </AlertDescription>
+            </Alert>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  const isTourGuide = profileData.role === "guide"
+  const tourGuideProfile = profileData.tourGuides && profileData.tourGuides.length > 0 ? profileData.tourGuides[0] : null
+  const isUpdating = isUpdatingProfile || isUpdatingDates || isUpdatingWorkDays
 
   return (
-    <div className="flex-1 flex flex-col bg-gray-50">
+    <div className="flex-1 flex flex-col bg-background">
       {/* Header */}
-      <div className="bg-white border-b border-border p-6">
+      <div className="bg-card border-b border-border p-6">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <Avatar className="h-20 w-20">
-              <AvatarImage src={profile.avatar || "/placeholder.svg"} />
-              <AvatarFallback className="text-lg">
-                {profile.fullName
-                  .split(" ")
-                  .map((n) => n[0])
-                  .join("")}
-              </AvatarFallback>
-            </Avatar>
+            <div className="relative">
+              <Avatar className="h-20 w-20">
+                <AvatarImage src={editedProfile.avatar || "/placeholder.svg"} />
+                <AvatarFallback className="text-lg">
+                  {editedProfile.name
+                    .split(" ")
+                    .map((n) => n[0])
+                    .join("")}
+                </AvatarFallback>
+              </Avatar>
+              {isEditingProfile && (
+                <div className="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => e.target.files?.[0] && handleAvatarUpload(e.target.files[0])}
+                    className="hidden"
+                    id="avatar-upload"
+                  />
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-white hover:text-white"
+                    onClick={() => document.getElementById("avatar-upload")?.click()}
+                  >
+                    <Upload className="h-4 w-4" />
+                  </Button>
+                </div>
+              )}
+            </div>
             <div>
-              <h1 className="text-2xl font-bold text-foreground">{profile.fullName}</h1>
-              <p className="text-muted-foreground">{profile.email}</p>
+              <h1 className="text-2xl font-bold text-foreground">{editedProfile.name}</h1>
+              <p className="text-muted-foreground">{editedProfile.email}</p>
+              {editedProfile.isEmailVerified && (
+                <Badge variant="secondary" className="mt-1">
+                  Email Verified
+                </Badge>
+              )}
             </div>
           </div>
 
-          {!isEditing ? (
+          {!isEditingProfile ? (
             <Button
-              onClick={() => setIsEditing(true)}
+              onClick={() => setIsEditingProfile(true)}
               className="bg-primary text-primary-foreground hover:bg-primary/90"
             >
               <Edit className="h-4 w-4 mr-2" />
-              Edit
+              Edit Profile
             </Button>
           ) : (
             <div className="flex gap-2">
-              <Button onClick={handleSave} className="bg-green-600 text-white hover:bg-green-700">
+              <Button onClick={handleSaveProfile} className="bg-green-600 text-white hover:bg-green-700">
                 <Check className="h-4 w-4 mr-2" />
                 Save
               </Button>
-              <Button onClick={handleCancel} variant="outline">
+              <Button onClick={handleCancelProfile} variant="outline">
                 <X className="h-4 w-4 mr-2" />
                 Cancel
               </Button>
@@ -154,58 +454,22 @@ export function ProfilePage() {
             <CardContent className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <Label htmlFor="fullName">Full Name</Label>
-                  {isEditing ? (
+                  <Label htmlFor="name">Name</Label>
+                  {isEditingProfile ? (
                     <Input
-                      id="fullName"
-                      value={editedProfile.fullName}
-                      onChange={(e) => setEditedProfile({ ...editedProfile, fullName: e.target.value })}
-                      placeholder="Your First Name"
+                      id="name"
+                      value={editedProfile.name}
+                      onChange={(e) => setEditedProfile({ ...editedProfile, name: e.target.value })}
+                      placeholder="Your Name"
                     />
                   ) : (
-                    <div className="p-3 bg-gray-50 rounded-md text-sm">{profile.fullName}</div>
-                  )}
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="nickName">Nick Name</Label>
-                  {isEditing ? (
-                    <Input
-                      id="nickName"
-                      value={editedProfile.nickName}
-                      onChange={(e) => setEditedProfile({ ...editedProfile, nickName: e.target.value })}
-                      placeholder="Your First Name"
-                    />
-                  ) : (
-                    <div className="p-3 bg-gray-50 rounded-md text-sm">{profile.nickName}</div>
-                  )}
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="gender">Gender</Label>
-                  {isEditing ? (
-                    <Select
-                      value={editedProfile.gender}
-                      onValueChange={(value) => setEditedProfile({ ...editedProfile, gender: value })}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select gender" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Male">Male</SelectItem>
-                        <SelectItem value="Female">Female</SelectItem>
-                        <SelectItem value="Other">Other</SelectItem>
-                        <SelectItem value="Prefer not to say">Prefer not to say</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  ) : (
-                    <div className="p-3 bg-gray-50 rounded-md text-sm">{profile.gender}</div>
+                    <div className="p-3 bg-muted rounded-md text-sm">{profileData.name}</div>
                   )}
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="country">Country</Label>
-                  {isEditing ? (
+                  {isEditingProfile ? (
                     <Select
                       value={editedProfile.country}
                       onValueChange={(value) => setEditedProfile({ ...editedProfile, country: value })}
@@ -216,104 +480,360 @@ export function ProfilePage() {
                       <SelectContent>
                         {countries.map((country) => (
                           <SelectItem key={country} value={country}>
-                            {country}
+                            {country.charAt(0).toUpperCase() + country.slice(1)}
                           </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
                   ) : (
-                    <div className="p-3 bg-gray-50 rounded-md text-sm">{profile.country}</div>
+                    <div className="p-3 bg-muted rounded-md text-sm">
+                      {profileData.country ? profileData.country.charAt(0).toUpperCase() + profileData.country.slice(1) : "Not set"}
+                    </div>
                   )}
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="language">Language</Label>
-                  {isEditing ? (
-                    <Select
-                      value={editedProfile.language}
-                      onValueChange={(value) => setEditedProfile({ ...editedProfile, language: value })}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select language" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {languages.map((language) => (
-                          <SelectItem key={language} value={language}>
-                            {language}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  ) : (
-                    <div className="p-3 bg-gray-50 rounded-md text-sm">{profile.language}</div>
-                  )}
+                  <Label htmlFor="email">Email</Label>
+                  <div className="p-3 bg-muted rounded-md text-sm">{profileData.email}</div>
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="timeZone">Time Zone</Label>
-                  {isEditing ? (
-                    <Select
-                      value={editedProfile.timeZone}
-                      onValueChange={(value) => setEditedProfile({ ...editedProfile, timeZone: value })}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select time zone" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {timeZones.map((tz) => (
-                          <SelectItem key={tz} value={tz}>
-                            {tz}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                  <Label htmlFor="role">Role</Label>
+                  <div className="p-3 bg-muted rounded-md text-sm">
+                    {profileData.role.charAt(0).toUpperCase() + profileData.role.slice(1)}
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Tour Guide Profile */}
+          {isTourGuide && tourGuideProfile && editedTourGuideProfile && (
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="flex items-center gap-2">
+                      Tour Guide Profile
+                      <div className="flex items-center gap-1">
+                        <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                        <span className="text-sm font-normal">
+                          {tourGuideProfile.ratingAvg} ({tourGuideProfile.ratingCount} reviews)
+                        </span>
+                      </div>
+                    </CardTitle>
+                  </div>
+                  {!isEditingTourGuide ? (
+                    <Button onClick={() => setIsEditingTourGuide(true)} variant="outline">
+                      <Edit className="h-4 w-4 mr-2" />
+                      Edit
+                    </Button>
                   ) : (
-                    <div className="p-3 bg-gray-50 rounded-md text-sm">{profile.timeZone}</div>
+                    <div className="flex gap-2">
+                      <Button 
+                        onClick={handleSaveTourGuide} 
+                        className="bg-green-600 text-white hover:bg-green-700"
+                        disabled={isUpdating}
+                      >
+                        <Check className="h-4 w-4 mr-2" />
+                        {isUpdating ? "Saving..." : "Save"}
+                      </Button>
+                      <Button onClick={handleCancelTourGuide} variant="outline" disabled={isUpdating}>
+                        <X className="h-4 w-4 mr-2" />
+                        Cancel
+                      </Button>
+                    </div>
                   )}
                 </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Bio */}
+                  <div className="md:col-span-2 space-y-2">
+                    <Label htmlFor="bio">Bio</Label>
+                    {isEditingTourGuide ? (
+                      <Textarea
+                        id="bio"
+                        value={editedTourGuideProfile.bio}
+                        onChange={(e) => setEditedTourGuideProfile({ ...editedTourGuideProfile, bio: e.target.value })}
+                        placeholder="Tell us about yourself..."
+                        rows={3}
+                      />
+                    ) : (
+                      <div className="p-3 bg-muted rounded-md text-sm">{tourGuideProfile.bio}</div>
+                    )}
+                  </div>
 
-          {/* Email Addresses */}
-          <Card>
-            <CardHeader>
-              <CardTitle>My email Address</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center gap-3 p-4 bg-blue-50 rounded-lg">
-                <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                <div className="flex-1">
-                  <div className="font-medium text-sm">{profile.email}</div>
-                  <div className="text-xs text-muted-foreground">1 month ago</div>
-                </div>
-                <Mail className="h-4 w-4 text-blue-500" />
-              </div>
-            </CardContent>
-          </Card>
+                  {/* Price Per Day */}
+                  <div className="space-y-2">
+                    <Label htmlFor="pricePerDay">Price Per Day ($)</Label>
+                    {isEditingTourGuide ? (
+                      <Input
+                        id="pricePerDay"
+                        type="number"
+                        value={editedTourGuideProfile.pricePerDay}
+                        onChange={(e) =>
+                          setEditedTourGuideProfile({ ...editedTourGuideProfile, pricePerDay: Number(e.target.value) })
+                        }
+                        placeholder="50"
+                      />
+                    ) : (
+                      <div className="p-3 bg-muted rounded-md text-sm">{formatPrice(tourGuideProfile.pricePerDay)}</div>
+                    )}
+                  </div>
 
-          {/* Account Statistics */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Account Overview</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="text-center p-4 bg-green-50 rounded-lg">
-                  <div className="text-2xl font-bold text-green-600">2</div>
-                  <div className="text-sm text-muted-foreground">Completed Tours</div>
+                  {/* Location */}
+                  <div className="space-y-2">
+                    <Label htmlFor="location">Location</Label>
+                    {isEditingTourGuide ? (
+                      <Input
+                        id="location"
+                        value={editedTourGuideProfile.location}
+                        onChange={(e) =>
+                          setEditedTourGuideProfile({ ...editedTourGuideProfile, location: e.target.value })
+                        }
+                        placeholder="Ho Chi Minh City"
+                      />
+                    ) : (
+                      <div className="p-3 bg-muted rounded-md text-sm">{tourGuideProfile.location}</div>
+                    )}
+                  </div>
+
+                  {/* Experience Years */}
+                  <div className="space-y-2">
+                    <Label htmlFor="experienceYears">Experience (Years)</Label>
+                    {isEditingTourGuide ? (
+                      <Input
+                        id="experienceYears"
+                        type="number"
+                        value={editedTourGuideProfile.experienceYears}
+                        onChange={(e) =>
+                          setEditedTourGuideProfile({
+                            ...editedTourGuideProfile,
+                            experienceYears: Number(e.target.value),
+                          })
+                        }
+                        placeholder="5"
+                      />
+                    ) : (
+                      <div className="p-3 bg-muted rounded-md text-sm">{tourGuideProfile.experienceYears} years</div>
+                    )}
+                  </div>
+
+                  {/* Vehicle */}
+                  <div className="space-y-2">
+                    <Label htmlFor="vehicle">Vehicle</Label>
+                    {isEditingTourGuide ? (
+                      <Select
+                        value={editedTourGuideProfile.vehicle}
+                        onValueChange={(value) =>
+                          setEditedTourGuideProfile({ ...editedTourGuideProfile, vehicle: value })
+                        }
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select vehicle" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {vehicleTypes.map((vehicle) => (
+                            <SelectItem key={vehicle} value={vehicle}>
+                              {formatVehicle(vehicle)}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    ) : (
+                      <div className="p-3 bg-muted rounded-md text-sm">
+                        {formatVehicle(tourGuideProfile.vehicle)}
+                      </div>
+                    )}
+                  </div>
                 </div>
-                <div className="text-center p-4 bg-blue-50 rounded-lg">
-                  <div className="text-2xl font-bold text-blue-600">2</div>
-                  <div className="text-sm text-muted-foreground">Upcoming Tours</div>
+
+                {/* Languages */}
+                <div className="space-y-2">
+                  <Label>Languages</Label>
+                  {isEditingTourGuide ? (
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                      {languages.map((lang) => (
+                        <div key={lang} className="flex items-center space-x-2">
+                          <input
+                            type="checkbox"
+                            id={`lang-${lang}`}
+                            checked={editedTourGuideProfile.languages.includes(lang)}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setEditedTourGuideProfile({
+                                  ...editedTourGuideProfile,
+                                  languages: [...editedTourGuideProfile.languages, lang],
+                                })
+                              } else {
+                                setEditedTourGuideProfile({
+                                  ...editedTourGuideProfile,
+                                  languages: editedTourGuideProfile.languages.filter((l) => l !== lang),
+                                })
+                              }
+                            }}
+                            className="rounded"
+                          />
+                          <label htmlFor={`lang-${lang}`} className="text-sm">
+                            {lang.charAt(0).toUpperCase() + lang.slice(1)}
+                          </label>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="flex flex-wrap gap-2">
+                      {tourGuideProfile.languages.map((lang) => (
+                        <Badge key={lang} variant="secondary">
+                          {lang.charAt(0).toUpperCase() + lang.slice(1)}
+                        </Badge>
+                      ))}
+                    </div>
+                  )}
                 </div>
-                <div className="text-center p-4 bg-purple-50 rounded-lg">
-                  <div className="text-2xl font-bold text-purple-600">0</div>
-                  <div className="text-sm text-muted-foreground">Favourite Guides</div>
+
+                {/* Specialties */}
+                <div className="space-y-2">
+                  <Label>Specialties</Label>
+                  {isEditingTourGuide ? (
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                      {specialtyTypes.map((specialty) => (
+                        <div key={specialty} className="flex items-center space-x-2">
+                          <input
+                            type="checkbox"
+                            id={`specialty-${specialty}`}
+                            checked={editedTourGuideProfile.specialties.includes(specialty)}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setEditedTourGuideProfile({
+                                  ...editedTourGuideProfile,
+                                  specialties: [...editedTourGuideProfile.specialties, specialty],
+                                })
+                              } else {
+                                setEditedTourGuideProfile({
+                                  ...editedTourGuideProfile,
+                                  specialties: editedTourGuideProfile.specialties.filter((s) => s !== specialty),
+                                })
+                              }
+                            }}
+                            className="rounded"
+                          />
+                          <label htmlFor={`specialty-${specialty}`} className="text-sm">
+                            {formatSpecialty(specialty)}
+                          </label>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="flex flex-wrap gap-2">
+                      {tourGuideProfile.specialties.map((specialty) => (
+                        <Badge key={specialty} variant="secondary">
+                          {formatSpecialty(specialty)}
+                        </Badge>
+                      ))}
+                    </div>
+                  )}
                 </div>
-              </div>
-            </CardContent>
-          </Card>
+
+                {/* Favourites */}
+                <div className="space-y-2">
+                  <Label>Favourites</Label>
+                  {isEditingTourGuide ? (
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                      {favourites.map((fav) => (
+                        <div key={fav} className="flex items-center space-x-2">
+                          <input
+                            type="checkbox"
+                            id={`fav-${fav}`}
+                            checked={editedTourGuideProfile.favourites.some((f) => f.name === fav)}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setEditedTourGuideProfile({
+                                  ...editedTourGuideProfile,
+                                  favourites: [...editedTourGuideProfile.favourites, { _id: fav, name: fav }],
+                                })
+                              } else {
+                                setEditedTourGuideProfile({
+                                  ...editedTourGuideProfile,
+                                  favourites: editedTourGuideProfile.favourites.filter((f) => f.name !== fav),
+                                })
+                              }
+                            }}
+                            className="rounded"
+                          />
+                          <label htmlFor={`fav-${fav}`} className="text-sm">
+                            {fav}
+                          </label>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="flex flex-wrap gap-2">
+                      {tourGuideProfile.favourites.map((fav) => (
+                        <Badge key={fav._id} variant="secondary">
+                          {fav.name}
+                        </Badge>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Photos */}
+                <div className="space-y-2">
+                  <Label>Photos</Label>
+                  <PhotoUpload
+                    photos={isEditingTourGuide ? editedTourGuideProfile.photos : tourGuideProfile.photos}
+                    onPhotosChange={(photos) => setEditedTourGuideProfile({ ...editedTourGuideProfile, photos })}
+                    disabled={!isEditingTourGuide}
+                    maxPhotos={10}
+                  />
+                </div>
+
+                {/* Scheduling */}
+                <div className="space-y-4">
+                  <div className="flex items-center space-x-2">
+                    <Switch
+                      id="isRecur"
+                      checked={isEditingTourGuide ? editedTourGuideProfile.isRecur : tourGuideProfile.isRecur}
+                      onCheckedChange={(checked) =>
+                        isEditingTourGuide && setEditedTourGuideProfile({ ...editedTourGuideProfile, isRecur: checked })
+                      }
+                      disabled={!isEditingTourGuide}
+                    />
+                    <Label htmlFor="isRecur">Recurring Schedule (Weekly)</Label>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Day of Week Selection - only if recurring */}
+                    {(isEditingTourGuide ? editedTourGuideProfile.isRecur : tourGuideProfile.isRecur) && (
+                      <DaySelector
+                        selectedDays={
+                          isEditingTourGuide ? editedTourGuideProfile.dayInWeek || [] : tourGuideProfile.dayInWeek || []
+                        }
+                        onDaysChange={(days) =>
+                          isEditingTourGuide &&
+                          setEditedTourGuideProfile({ ...editedTourGuideProfile, dayInWeek: days })
+                        }
+                        disabled={!isEditingTourGuide}
+                      />
+                    )}
+
+                    {/* Available Dates - always shown */}
+                    <CalendarPicker
+                      selectedDates={
+                        isEditingTourGuide ? editedTourGuideProfile.availableDates : tourGuideProfile.availableDates
+                      }
+                      onDatesChange={(dates) =>
+                        isEditingTourGuide &&
+                        setEditedTourGuideProfile({ ...editedTourGuideProfile, availableDates: dates })
+                      }
+                      disabled={!isEditingTourGuide}
+                    />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </div>
       </div>
     </div>

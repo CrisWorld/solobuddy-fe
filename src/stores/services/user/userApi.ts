@@ -15,6 +15,11 @@ export interface UserProfile {
   createdAt: string;
   updatedAt: string;
 }
+export interface UpdateProfileRequest {
+    name?: string;
+    country?: string;
+    avatar?: string; // URL
+}
 export interface TourGuideProfile {
   id: string;
   languages: string[];

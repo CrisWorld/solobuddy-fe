@@ -38,7 +38,7 @@ export function PhotoZoomModal({ photos, isOpen, onClose, initialIndex }: PhotoZ
 
           <div className="relative w-full h-full flex items-center justify-center">
             <img
-              src={`/da-nang-city-view-.jpg?height=600&width=800&query=Da Nang city view ${currentIndex + 1}`}
+              src={photos[currentIndex] || "/default-avatar.png"}
               alt={`Photo ${currentIndex + 1}`}
               className="max-w-full max-h-full object-contain"
             />

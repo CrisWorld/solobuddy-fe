@@ -11,8 +11,8 @@ import { formatLanguage, formatLocation, formatPrice, formatSpecialty } from "@/
 
 interface SuggestionCardProps {
   guide: TourGuide
-  favouriteGuides: number[]
-  toggleFavourite: (id: number) => void
+  favouriteGuides: string[]
+  toggleFavourite: (id: string) => void
 }
 
 export function SuggestionCard({ guide, favouriteGuides, toggleFavourite }: SuggestionCardProps) {

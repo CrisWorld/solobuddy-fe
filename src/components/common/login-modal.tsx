@@ -48,7 +48,7 @@ export function LoginModal({ isOpen, onSwitchToSignUp }: LoginModalProps) {
 
   const validateEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
   const validatePassword = (value: string) =>
-    /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/.test(value);
+    /^(?=.*[A-Za-z])(?=.*\d).{8,}$/.test(value);
 
   const handleLogin = async () => {
     let valid = true;

@@ -39,7 +39,7 @@ export const favourites = [
 ]
 export const languages = ['english', 'vietnamese', 'thai', 'french', 'spanish', 'chinese', 'japanese', 'korean']
 export const locations = ['vietnam', 'thailand', 'france', 'spain', 'china', 'japan', 'korea', 'usa', 'uk', 'germany']
-
+export const countries = ["vietnam", "thailand", "france", "spain", "china", "japan", "korea", "usa", "uk", "germany"]
 // Utility functions to format display text
 export const formatSpecialty = (specialty: string): string => {
   if (!specialty) return ''

@@ -62,7 +62,7 @@ export function PhotoCarousel({ photos, photosPerPage = 6 }: PhotoCarouselProps)
             onClick={() => handlePhotoClick(index)}
           >
             <img
-              src={`/da-nang-city-view-.jpg?height=200&width=200&query=Da Nang city view ${startIndex + index + 1}`}
+              src={photo || "/default-avatar.png"}
               alt={`Photo ${startIndex + index + 1}`}
               className="w-full h-full object-cover"
             />

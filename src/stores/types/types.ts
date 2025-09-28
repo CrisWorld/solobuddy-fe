@@ -1,5 +1,5 @@
 export interface TourGuide {
-  id: number
+  id: string
   name: string
   location: string
   price: number

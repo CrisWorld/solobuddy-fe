@@ -3,46 +3,34 @@
 import { endpoints } from "@/config";
 import { baseApi } from "../base";
 import webLocalStorage from "@/lib/webLocalStorage";
+import cookieStorageClient from "@/lib/cookieStorageClient";
 
-interface RegisterRequest {
-  name: string;
-  email: string;
-  password: string;
-}
+interface RegisterRequest { name: string; email: string; password: string; }
+interface LoginRequest { email: string; password: string; }
 
-interface LoginRequest {
-  email: string;
-  password: string;
-}
+interface AuthUser { id: string; email: string; name: string; role: string; }
 
 interface AuthResponse {
-  user: {
-    id: string;
-    email: string;
-    name: string;
-    role: string;
-  };
+  user: AuthUser;
   tokens: {
-    access: {
-      token: string;
-      expires: string;
-    };
-    refresh: {
-      token: string;
-      expires: string;
-    };
+    access: { token: string; expires: string; };
+    refresh: { token: string; expires: string; };
   };
 }
 
-interface LogoutRequest {
-  refreshToken: string;
+interface LogoutRequest { refreshToken: string; }
+
+function handleAuthSuccess(data: AuthResponse) {
+  cookieStorageClient.setToken(data.tokens.access.token);
+  cookieStorageClient.setRefreshToken(data.tokens.refresh.token);
+  webLocalStorage.set("user", data.user);
 }
 
 export const authApi = baseApi.injectEndpoints({
   endpoints: (build) => ({
     register: build.mutation<AuthResponse, RegisterRequest>({
       query: (body) => ({
-        url: `${endpoints.authEndpoints.REGISTER}`,
+        url: endpoints.authEndpoints.REGISTER,
         method: "POST",
         body,
       }),
@@ -50,8 +38,7 @@ export const authApi = baseApi.injectEndpoints({
       async onQueryStarted(arg, { queryFulfilled }) {
         try {
           const { data } = await queryFulfilled;
-          webLocalStorage.set("tokens", data.tokens);
-          webLocalStorage.set("user", data.user);
+          handleAuthSuccess(data);
         } catch (err) {
           console.error("Register failed", err);
         }
@@ -60,7 +47,7 @@ export const authApi = baseApi.injectEndpoints({
 
     login: build.mutation<AuthResponse, LoginRequest>({
       query: (body) => ({
-        url: `${endpoints.authEndpoints.LOGIN}`,
+        url: endpoints.authEndpoints.LOGIN,
         method: "POST",
         body,
       }),
@@ -68,8 +55,7 @@ export const authApi = baseApi.injectEndpoints({
       async onQueryStarted(arg, { queryFulfilled }) {
         try {
           const { data } = await queryFulfilled;
-          webLocalStorage.set("tokens", data.tokens);
-          webLocalStorage.set("user", data.user);
+          handleAuthSuccess(data);
         } catch (err) {
           console.error("Login failed", err);
         }
@@ -78,16 +64,15 @@ export const authApi = baseApi.injectEndpoints({
 
     logout: build.mutation<void, LogoutRequest>({
       query: (body) => ({
-        url: `${endpoints.authEndpoints.LOGOUT}`,
+        url: endpoints.authEndpoints.LOGOUT,
         method: "POST",
         body,
       }),
-      extraOptions: { skipAuth: false },
       async onQueryStarted(arg, { queryFulfilled }) {
         try {
           await queryFulfilled;
-          localStorage.removeItem("tokens");
-          localStorage.removeItem("user");
+          cookieStorageClient.removeAll();
+          localStorage.clear();
         } catch (err) {
           console.error("Logout failed", err);
         }

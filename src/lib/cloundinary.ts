@@ -1,0 +1,24 @@
+// utils/cloudinary.ts
+export async function uploadToCloudinary(file: File): Promise<string | null> {
+  try {
+    const url = process.env.NEXT_PUBLIC_CLOUDINARY_URL as string; 
+    const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET as string;
+
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", uploadPreset);
+
+    const res = await fetch(url, {
+      method: "POST",
+      body: formData,
+    });
+
+    if (!res.ok) throw new Error("Upload failed");
+
+    const data = await res.json();
+    return data.secure_url as string; // link ảnh sau khi upload
+  } catch (error) {
+    console.error("Cloudinary upload error:", error);
+    return null;
+  }
+}

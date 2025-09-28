@@ -1,5 +1,4 @@
 'use client'
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { endpoints } from "@/config";
 import { TourGuide } from "@/stores/types/types";
 import { baseApi } from "../base";
@@ -50,7 +49,7 @@ interface APITourGuide {
 // Add mapping function
 const mapAPIToTourGuide = (apiGuide: APITourGuide): TourGuide => {
   return {
-    id: parseInt(apiGuide._id.substring(18), 16), // Convert last 6 chars of _id to number
+    id: apiGuide._id, // Convert last 6 chars of _id to number
     name: apiGuide.user.name,
     location: apiGuide.location,
     price: apiGuide.pricePerDay,
