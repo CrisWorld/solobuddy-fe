@@ -1,9 +1,11 @@
 import { TourGuideDetailPage } from "@/components/modules/chat/TourGuideDetailPage";
 
 interface PageProps {
-    params: { guideId: string }
+  params: Promise<{ guideId: string }>
 }
 
-export default function GuideDetailPage({ params }: PageProps) {
-  return <TourGuideDetailPage guideId={params.guideId} />
+export default async function GuideDetailPage({ params }: PageProps) {
+  const { guideId } = await params
+
+  return <TourGuideDetailPage guideId={guideId} />
 }

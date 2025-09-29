@@ -99,6 +99,8 @@ export const mapTourGuideDetailResponse = (data: any): TourGuideDetail => {
     experienceYears: data.experienceYears || 0,
     vehicle: data.vehicle || "",
     favourites: (data.favourites || []) as Favourite[],
+    dayInWeek: data.dayInWeek || [],
+    isRecur: data.isRecur || false,
     user: {
       id: data.user?._id || "",
       avatar: data.user?.avatar || "/default-avatar.png",

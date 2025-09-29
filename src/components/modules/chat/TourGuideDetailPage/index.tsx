@@ -23,29 +23,33 @@ import { useGetReviewsQuery } from "@/stores/services/review/review"
 import { PhotoCarousel } from "@/components/common/photos-list"
 import { TourGuideTours } from "./tours"
 import { TourGuideReviews } from "./reviews"
+import { BookingConfirmModal } from "./booking-confirm"
+import { useAuth } from "@/components/layout/AuthLayout"
 
 interface TourGuideDetailPageProps {
   guideId: string
 }
 
 export function TourGuideDetailPage({ guideId }: TourGuideDetailPageProps) {
-  const [selectedDate, setSelectedDate] = useState<Date>()
-  const [dayCount, setDayCount] = useState(1)
+  const {user, openLogin} = useAuth();
+  const [selectedTourId, setSelectedTourId] = useState<string>("")
+  const [fromDate, setFromDate] = useState<Date>()
+  const [toDate, setToDate] = useState<Date>()
   const [tours, setTours] = useState<any[]>([])
   const [toursLoading, setToursLoading] = useState(false)
-  console.log("Guide ID:", guideId);
+  const [isBookingModalOpen, setIsBookingModalOpen] = useState(false)
 
   // Fetch tour guide detail
   const { data: guide, isLoading: guideLoading, error: guideError } = useGetTourGuideDetailQuery(guideId)
 
   // Fetch tours by guide with proper error handling and dependency tracking
   const [getToursByGuide] = useGetToursByGuideMutation()
-  
+
   const fetchTours = useCallback(async () => {
     if (!guideId || toursLoading) return
-    
+
     setToursLoading(true)
-    
+
     try {
       const res = await getToursByGuide({
         filter: {
@@ -56,7 +60,7 @@ export function TourGuideDetailPage({ guideId }: TourGuideDetailPageProps) {
           page: 1
         }
       }).unwrap()
-      
+
       setTours(res.results || [])
     } catch (error) {
       console.error('Error fetching tours:', error)
@@ -82,26 +86,54 @@ export function TourGuideDetailPage({ guideId }: TourGuideDetailPageProps) {
   const filteredTours = useMemo(() => tours.filter((tour) => !tour.deleted), [tours])
   const isFavorite = false // TODO: hook vào API/Redux nếu cần
 
+  // Check if a date is available based on guide's schedule
+  const isDateAvailable = useCallback((date: Date) => {
+    if (!guide) return false
+
+    if (guide.isRecur) {
+      // Check day of week (0 = Sunday, 1 = Monday, ..., 6 = Saturday)
+      const dayOfWeek = date.getDay()
+      return guide.dayInWeek?.includes(dayOfWeek) || false
+    } else {
+      // Check available dates
+      if (!guide.availableDates?.length) return false
+      const dateStr = date.toISOString().split('T')[0]
+      return guide.availableDates.some(availDate => {
+        const availDateStr = new Date(availDate).toISOString().split('T')[0]
+        return availDateStr === dateStr
+      })
+    }
+  }, [guide])
+
   // Handlers
   const handleBack = useCallback(() => {
     window.history.back()
   }, [])
 
   const handleBookNow = useCallback(() => {
-    if (!selectedDate) {
-      alert('Please select a date')
-      return
+    if (!selectedTourId || !fromDate || !toDate) return
+    if(!user){
+      openLogin();
+      return;
     }
-    console.log("Booking tour guide:", guide?.id, "Date:", selectedDate, "Days:", dayCount)
-  }, [guide?.id, selectedDate, dayCount])
+    setIsBookingModalOpen(true)
+  }, [selectedTourId, fromDate, toDate])
 
-  const handleDateSelect = useCallback((date: Date | undefined) => {
-    setSelectedDate(date)
+
+  const handleFromDateSelect = useCallback((date: Date | undefined) => {
+    setFromDate(date)
+    // Reset toDate if it's before the new fromDate
+    if (date && toDate && date > toDate) {
+      setToDate(undefined)
+    }
+  }, [toDate])
+
+  const handleToDateSelect = useCallback((date: Date | undefined) => {
+    setToDate(date)
   }, [])
 
-  const handleDayCountChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = Number.parseInt(e.target.value) || 1
-    setDayCount(Math.max(1, value))
+  const handleTourChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedTourId(e.target.value)
   }, [])
 
   // Loading states
@@ -280,8 +312,8 @@ export function TourGuideDetailPage({ guideId }: TourGuideDetailPageProps) {
             )}
 
             {/* Tours Offered */}
-            <TourGuideTours 
-              tours={filteredTours} 
+            <TourGuideTours
+              tours={filteredTours}
             />
 
             {/* Reviews */}
@@ -312,47 +344,81 @@ export function TourGuideDetailPage({ guideId }: TourGuideDetailPageProps) {
 
                   <div className="space-y-4 mb-6">
                     <div>
-                      <label className="text-sm font-medium text-foreground mb-2 block">Select Date</label>
+                      <label className="text-sm font-medium text-foreground mb-2 block">Select Tour</label>
+                      <select
+                        value={selectedTourId}
+                        onChange={handleTourChange}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                      >
+                        <option value="">Choose a tour</option>
+                        {filteredTours.map((tour) => (
+                          <option key={tour.id} value={tour.id}>
+                            {tour.title} - {formatPrice(tour.price)} {tour.unit && `/ ${tour.unit}`}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="text-sm font-medium text-foreground mb-2 block">From Date</label>
                       <Popover>
                         <PopoverTrigger asChild>
                           <Button variant="outline" className="w-full justify-start text-left bg-transparent">
                             <CalendarIcon className="h-4 w-4 mr-2" />
-                            {selectedDate ? format(selectedDate, "PPP") : "Pick a date"}
+                            {fromDate ? format(fromDate, "PPP") : "Pick start date"}
                           </Button>
                         </PopoverTrigger>
                         <PopoverContent className="w-auto p-0">
-                          <Calendar 
-                            mode="single" 
-                            selected={selectedDate} 
-                            onSelect={handleDateSelect} 
-                            initialFocus 
-                            disabled={(date) => date < new Date()}
+                          <Calendar
+                            mode="single"
+                            selected={fromDate}
+                            onSelect={handleFromDateSelect}
+                            initialFocus
+                            disabled={(date) => {
+                              const today = new Date()
+                              today.setHours(0, 0, 0, 0)
+                              return date < today || !isDateAvailable(date)
+                            }}
                           />
                         </PopoverContent>
                       </Popover>
                     </div>
 
                     <div>
-                      <label className="text-sm font-medium text-foreground mb-2 block">Number of Days</label>
-                      <div className="flex items-center gap-2">
-                        <Input
-                          type="number"
-                          min="1"
-                          max="30"
-                          value={dayCount}
-                          onChange={handleDayCountChange}
-                          className="flex-1"
-                        />
-                      </div>
+                      <label className="text-sm font-medium text-foreground mb-2 block">To Date</label>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="outline"
+                            className="w-full justify-start text-left bg-transparent"
+                            disabled={!fromDate}
+                          >
+                            <CalendarIcon className="h-4 w-4 mr-2" />
+                            {toDate ? format(toDate, "PPP") : "Pick end date"}
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0">
+                          <Calendar
+                            mode="single"
+                            selected={toDate}
+                            onSelect={handleToDateSelect}
+                            initialFocus
+                            disabled={(date) => {
+                              if (!fromDate) return true
+                              return date < fromDate || !isDateAvailable(date)
+                            }}
+                          />
+                        </PopoverContent>
+                      </Popover>
                     </div>
                   </div>
 
                   <Button
                     className="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-medium mb-4"
                     onClick={handleBookNow}
-                    disabled={!selectedDate}
+                    disabled={!selectedTourId || !fromDate || !toDate}
                   >
-                    {!selectedDate ? 'Select Date to Book' : 'Book Now'}
+                    {!selectedTourId ? 'Select Tour to Book' : !fromDate || !toDate ? 'Select Dates' : 'Book Now'}
                   </Button>
 
                   {/* Guide Info */}
@@ -403,6 +469,24 @@ export function TourGuideDetailPage({ guideId }: TourGuideDetailPageProps) {
           </div>
         </div>
       </div>
+      {user && isBookingModalOpen &&
+      <BookingConfirmModal
+        isOpen={isBookingModalOpen}
+        onClose={() => setIsBookingModalOpen(false)}
+        guide={guide}
+        tour={filteredTours.find(t => t.id === selectedTourId)}
+        fromDate={fromDate!}
+        toDate={toDate!}
+        traveler={{
+          id: user.id, 
+          name: user.name,
+          email: user.email,
+        }}     
+      />      
+      }
+      
+
     </div>
+
   )
 }

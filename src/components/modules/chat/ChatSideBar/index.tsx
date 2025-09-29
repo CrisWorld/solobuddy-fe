@@ -22,7 +22,7 @@ export function ChatSidebar() {
     { id: "chat", label: "Chat", icon: MessageCircle, href: "/chat" },
     { id: "tour-guide", label: "Tour guide", icon: MapPin, href: "/tour-guides" },
     { id: "favourite", label: "Favourite", icon: Heart, href: "/favourite" },
-    { id: "journey", label: "Journey", icon: Route, href: "/tours" },
+    { id: "journey", label: "Bookings", icon: Route, href: "/bookings-history" },
   ]
 
   return (

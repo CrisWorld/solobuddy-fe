@@ -20,3 +20,38 @@ export interface Favourite {
   updatedAt?: string;
   createdAt?: string;
 }
+
+export interface Booking {
+  id?: string;
+  tourSnapshot: TourSnapshot;
+  guideSnapshot: GuideSnapshot;
+  travelerSnapshot: TravelerSnapshot;
+  status: "pending" | "wait-payment" | "confirmed" | "cancelled" | "completed"; // có thể mở rộng
+  travelerId: string;
+  tourGuideId: string;
+  tourId: string;
+  totalPrice: number;
+  fromDate: string; // ISO string
+  toDate: string;   // ISO string
+  quanity: number;  
+}
+
+export interface TourSnapshot {
+  id: string;
+  title: string;
+  price: number;
+  duration: string;
+}
+
+export interface GuideSnapshot {
+  id: string;
+  country: string;
+  location: string;
+  pricePerDay: number;
+}
+
+export interface TravelerSnapshot {
+  id: string;
+  name: string;
+  email: string;
+}

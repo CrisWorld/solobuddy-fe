@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -15,27 +15,58 @@ import { useToast } from "@/components/ui/use-toast"
 import { Edit, Check, X, Upload, Star, AlertCircle } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { TourGuideProfile, useGetProfileQuery, UserProfile } from "@/stores/services/user/userApi"
-import { 
+import {
   useUpdateTourGuideProfileMutation,
   useUpdateAvailableDatesMutation,
   useUpdateWorkDaysMutation,
   UpdateTourGuideProfileRequest,
   UpdateAvailableDatesRequest,
-  UpdateWorkDaysRequest
+  UpdateWorkDaysRequest,
+  useGetToursByGuideMutation
 } from "@/stores/services/tour-guide/tour-guide"
 import { countries, favourites, formatPrice, formatSpecialty, formatVehicle, languages, specialtyTypes, vehicleTypes } from "@/lib/utils"
 import { PhotoUpload } from "@/components/common/photo-upload"
 import { DaySelector } from "@/components/common/day-selector"
 import { CalendarPicker } from "@/components/common/calendar-picker"
 import { uploadToCloudinary } from "@/lib/cloundinary"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { TourGuideTours } from "../../chat/TourGuideDetailPage/tours"
+import { useApp } from "@/lib/app-context"
 
 export function ProfilePage() {
   const { toast } = useToast()
   const [isEditingProfile, setIsEditingProfile] = useState(false)
   const [isEditingTourGuide, setIsEditingTourGuide] = useState(false)
-
+  const [tours, setTours] = useState<any[]>([])
+  const [toursLoading, setToursLoading] = useState(false)
+  const { showToast} = useApp()
   // Fetch user profile data
   const { data: profileData, isLoading, error, refetch } = useGetProfileQuery()
+  // Fetch tours by guide with proper error handling and dependency tracking
+  const [getToursByGuide] = useGetToursByGuideMutation()
+
+  useEffect(() => {
+  const fetchTours = async () => {
+    if (!profileData || profileData.role !== "guide" || !profileData.tourGuides || profileData.tourGuides.length === 0) return;
+    setToursLoading(true)
+    try {
+      const res = await getToursByGuide({
+        filter: { guideId: profileData.tourGuides[0].id },
+        options: { limit: 6, page: 1 }
+      }).unwrap()
+      setTours(res.results || [])
+    } catch (err) {
+      console.error(err)
+      setTours([])
+    } finally {
+      setToursLoading(false)
+    }
+  }
+
+  if (profileData?.role === "guide") {
+    fetchTours()
+  }
+}, [profileData, getToursByGuide])
 
   // Mutations for updating tour guide data
   const [updateTourGuideProfile, { isLoading: isUpdatingProfile }] = useUpdateTourGuideProfileMutation()
@@ -75,25 +106,18 @@ export function ProfilePage() {
 
   const handleSaveProfile = async () => {
     if (!editedProfile) return
-    
+
     try {
       // TODO: Add API call to update user profile
       // await updateProfile(editedProfile)
-      
+
       setIsEditingProfile(false)
-      toast({
-        title: "Success",
-        description: "Profile updated successfully",
-      })
+      showToast("Profile updated successfully", "success");
       // Refetch data to get updated profile
       refetch()
     } catch (error) {
       console.error('Failed to update profile:', error)
-      toast({
-        title: "Error",
-        description: "Failed to update profile",
-        variant: "destructive",
-      })
+      showToast("Failed to update profile", "error");
     }
   }
 
@@ -116,7 +140,7 @@ export function ProfilePage() {
 
   const handleSaveTourGuide = async () => {
     if (!editedTourGuideProfile || !originalTourGuideProfile) return
-    
+
     try {
       const isUpdating = isUpdatingProfile || isUpdatingDates || isUpdatingWorkDays
       if (isUpdating) return // Prevent multiple simultaneous requests
@@ -157,7 +181,7 @@ export function ProfilePage() {
         profileChanges.specialties = editedTourGuideProfile.specialties
         hasProfileChanges = true
       }
-      
+
       // Handle favourites - convert to string array for API
       const editedFavouriteNames = editedTourGuideProfile.favourites.map(f => f.name)
       const originalFavouriteNames = originalTourGuideProfile.favourites.map(f => f.name)
@@ -169,14 +193,14 @@ export function ProfilePage() {
       // 2. Update available dates
       const originalDates = new Set(originalTourGuideProfile.availableDates)
       const editedDates = new Set(editedTourGuideProfile.availableDates)
-      
+
       const addDates = editedTourGuideProfile.availableDates.filter(date => !originalDates.has(date))
       const removeDates = originalTourGuideProfile.availableDates.filter(date => !editedDates.has(date) || date < new Date().toISOString().split('T')[0])
-      
+
       const hasDateChanges = addDates.length > 0 || removeDates.length > 0
 
       // 3. Update work days
-      const hasWorkDayChanges = 
+      const hasWorkDayChanges =
         editedTourGuideProfile.isRecur !== originalTourGuideProfile.isRecur ||
         JSON.stringify(editedTourGuideProfile.dayInWeek) !== JSON.stringify(originalTourGuideProfile.dayInWeek)
 
@@ -213,23 +237,16 @@ export function ProfilePage() {
       }
 
       const results = await Promise.all(promises)
-      
-      console.log('API Results:', results)
-      
+
       const allSuccessful = results.every(result => {
         const hasData = 'data' in result && result.data
         const isSuccess = hasData && result.data.success === true
         return isSuccess
       })
-      
-      console.log('All successful:', allSuccessful)
-      
+
       if (allSuccessful) {
         setIsEditingTourGuide(false)
-        toast({
-          title: "Success",
-          description: "Tour guide profile updated successfully",
-        })
+        showToast("Tour guide profile updated successfully", "success");
         // Refetch data to get updated profile
         refetch()
       } else {
@@ -238,13 +255,14 @@ export function ProfilePage() {
           const hasData = 'data' in result && result.data
           return !hasData || !result.data.success
         })
-        
+        showToast("Some updates failed. Please review and try again.", "error");
+
         console.error('Failed results:', failedResults)
-        
+
         // Check if any succeeded
         const succeededCount = results.filter(result => 'data' in result && result.data && result.data.success).length
         const totalCount = results.length
-        
+
         if (succeededCount > 0 && succeededCount < totalCount) {
           toast({
             title: "Partial Update",
@@ -258,7 +276,7 @@ export function ProfilePage() {
             variant: "destructive",
           })
         }
-        
+
         // If some succeeded, still refetch to get partial updates
         if (succeededCount > 0) {
           refetch()
@@ -266,11 +284,7 @@ export function ProfilePage() {
       }
     } catch (error) {
       console.error('Failed to update tour guide profile:', error)
-      toast({
-        title: "Error",
-        description: "Failed to update tour guide profile",
-        variant: "destructive",
-      })
+      showToast("Failed to update tour guide profile", "error");
     }
   }
 
@@ -282,13 +296,13 @@ export function ProfilePage() {
   }
 
   const handleAvatarUpload = async (file: File) => {
-  if (!editedProfile) return;
+    if (!editedProfile) return;
 
-  const url = await uploadToCloudinary(file); // upload thật sự
-  if (!url) return;
+    const url = await uploadToCloudinary(file); // upload thật sự
+    if (!url) return;
 
-  setEditedProfile({ ...editedProfile, avatar: url });
-};
+    setEditedProfile({ ...editedProfile, avatar: url });
+  };
 
   // Loading state
   if (isLoading) {
@@ -530,8 +544,8 @@ export function ProfilePage() {
                     </Button>
                   ) : (
                     <div className="flex gap-2">
-                      <Button 
-                        onClick={handleSaveTourGuide} 
+                      <Button
+                        onClick={handleSaveTourGuide}
                         className="bg-green-600 text-white hover:bg-green-700"
                         disabled={isUpdating}
                       >
@@ -833,7 +847,44 @@ export function ProfilePage() {
                 </div>
               </CardContent>
             </Card>
+
           )}
+          {isTourGuide && (
+            <Card>
+              <CardHeader className="flex justify-between items-center">
+                <CardTitle>Tours</CardTitle>
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button variant="outline">+ Add Tour</Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Add New Tour</DialogTitle>
+                    </DialogHeader>
+                    {/* <AddTourForm
+                      onSubmit={async (data) => {
+                        try {
+                          await createTour({ guideId, ...data }).unwrap()
+                          toast({ title: "Success", description: "Tour created successfully" })
+                          refetchTours()
+                        } catch (err) {
+                          toast({ title: "Error", description: "Failed to create tour", variant: "destructive" })
+                        }
+                      }}
+                    /> */}
+                  </DialogContent>
+                </Dialog>
+              </CardHeader>
+              <CardContent>
+                {toursLoading ? (
+                  <p className="text-muted-foreground">Loading tours...</p>
+                ) : (
+                  <TourGuideTours tours={tours} />
+                )}
+              </CardContent>
+            </Card>
+          )}
+
         </div>
       </div>
     </div>

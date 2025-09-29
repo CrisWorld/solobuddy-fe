@@ -27,6 +27,7 @@ const reviewEndpoints = {
 }
 const userEndpoints = {
   GET_PROFILE: '/users/private/me',
+  BOOKING: '/bookings',
 }
 export default {
   demoEndpoints,

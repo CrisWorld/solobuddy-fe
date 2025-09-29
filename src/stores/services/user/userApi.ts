@@ -2,7 +2,8 @@
 
 import { endpoints } from "@/config";
 import { baseApi } from "../base";
-import { Favourite } from "@/stores/types/types";
+import { Booking, Favourite } from "@/stores/types/types";
+import { get } from "lodash";
 
 export interface UserProfile {
   id: string;
@@ -88,6 +89,21 @@ export const mapUserProfileResponse = (data: any): ProfileResponse => {
   return baseProfile;
 };
 
+export interface AddBookingRequest {
+  tourGuideId: string;
+  tourId: string;
+  fromDate: string; //yyyy-mm-dd
+  toDate: string; //yyyy-mm-dd
+  quanity: number;
+}
+
+export interface AddBookingResponse {
+  booking: Booking;
+  checkoutUrl: string; 
+}
+
+
+
 export const userApi = baseApi.injectEndpoints({
   endpoints: (build) => ({
     getProfile: build.query<ProfileResponse, void>({
@@ -97,7 +113,23 @@ export const userApi = baseApi.injectEndpoints({
       }),
       transformResponse: (response: any) => mapUserProfileResponse(response),
     }),
+    addBooking: build.mutation<AddBookingResponse, AddBookingRequest>({
+      query: (body) => ({
+        url: endpoints.userEndpoints.BOOKING,
+        method: "POST",
+        body,
+      }),
+    }),
+    getBookingsHistory: build.query< Booking[] , void>({
+      query: () => ({
+        url: endpoints.userEndpoints.BOOKING,
+        method: 'GET',
+      }),
+    })
   }),
 });
 
-export const { useGetProfileQuery } = userApi;
+export const { useGetProfileQuery
+, useAddBookingMutation,
+  useGetBookingsHistoryQuery
+ } = userApi;

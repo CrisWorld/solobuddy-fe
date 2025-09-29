@@ -48,7 +48,7 @@ export function RegisterModal({ isOpen, onSwitchToLogin }: RegisterModalProps) {
     if (!/\S+@\S+\.\S+/.test(form.email)) {
       newErrors.email = "Please enter a valid email address."
     }
-    if (/^(?=.*[A-Za-z])(?=.*\d).{8,}$/.test(form.password)) {
+    if (!/^(?=.*[A-Za-z])(?=.*\d).{8,}$/.test(form.password)) {
       newErrors.password = "Password must be at least 8 characters, with letters and numbers."
     }
     if (!form.confirm) {
