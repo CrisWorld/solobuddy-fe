@@ -9,7 +9,7 @@ import { TourGuideCard, TourGuideData } from "@/components/common/tour-guide-car
 
 const allTourGuides: TourGuideData[] = [
   {
-    id: 1,
+    id: "1",
     name: "Do En Nguyen",
     location: "Da Nang",
     price: 800000,
@@ -20,7 +20,7 @@ const allTourGuides: TourGuideData[] = [
     description: "Passionate photographer and food enthusiast with 5 years of guiding experience.",
   },
   {
-    id: 2,
+    id: "2",
     name: "Nguyen Truong Giang",
     location: "Da Nang",
     price: 900000,
@@ -31,7 +31,7 @@ const allTourGuides: TourGuideData[] = [
     description: "Local historian specializing in cultural tours and authentic dining experiences.",
   },
   {
-    id: 3,
+    id: "3",
     name: "Linh Pham",
     location: "Ho Chi Minh City",
     price: 1000000,
@@ -42,7 +42,7 @@ const allTourGuides: TourGuideData[] = [
     description: "Energetic guide who knows all the best spots for shopping and nightlife in Saigon.",
   },
   {
-    id: 4,
+    id: "4",
     name: "Minh Tran",
     location: "Hanoi",
     price: 1000000,
@@ -53,7 +53,7 @@ const allTourGuides: TourGuideData[] = [
     description: "Architecture enthusiast with deep knowledge of Hanoi's historical sites and street food scene.",
   },
   {
-    id: 5,
+    id: "5",
     name: "Thao Nguyen",
     location: "Hoi An",
     price: 1000000,
@@ -64,7 +64,7 @@ const allTourGuides: TourGuideData[] = [
     description: "Traditional craft expert offering hands-on cooking classes and cultural immersion experiences.",
   },
   {
-    id: 6,
+    id: "6",
     name: "Duc Le",
     location: "Nha Trang",
     price: 1000000,
