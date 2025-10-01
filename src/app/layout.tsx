@@ -15,8 +15,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "SoloBuddy - Your Travel Companion",
-  description: "Explore the world with SoloBuddy, your ultimate travel companion. Discover new destinations, connect with fellow travelers, and share your adventures.",
+  title: "SoloBuddy - Người bạn đồng hành du lịch của bạn",
+  description: "Khám phá thế giới cùng SoloBuddy – người bạn đồng hành hoàn hảo trong mọi chuyến đi. Khám phá điểm đến mới, kết nối với bạn bè đồng hành và chia sẻ hành trình của bạn.",
 };
 
 export default function RootLayout({

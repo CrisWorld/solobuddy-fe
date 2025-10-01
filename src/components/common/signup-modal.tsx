@@ -26,6 +26,7 @@ export function RegisterModal({ isOpen, onSwitchToLogin }: RegisterModalProps) {
   const { showToast } = useApp()
   const [shake, setShake] = useState(false)
   const { closeRegister } = useAuth()
+
   const resetForm = () => {
     setForm({ name: "", email: "", password: "", confirm: "" })
     setErrors({})
@@ -43,18 +44,18 @@ export function RegisterModal({ isOpen, onSwitchToLogin }: RegisterModalProps) {
     const newErrors: typeof errors = {}
 
     if (!form.name.trim()) {
-      newErrors.name = "Name is required."
+      newErrors.name = "Vui lòng nhập tên."
     }
     if (!/\S+@\S+\.\S+/.test(form.email)) {
-      newErrors.email = "Please enter a valid email address."
+      newErrors.email = "Vui lòng nhập email hợp lệ."
     }
     if (!/^(?=.*[A-Za-z])(?=.*\d).{8,}$/.test(form.password)) {
-      newErrors.password = "Password must be at least 8 characters, with letters and numbers."
+      newErrors.password = "Mật khẩu phải ít nhất 8 ký tự, gồm cả chữ và số."
     }
     if (!form.confirm) {
-      newErrors.confirm = "Please confirm your password."
+      newErrors.confirm = "Vui lòng nhập lại mật khẩu."
     } else if (form.password !== form.confirm) {
-      newErrors.confirm = "Passwords do not match."
+      newErrors.confirm = "Mật khẩu không khớp."
     }
 
     setErrors(newErrors)
@@ -74,10 +75,11 @@ export function RegisterModal({ isOpen, onSwitchToLogin }: RegisterModalProps) {
     try {
       const result = await register({ name: form.name, email: form.email, password: form.password }).unwrap()
       setUser(result.user)
-      showToast(`Welcome ${form.name}!`, "success")
+      showToast(`Chào mừng ${form.name}!`, "success")
+      window.location.reload();
       handleClose()
     } catch (error: any) {
-      showToast(error?.data?.message || "Registration failed", "error")
+      showToast(error?.data?.message || "Đăng ký thất bại", "error")
     }
   }
 
@@ -89,22 +91,22 @@ export function RegisterModal({ isOpen, onSwitchToLogin }: RegisterModalProps) {
           transition={{ duration: 0.5 }}
         >
           <DialogHeader>
-            <DialogTitle className="text-2xl font-bold text-center">Register</DialogTitle>
+            <DialogTitle className="text-2xl font-bold text-center">Đăng ký</DialogTitle>
             <p className="text-center text-muted-foreground">
-              Already have an account?{" "}
+              Đã có tài khoản?{" "}
               <button onClick={onSwitchToLogin} className="text-blue-500 hover:underline">
-                Login
+                Đăng nhập
               </button>
             </p>
           </DialogHeader>
 
           <div className="space-y-4 mt-6">
-            {/* Name */}
+            {/* Tên */}
             <div className="space-y-1">
-              <Label htmlFor="name">Name</Label>
+              <Label htmlFor="name">Họ và tên</Label>
               <Input
                 id="name"
-                placeholder="Enter your name"
+                placeholder="Nhập họ và tên"
                 value={form.name}
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
                 className={errors.name ? "border-red-500" : ""}
@@ -118,7 +120,7 @@ export function RegisterModal({ isOpen, onSwitchToLogin }: RegisterModalProps) {
               <Input
                 id="email"
                 type="email"
-                placeholder="Enter your email"
+                placeholder="Nhập email"
                 value={form.email}
                 onChange={(e) => setForm({ ...form, email: e.target.value })}
                 className={errors.email ? "border-red-500" : ""}
@@ -126,14 +128,14 @@ export function RegisterModal({ isOpen, onSwitchToLogin }: RegisterModalProps) {
               {errors.email && <p className="text-sm text-red-500">{errors.email}</p>}
             </div>
 
-            {/* Password */}
+            {/* Mật khẩu */}
             <div className="space-y-1">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password">Mật khẩu</Label>
               <div className="relative">
                 <Input
                   id="password"
                   type={showPassword ? "text" : "password"}
-                  placeholder="Enter password"
+                  placeholder="Nhập mật khẩu"
                   value={form.password}
                   onChange={(e) => setForm({ ...form, password: e.target.value })}
                   className={`w-full pr-10 ${errors.password ? "border-red-500" : ""}`}
@@ -149,14 +151,14 @@ export function RegisterModal({ isOpen, onSwitchToLogin }: RegisterModalProps) {
               {errors.password && <p className="text-sm text-red-500">{errors.password}</p>}
             </div>
 
-            {/* Confirm Password */}
+            {/* Xác nhận mật khẩu */}
             <div className="space-y-1">
-              <Label htmlFor="confirm">Confirm Password</Label>
+              <Label htmlFor="confirm">Xác nhận mật khẩu</Label>
               <div className="relative">
                 <Input
                   id="confirm"
                   type={showConfirm ? "text" : "password"}
-                  placeholder="Confirm password"
+                  placeholder="Nhập lại mật khẩu"
                   value={form.confirm}
                   onChange={(e) => setForm({ ...form, confirm: e.target.value })}
                   className={`w-full pr-10 ${errors.confirm ? "border-red-500" : ""}`}
@@ -177,7 +179,7 @@ export function RegisterModal({ isOpen, onSwitchToLogin }: RegisterModalProps) {
               onClick={handleRegister}
               disabled={isLoading}
             >
-              {isLoading ? "Signing up..." : "Sign up"}
+              {isLoading ? "Đang đăng ký..." : "Đăng ký"}
             </Button>
           </div>
         </motion.div>

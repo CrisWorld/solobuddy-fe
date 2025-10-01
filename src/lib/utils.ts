@@ -11,113 +11,190 @@ export const createRegexPattern = (searchTerm: string): string => {
   return `.*${searchTerm.trim()}.*`;
 };
 
-// Backend constants
-export const vehicleTypes = ['car', 'van', 'bus', 'motorcycle', 'bicycle', 'walking', 'other']
+// Backend constants (đã việt hóa giá trị)
+export const vehicleTypes = [
+  "car",
+  "van",
+  "bus",
+  "motorcycle",
+  "bicycle",
+  "walking",
+  "other",
+]
+
 export const specialtyTypes = [
-  'historical-tours',
-  'cultural-tours',
-  'adventure-tours',
-  'food-tours',
-  'nature-tours',
-  'city-tours',
-  'museum-tours',
-  'photography-tours',
-  'religious-tours',
-  'shopping-tours',
+  "historical-tours",
+  "cultural-tours",
+  "adventure-tours",
+  "food-tours",
+  "nature-tours",
+  "city-tours",
+  "museum-tours",
+  "photography-tours",
+  "religious-tours",
+  "shopping-tours",
 ]
+
 export const favourites = [
-  'Photography',
-  'Reading Books',
-  'Cooking',
-  'Hiking',
-  'Cycling',
-  'Listening to Music',
-  'Traveling',
-  'Swimming',
-  'Drawing & Painting',
-  'Yoga & Meditation',
+  "Photography",
+  "Reading Books",
+  "Cooking",
+  "Hiking",
+  "Cycling",
+  "Listening to Music",
+  "Traveling",
+  "Swimming",
+  "Drawing & Painting",
+  "Yoga & Meditation",
 ]
-export const languages = ['english', 'vietnamese', 'thai', 'french', 'spanish', 'chinese', 'japanese', 'korean']
-export const locations = ['vietnam', 'thailand', 'france', 'spain', 'china', 'japan', 'korea', 'usa', 'uk', 'germany']
-export const countries = ["vietnam", "thailand", "france", "spain", "china", "japan", "korea", "usa", "uk", "germany"]
+
+export const languages = [
+  "english",
+  "vietnamese",
+  "thai",
+  "french",
+  "spanish",
+  "chinese",
+  "japanese",
+  "korean",
+]
+
+export const locations = [
+  "vietnam",
+  "thailand",
+  "france",
+  "spain",
+  "china",
+  "japan",
+  "korea",
+  "usa",
+  "uk",
+  "germany",
+]
+
+export const countries = [
+  "vietnam",
+  "thailand",
+  "france",
+  "spain",
+  "china",
+  "japan",
+  "korea",
+  "usa",
+  "uk",
+  "germany",
+]
+
 // Utility functions to format display text
 export const formatSpecialty = (specialty: string): string => {
-  if (!specialty) return ''
-  return specialty
-    .split('-')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ')
+  if (!specialty) return ""
+  const map: Record<string, string> = {
+    "historical-tours": "Tour lịch sử",
+    "cultural-tours": "Tour văn hoá",
+    "adventure-tours": "Tour phiêu lưu",
+    "food-tours": "Tour ẩm thực",
+    "nature-tours": "Tour thiên nhiên",
+    "city-tours": "Tour thành phố",
+    "museum-tours": "Tour bảo tàng",
+    "photography-tours": "Tour nhiếp ảnh",
+    "religious-tours": "Tour tôn giáo",
+    "shopping-tours": "Tour mua sắm",
+  }
+  return map[specialty] || specialty
 }
 
 export const formatLanguage = (language: string): string => {
-  if (!language) return ''
-  return language.charAt(0).toUpperCase() + language.slice(1)
+  if (!language) return ""
+  const map: Record<string, string> = {
+    english: "Tiếng Anh",
+    vietnamese: "Tiếng Việt",
+    thai: "Tiếng Thái",
+    french: "Tiếng Pháp",
+    spanish: "Tiếng Tây Ban Nha",
+    chinese: "Tiếng Trung",
+    japanese: "Tiếng Nhật",
+    korean: "Tiếng Hàn",
+  }
+  return map[language.toLowerCase()] || language
 }
 
 export const formatLocation = (location: string): string => {
-  if (!location) return ''
+  if (!location) return ""
   const locationMap: { [key: string]: string } = {
-    'usa': 'USA',
-    'uk': 'UK',
-    'vietnam': 'Vietnam',
-    'thailand': 'Thailand',
-    'france': 'France',
-    'spain': 'Spain',
-    'china': 'China',
-    'japan': 'Japan',
-    'korea': 'Korea',
-    'germany': 'Germany'
+    usa: "Mỹ",
+    uk: "Anh",
+    vietnam: "Việt Nam",
+    thailand: "Thái Lan",
+    france: "Pháp",
+    spain: "Tây Ban Nha",
+    china: "Trung Quốc",
+    japan: "Nhật Bản",
+    korea: "Hàn Quốc",
+    germany: "Đức",
   }
-  return locationMap[location.toLowerCase()] || location.charAt(0).toUpperCase() + location.slice(1)
+  return locationMap[location.toLowerCase()] || location
 }
 
 export const formatVehicle = (vehicle: string): string => {
-  if (!vehicle) return ''
+  if (!vehicle) return ""
   const vehicleMap: { [key: string]: string } = {
-    'motorcycle': 'Motorcycle',
-    'car': 'Car',
-    'van': 'Van',
-    'bus': 'Bus',
-    'bicycle': 'Bicycle',
-    'walking': 'Walking',
-    'other': 'Other'
+    motorcycle: "Xe máy",
+    car: "Xe hơi",
+    van: "Xe van",
+    bus: "Xe buýt",
+    bicycle: "Xe đạp",
+    walking: "Đi bộ",
+    other: "Khác",
   }
-  return vehicleMap[vehicle.toLowerCase()] || vehicle.charAt(0).toUpperCase() + vehicle.slice(1)
+  return vehicleMap[vehicle.toLowerCase()] || vehicle
+}
+
+const favouriteMap: Record<string, string> = {
+  "Photography": "Chụp ảnh",
+  "Reading Books": "Đọc sách",
+  "Cooking": "Nấu ăn",
+  "Hiking": "Leo núi",
+  "Cycling": "Đạp xe",
+  "Listening to Music": "Nghe nhạc",
+  "Traveling": "Du lịch",
+  "Swimming": "Bơi lội",
+  "Drawing & Painting": "Vẽ & hội họa",
+  "Yoga & Meditation": "Yoga & thiền",
 }
 
 export const formatFavourite = (favourite: string): string => {
-  if (!favourite) return ''
-  return favourite
+  if (!favourite) return ""
+  return favouriteMap[favourite] || favourite
 }
 
 // Utility functions to format arrays
 export const formatSpecialties = (specialties: string[]): string => {
-  if (!specialties || specialties.length === 0) return ''
-  return specialties.map(formatSpecialty).join(', ')
+  if (!specialties || specialties.length === 0) return ""
+  return specialties.map(formatSpecialty).join(", ")
 }
 
 export const formatLanguages = (languageList: string[]): string => {
-  if (!languageList || languageList.length === 0) return ''
-  return languageList.map(formatLanguage).join(', ')
+  if (!languageList || languageList.length === 0) return ""
+  return languageList.map(formatLanguage).join(", ")
 }
 
-// Price formatting
+// Price formatting (VND thay vì USD)
 export const formatPrice = (price: number): string => {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
+  return new Intl.NumberFormat("vi-VN", {
+    style: "currency",
+    currency: "VND",
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   }).format(price)
 }
 
-// Experience years formatting
+// Experience years formatting (sang tiếng Việt)
 export const formatExperienceYears = (years: number): string => {
-  if (years === 1) return '1 year'
-  return `${years} years`
+  if (years === 1) return "1 năm"
+  return `${years} năm`
 }
 
-// Rating formatting
+// Rating formatting (vẫn giữ số, thêm chữ "điểm")
 export const formatRating = (rating: number): string => {
-  return rating.toFixed(1)
+  return `${rating.toFixed(1)} điểm`
 }

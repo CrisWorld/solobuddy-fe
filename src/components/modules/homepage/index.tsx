@@ -3,7 +3,7 @@
 import { TourGuides } from "@/components/modules/tourguides/tour-guides"
 import { HeroSection } from "./hero-section"
 import { HowItWorks } from "./how-it-works"
-import { Testimonials } from "./testimonials"
+import WhyChooseUs from "./why-choose-us"
 
 export default function HomePage(){
     return (
@@ -11,7 +11,7 @@ export default function HomePage(){
         <HeroSection />
         <TourGuides />
         <HowItWorks />
-        <Testimonials />
+        <WhyChooseUs />
         </>
     )
 }

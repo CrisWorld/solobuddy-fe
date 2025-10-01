@@ -95,7 +95,7 @@ export function FavouritePage() {
       {/* Header */}
       <div className="bg-white border-b border-border p-6">
         <div className="max-w-6xl mx-auto">
-          <h1 className="text-2xl font-bold text-foreground mb-4">Favourite Tour Guides</h1>
+          <h1 className="text-2xl font-bold text-foreground mb-4">Yêu thích</h1>
 
           {favouriteGuidesData.length > 0 && (
             <div className="relative max-w-md">
@@ -120,10 +120,10 @@ export function FavouritePage() {
               <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-6">
                 <Heart className="h-12 w-12 text-gray-400" />
               </div>
-              <h2 className="text-xl font-semibold text-foreground mb-2">No favourite guides yet</h2>
+              <h2 className="text-xl font-semibold text-foreground mb-2">Chưa có tour guide nào</h2>
               <p className="text-muted-foreground text-center max-w-md mb-6">
-                Start exploring tour guides and add them to your favourites by clicking the heart icon. Your saved
-                guides will appear here for easy access.
+                Bạn chưa thêm tour guide nào vào danh sách yêu thích. Duyệt qua các tour guide và nhấn vào biểu tượng
+                trái tim để thêm vào danh sách yêu thích của bạn.
               </p>
               <Button
                 onClick={() => {
@@ -133,13 +133,13 @@ export function FavouritePage() {
                 }}
                 className="bg-primary text-primary-foreground hover:bg-primary/90"
               >
-                Browse Tour Guides
+                Khám phá tour guide
               </Button>
             </div>
           ) : (
             <>
               <div className="mb-4 text-sm text-muted-foreground">
-                {filteredFavourites.length} of {favouriteGuidesData.length} favourite guides
+                {filteredFavourites.length} trong số {favouriteGuidesData.length} hướng dẫn viên
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

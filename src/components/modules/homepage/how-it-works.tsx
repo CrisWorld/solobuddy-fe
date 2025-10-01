@@ -3,25 +3,25 @@ import { Sparkles, Search, MessageCircle, MapPin } from "lucide-react"
 const steps = [
   {
     icon: Search,
-    title: "Search & Discover",
+    title: "Tìm kiếm & Khám phá",
     description:
-      "Browse through our curated list of AI-powered tour guides and find the perfect match for your solo adventure.",
+      "Duyệt qua danh sách hướng dẫn viên du lịch được AI gợi ý và tìm người đồng hành phù hợp cho chuyến đi một mình của bạn.",
   },
   {
     icon: MessageCircle,
-    title: "Chat with AI",
+    title: "Trò chuyện với AI",
     description:
-      "Get personalized recommendations and instant answers to your travel questions from our intelligent chatbot.",
+      "Nhận gợi ý cá nhân hóa và câu trả lời tức thì cho mọi thắc mắc du lịch từ chatbot thông minh.",
   },
   {
     icon: MapPin,
-    title: "Book Your Guide",
-    description: "Select your preferred tour guide and customize your itinerary based on your interests and budget.",
+    title: "Đặt hướng dẫn viên",
+    description: "Chọn hướng dẫn viên yêu thích và tùy chỉnh lịch trình dựa trên sở thích cũng như ngân sách của bạn.",
   },
   {
     icon: Sparkles,
-    title: "Explore & Enjoy",
-    description: "Embark on your solo journey with confidence, knowing you have expert local guidance and AI support.",
+    title: "Khám phá & Tận hưởng",
+    description: "Bắt đầu hành trình một mình với sự tự tin, vì bạn luôn có sự hỗ trợ từ chuyên gia địa phương và AI.",
   },
 ]
 
@@ -30,10 +30,10 @@ export function HowItWorks() {
     <section className="py-16 bg-secondary/30">
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
-          <h2 className="text-3xl lg:text-4xl font-bold text-foreground mb-4">How It Works</h2>
+          <h2 className="text-3xl lg:text-4xl font-bold text-foreground mb-4">Cách Hoạt Động</h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            Your solo travel adventure is just four simple steps away. Let our AI-powered platform guide you to
-            unforgettable experiences.
+            Chỉ với 4 bước đơn giản, bạn đã sẵn sàng cho chuyến phiêu lưu solo. Hãy để nền tảng AI của chúng tôi dẫn lối
+            đến những trải nghiệm khó quên.
           </p>
         </div>
 

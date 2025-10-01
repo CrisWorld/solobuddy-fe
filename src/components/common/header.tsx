@@ -42,20 +42,20 @@ export function Header() {
                 </div>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={logout}>Logout</DropdownMenuItem>
+                <DropdownMenuItem onClick={logout}>Đăng xuất</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
             <>
               <Button variant="ghost" onClick={openLogin}>
-                Sign In
+                Đăng nhập
               </Button>
               
             </>
           )}
           <Link href="/chat">
                 <Button className="bg-primary text-white rounded-full px-6">
-                  Get Started
+                  Bắt đầu ngay
                 </Button>
               </Link>
         </div>
@@ -123,7 +123,7 @@ export function Header() {
                         setIsMenuOpen(false)
                       }}
                     >
-                      Logout
+                      Đăng xuất
                     </Button>
                   </>
                 ) : (
@@ -135,7 +135,7 @@ export function Header() {
                         setIsMenuOpen(false)
                       }}
                     >
-                      Sign In
+                      Đăng nhập
                     </Button>                    
                   </>
                 )}
@@ -143,7 +143,7 @@ export function Header() {
                 {/* Link khác (vd: Chat) */}
                 <Link href="/chat" onClick={() => setIsMenuOpen(false)}>
                   <Button variant="ghost" className="w-full bg-primary text-white rounded-full px-6">
-                    Get Started
+                    Bắt đầu ngay
                   </Button>
                 </Link>
               </div>

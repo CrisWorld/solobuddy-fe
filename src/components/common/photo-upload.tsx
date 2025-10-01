@@ -16,13 +16,13 @@ interface PhotoUploadProps {
 
 export function PhotoUpload({ photos, onPhotosChange, disabled, maxPhotos = 10 }: PhotoUploadProps) {
   const [dragOver, setDragOver] = useState(false)
-  const [uploading, setUploading] = useState<string[]>([]) // list các URL tạm đang upload
+  const [uploading, setUploading] = useState<string[]>([])
 
   const handleFileUpload = async (files: FileList | null) => {
     if (!files || disabled) return
 
     for (const file of Array.from(files)) {
-      const tempUrl = URL.createObjectURL(file) // tạm để hiển thị trước
+      const tempUrl = URL.createObjectURL(file)
       setUploading((prev) => [...prev, tempUrl])
 
       const url = await uploadToCloudinary(file)
@@ -58,7 +58,7 @@ export function PhotoUpload({ photos, onPhotosChange, disabled, maxPhotos = 10 }
 
   return (
     <div className="space-y-4">
-      {/* Upload Area */}
+      {/* Khu vực Upload */}
       {!disabled && (
         <Card
           className={`border-2 border-dashed transition-colors ${
@@ -71,7 +71,7 @@ export function PhotoUpload({ photos, onPhotosChange, disabled, maxPhotos = 10 }
           <CardContent className="flex flex-col items-center justify-center py-8">
             <Upload className="h-8 w-8 text-muted-foreground mb-2" />
             <p className="text-sm text-muted-foreground text-center mb-4">
-              Drag and drop photos here, or click to select
+              Kéo & thả ảnh vào đây, hoặc bấm để chọn ảnh từ máy
             </p>
             <input
               type="file"
@@ -89,24 +89,24 @@ export function PhotoUpload({ photos, onPhotosChange, disabled, maxPhotos = 10 }
               disabled={disabled || photos.length >= maxPhotos}
             >
               <ImageIcon className="h-4 w-4 mr-2" />
-              Select Photos
+              Chọn ảnh
             </Button>
             <p className="text-xs text-muted-foreground mt-2">
-              {photos.length}/{maxPhotos} photos
+              {photos.length}/{maxPhotos} ảnh đã chọn
             </p>
           </CardContent>
         </Card>
       )}
 
-      {/* Photo Grid */}
+      {/* Lưới hiển thị ảnh */}
       {(photos.length > 0 || uploading.length > 0) && (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {/* Hiển thị ảnh đã upload */}
+          {/* Ảnh đã upload */}
           {photos.map((photo, index) => (
             <div key={`photo-${index}`} className="relative group">
               <img
                 src={photo || "/placeholder.svg"}
-                alt={`Photo ${index + 1}`}
+                alt={`Ảnh ${index + 1}`}
                 className="w-full h-24 object-cover rounded-lg border"
               />
               {!disabled && (
@@ -122,12 +122,12 @@ export function PhotoUpload({ photos, onPhotosChange, disabled, maxPhotos = 10 }
             </div>
           ))}
 
-          {/* Hiển thị ảnh đang upload */}
+          {/* Ảnh đang upload */}
           {uploading.map((tempUrl, index) => (
             <div key={`uploading-${index}`} className="relative">
               <img
                 src={tempUrl}
-                alt="Uploading..."
+                alt="Đang tải lên..."
                 className="w-full h-24 object-cover rounded-lg border opacity-50"
               />
               <div className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-lg">

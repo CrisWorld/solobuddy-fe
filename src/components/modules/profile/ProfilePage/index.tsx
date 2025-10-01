@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -34,39 +34,38 @@ import { TourGuideTours } from "../../chat/TourGuideDetailPage/tours"
 import { useApp } from "@/lib/app-context"
 
 export function ProfilePage() {
-  const { toast } = useToast()
   const [isEditingProfile, setIsEditingProfile] = useState(false)
   const [isEditingTourGuide, setIsEditingTourGuide] = useState(false)
   const [tours, setTours] = useState<any[]>([])
   const [toursLoading, setToursLoading] = useState(false)
-  const { showToast} = useApp()
+  const { showToast } = useApp()
   // Fetch user profile data
   const { data: profileData, isLoading, error, refetch } = useGetProfileQuery()
   // Fetch tours by guide with proper error handling and dependency tracking
   const [getToursByGuide] = useGetToursByGuideMutation()
 
   useEffect(() => {
-  const fetchTours = async () => {
-    if (!profileData || profileData.role !== "guide" || !profileData.tourGuides || profileData.tourGuides.length === 0) return;
-    setToursLoading(true)
-    try {
-      const res = await getToursByGuide({
-        filter: { guideId: profileData.tourGuides[0].id },
-        options: { limit: 6, page: 1 }
-      }).unwrap()
-      setTours(res.results || [])
-    } catch (err) {
-      console.error(err)
-      setTours([])
-    } finally {
-      setToursLoading(false)
+    const fetchTours = async () => {
+      if (!profileData || profileData.role !== "guide" || !profileData.tourGuides || profileData.tourGuides.length === 0) return;
+      setToursLoading(true)
+      try {
+        const res = await getToursByGuide({
+          filter: { guideId: profileData.tourGuides[0].id },
+          options: { limit: 6, page: 1 }
+        }).unwrap()
+        setTours(res.results || [])
+      } catch (err) {
+        console.error(err)
+        setTours([])
+      } finally {
+        setToursLoading(false)
+      }
     }
-  }
 
-  if (profileData?.role === "guide") {
-    fetchTours()
-  }
-}, [profileData, getToursByGuide])
+    if (profileData?.role === "guide") {
+      fetchTours()
+    }
+  }, [profileData, getToursByGuide])
 
   // Mutations for updating tour guide data
   const [updateTourGuideProfile, { isLoading: isUpdatingProfile }] = useUpdateTourGuideProfileMutation()
@@ -112,12 +111,12 @@ export function ProfilePage() {
       // await updateProfile(editedProfile)
 
       setIsEditingProfile(false)
-      showToast("Profile updated successfully", "success");
+      showToast("Hồ sơ cá nhân đã được update thành công", "success");
       // Refetch data to get updated profile
       refetch()
     } catch (error) {
-      console.error('Failed to update profile:', error)
-      showToast("Failed to update profile", "error");
+      console.error('Có lỗi trong lúc update hồ sơ:', error)
+      showToast("Có lỗi trong lúc update hồ sơ", "error");
     }
   }
 
@@ -229,10 +228,7 @@ export function ProfilePage() {
 
       if (promises.length === 0) {
         setIsEditingTourGuide(false)
-        toast({
-          title: "No Changes",
-          description: "No changes were made to save",
-        })
+        showToast("Không có thay đổi nào để lưu", "info");
         return
       }
 
@@ -246,7 +242,7 @@ export function ProfilePage() {
 
       if (allSuccessful) {
         setIsEditingTourGuide(false)
-        showToast("Tour guide profile updated successfully", "success");
+        showToast("Hồ sơ hướng dẫn viên đã được update thành công", "success");
         // Refetch data to get updated profile
         refetch()
       } else {
@@ -255,7 +251,7 @@ export function ProfilePage() {
           const hasData = 'data' in result && result.data
           return !hasData || !result.data.success
         })
-        showToast("Some updates failed. Please review and try again.", "error");
+        showToast("Một vài update đã thất bại. Vui lòng thử lại sau", "error");
 
         console.error('Failed results:', failedResults)
 
@@ -264,17 +260,9 @@ export function ProfilePage() {
         const totalCount = results.length
 
         if (succeededCount > 0 && succeededCount < totalCount) {
-          toast({
-            title: "Partial Update",
-            description: `${succeededCount}/${totalCount} updates succeeded. Some changes were saved.`,
-            variant: "destructive",
-          })
+          showToast("Một vài update đã thành công nhưng đã có update thất bại", "info");
         } else if (succeededCount === 0) {
-          toast({
-            title: "Update Failed",
-            description: "Failed to save changes. Please try again.",
-            variant: "destructive",
-          })
+          showToast("Tất cả các update đều thất bại. Vui lòng thử lại sau", "error");
         }
 
         // If some succeeded, still refetch to get partial updates
@@ -283,8 +271,8 @@ export function ProfilePage() {
         }
       }
     } catch (error) {
-      console.error('Failed to update tour guide profile:', error)
-      showToast("Failed to update tour guide profile", "error");
+      console.error('Update thất bại:', error)
+      showToast("Update thất bại", "error");
     }
   }
 
@@ -353,11 +341,11 @@ export function ProfilePage() {
             <Alert variant="destructive">
               <AlertCircle className="h-4 w-4" />
               <AlertDescription>
-                Failed to load profile data. Please try refreshing the page.
+                Đã xảy ra lỗi khi tải hồ sơ. Vui lòng thử lại.
               </AlertDescription>
             </Alert>
             <Button onClick={() => refetch()} className="mt-4">
-              Retry
+              Thử lại
             </Button>
           </div>
         </div>
@@ -374,7 +362,7 @@ export function ProfilePage() {
             <Alert>
               <AlertCircle className="h-4 w-4" />
               <AlertDescription>
-                No profile data available.
+                Không có dữ liệu hồ sơ để hiển thị.
               </AlertDescription>
             </Alert>
           </div>
@@ -405,13 +393,7 @@ export function ProfilePage() {
               </Avatar>
               {isEditingProfile && (
                 <div className="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center">
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => e.target.files?.[0] && handleAvatarUpload(e.target.files[0])}
-                    className="hidden"
-                    id="avatar-upload"
-                  />
+                  <input type="file" accept="image/*" className="hidden" id="avatar-upload" />
                   <Button
                     variant="ghost"
                     size="sm"
@@ -428,29 +410,26 @@ export function ProfilePage() {
               <p className="text-muted-foreground">{editedProfile.email}</p>
               {editedProfile.isEmailVerified && (
                 <Badge variant="secondary" className="mt-1">
-                  Email Verified
+                  Email đã xác minh
                 </Badge>
               )}
             </div>
           </div>
 
           {!isEditingProfile ? (
-            <Button
-              onClick={() => setIsEditingProfile(true)}
-              className="bg-primary text-primary-foreground hover:bg-primary/90"
-            >
+            <Button onClick={() => setIsEditingProfile(true)} className="bg-primary text-primary-foreground hover:bg-primary/90">
               <Edit className="h-4 w-4 mr-2" />
-              Edit Profile
+              Chỉnh sửa hồ sơ
             </Button>
           ) : (
             <div className="flex gap-2">
               <Button onClick={handleSaveProfile} className="bg-green-600 text-white hover:bg-green-700">
                 <Check className="h-4 w-4 mr-2" />
-                Save
+                Lưu
               </Button>
               <Button onClick={handleCancelProfile} variant="outline">
                 <X className="h-4 w-4 mr-2" />
-                Cancel
+                Hủy
               </Button>
             </div>
           )}
@@ -460,36 +439,28 @@ export function ProfilePage() {
       {/* Content */}
       <div className="flex-1 p-6 overflow-y-auto">
         <div className="max-w-4xl mx-auto space-y-6">
-          {/* Personal Information */}
+          {/* Thông tin cá nhân */}
           <Card>
             <CardHeader>
-              <CardTitle>Personal Information</CardTitle>
+              <CardTitle>Thông tin cá nhân</CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <Label htmlFor="name">Name</Label>
+                  <Label htmlFor="name">Họ và tên</Label>
                   {isEditingProfile ? (
-                    <Input
-                      id="name"
-                      value={editedProfile.name}
-                      onChange={(e) => setEditedProfile({ ...editedProfile, name: e.target.value })}
-                      placeholder="Your Name"
-                    />
+                    <Input id="name" value={editedProfile.name} onChange={(e) => setEditedProfile({ ...editedProfile, name: e.target.value })} placeholder="Nhập họ tên" />
                   ) : (
                     <div className="p-3 bg-muted rounded-md text-sm">{profileData.name}</div>
                   )}
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="country">Country</Label>
+                  <Label htmlFor="country">Quốc gia</Label>
                   {isEditingProfile ? (
-                    <Select
-                      value={editedProfile.country}
-                      onValueChange={(value) => setEditedProfile({ ...editedProfile, country: value })}
-                    >
+                    <Select value={editedProfile.country} onValueChange={(value) => setEditedProfile({ ...editedProfile, country: value })}>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select country" />
+                        <SelectValue placeholder="Chọn quốc gia" />
                       </SelectTrigger>
                       <SelectContent>
                         {countries.map((country) => (
@@ -501,38 +472,38 @@ export function ProfilePage() {
                     </Select>
                   ) : (
                     <div className="p-3 bg-muted rounded-md text-sm">
-                      {profileData.country ? profileData.country.charAt(0).toUpperCase() + profileData.country.slice(1) : "Not set"}
+                      {profileData.country ? profileData.country.charAt(0).toUpperCase() + profileData.country.slice(1) : "Chưa có"}
                     </div>
                   )}
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
+                  <Label>Email</Label>
                   <div className="p-3 bg-muted rounded-md text-sm">{profileData.email}</div>
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="role">Role</Label>
+                  <Label>Vai trò</Label>
                   <div className="p-3 bg-muted rounded-md text-sm">
-                    {profileData.role.charAt(0).toUpperCase() + profileData.role.slice(1)}
+                    {profileData.role === "guide" ? "Hướng dẫn viên" : "Khách du lịch"}
                   </div>
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          {/* Tour Guide Profile */}
+          {/* Hồ sơ hướng dẫn viên */}
           {isTourGuide && tourGuideProfile && editedTourGuideProfile && (
             <Card>
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <div>
                     <CardTitle className="flex items-center gap-2">
-                      Tour Guide Profile
+                      Hồ sơ hướng dẫn viên
                       <div className="flex items-center gap-1">
                         <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
                         <span className="text-sm font-normal">
-                          {tourGuideProfile.ratingAvg} ({tourGuideProfile.ratingCount} reviews)
+                          {tourGuideProfile.ratingAvg} ({tourGuideProfile.ratingCount} đánh giá)
                         </span>
                       </div>
                     </CardTitle>
@@ -540,7 +511,7 @@ export function ProfilePage() {
                   {!isEditingTourGuide ? (
                     <Button onClick={() => setIsEditingTourGuide(true)} variant="outline">
                       <Edit className="h-4 w-4 mr-2" />
-                      Edit
+                      Chỉnh sửa
                     </Button>
                   ) : (
                     <div className="flex gap-2">
@@ -554,7 +525,7 @@ export function ProfilePage() {
                       </Button>
                       <Button onClick={handleCancelTourGuide} variant="outline" disabled={isUpdating}>
                         <X className="h-4 w-4 mr-2" />
-                        Cancel
+                        Hủy
                       </Button>
                     </div>
                   )}
@@ -564,13 +535,13 @@ export function ProfilePage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {/* Bio */}
                   <div className="md:col-span-2 space-y-2">
-                    <Label htmlFor="bio">Bio</Label>
+                    <Label htmlFor="bio">Giới thiệu</Label>
                     {isEditingTourGuide ? (
                       <Textarea
                         id="bio"
                         value={editedTourGuideProfile.bio}
                         onChange={(e) => setEditedTourGuideProfile({ ...editedTourGuideProfile, bio: e.target.value })}
-                        placeholder="Tell us about yourself..."
+                        placeholder="Giới thiệu bản thân..."
                         rows={3}
                       />
                     ) : (
@@ -580,7 +551,7 @@ export function ProfilePage() {
 
                   {/* Price Per Day */}
                   <div className="space-y-2">
-                    <Label htmlFor="pricePerDay">Price Per Day ($)</Label>
+                    <Label htmlFor="pricePerDay">Giá thuê mỗi ngày ($)</Label>
                     {isEditingTourGuide ? (
                       <Input
                         id="pricePerDay"
@@ -598,7 +569,7 @@ export function ProfilePage() {
 
                   {/* Location */}
                   <div className="space-y-2">
-                    <Label htmlFor="location">Location</Label>
+                    <Label htmlFor="location">Địa điểm</Label>
                     {isEditingTourGuide ? (
                       <Input
                         id="location"
@@ -615,7 +586,7 @@ export function ProfilePage() {
 
                   {/* Experience Years */}
                   <div className="space-y-2">
-                    <Label htmlFor="experienceYears">Experience (Years)</Label>
+                    <Label htmlFor="experienceYears">Kinh nghiệm (Năm)</Label>
                     {isEditingTourGuide ? (
                       <Input
                         id="experienceYears"
@@ -630,13 +601,13 @@ export function ProfilePage() {
                         placeholder="5"
                       />
                     ) : (
-                      <div className="p-3 bg-muted rounded-md text-sm">{tourGuideProfile.experienceYears} years</div>
+                      <div className="p-3 bg-muted rounded-md text-sm">{tourGuideProfile.experienceYears} năm</div>
                     )}
                   </div>
 
                   {/* Vehicle */}
                   <div className="space-y-2">
-                    <Label htmlFor="vehicle">Vehicle</Label>
+                    <Label htmlFor="vehicle">Phương tiện</Label>
                     {isEditingTourGuide ? (
                       <Select
                         value={editedTourGuideProfile.vehicle}
@@ -645,7 +616,7 @@ export function ProfilePage() {
                         }
                       >
                         <SelectTrigger>
-                          <SelectValue placeholder="Select vehicle" />
+                          <SelectValue placeholder="Chọn phương tiện" />
                         </SelectTrigger>
                         <SelectContent>
                           {vehicleTypes.map((vehicle) => (
@@ -665,7 +636,7 @@ export function ProfilePage() {
 
                 {/* Languages */}
                 <div className="space-y-2">
-                  <Label>Languages</Label>
+                  <Label>Ngôn ngữ giao tiếp</Label>
                   {isEditingTourGuide ? (
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                       {languages.map((lang) => (
@@ -708,7 +679,7 @@ export function ProfilePage() {
 
                 {/* Specialties */}
                 <div className="space-y-2">
-                  <Label>Specialties</Label>
+                  <Label>Thế mạnh</Label>
                   {isEditingTourGuide ? (
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                       {specialtyTypes.map((specialty) => (
@@ -751,7 +722,7 @@ export function ProfilePage() {
 
                 {/* Favourites */}
                 <div className="space-y-2">
-                  <Label>Favourites</Label>
+                  <Label>Sở thích</Label>
                   {isEditingTourGuide ? (
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                       {favourites.map((fav) => (
@@ -814,7 +785,7 @@ export function ProfilePage() {
                       }
                       disabled={!isEditingTourGuide}
                     />
-                    <Label htmlFor="isRecur">Recurring Schedule (Weekly)</Label>
+                    <Label htmlFor="isRecur">Lịch trình theo ngày trong tuần</Label>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -852,14 +823,14 @@ export function ProfilePage() {
           {isTourGuide && (
             <Card>
               <CardHeader className="flex justify-between items-center">
-                <CardTitle>Tours</CardTitle>
+                <CardTitle>Các tour du lịch</CardTitle>
                 <Dialog>
                   <DialogTrigger asChild>
-                    <Button variant="outline">+ Add Tour</Button>
+                    <Button variant="outline">+ Thêm Tour</Button>
                   </DialogTrigger>
                   <DialogContent>
                     <DialogHeader>
-                      <DialogTitle>Add New Tour</DialogTitle>
+                      <DialogTitle>Thêm Tour mới</DialogTitle>
                     </DialogHeader>
                     {/* <AddTourForm
                       onSubmit={async (data) => {
@@ -877,7 +848,7 @@ export function ProfilePage() {
               </CardHeader>
               <CardContent>
                 {toursLoading ? (
-                  <p className="text-muted-foreground">Loading tours...</p>
+                  <p className="text-muted-foreground">Đang load các tour...</p>
                 ) : (
                   <TourGuideTours tours={tours} />
                 )}

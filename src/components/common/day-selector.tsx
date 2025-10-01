@@ -10,13 +10,13 @@ interface DaySelectorProps {
 }
 
 const daysOfWeek = [
-  { id: 1, label: "Monday", short: "Mon" },
-  { id: 2, label: "Tuesday", short: "Tue" },
-  { id: 3, label: "Wednesday", short: "Wed" },
-  { id: 4, label: "Thursday", short: "Thu" },
-  { id: 5, label: "Friday", short: "Fri" },
-  { id: 6, label: "Saturday", short: "Sat" },
-  { id: 0, label: "Sunday", short: "Sun" },
+  { id: 1, label: "Thứ Hai", short: "Mon" },
+  { id: 2, label: "Thứ Ba", short: "Tue" },
+  { id: 3, label: "Thứ Tư", short: "Wed" },
+  { id: 4, label: "Thứ Năm", short: "Thu" },
+  { id: 5, label: "Thứ Sáu", short: "Fri" },
+  { id: 6, label: "Thứ Bảy", short: "Sat" },
+  { id: 0, label: "Chủ Nhật", short: "Sun" },
 ]
 
 export function DaySelector({ selectedDays, onDaysChange, disabled }: DaySelectorProps) {
@@ -31,7 +31,7 @@ export function DaySelector({ selectedDays, onDaysChange, disabled }: DaySelecto
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-sm">Days of Week</CardTitle>
+        <CardTitle className="text-sm">Ngày trong tuần</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-2 gap-3">

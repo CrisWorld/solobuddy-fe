@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Search } from "lucide-react"
 import { TourGuideCard } from "@/components/common/tour-guide-card"
 import { useDebounce } from "@/lib/useDebounce"
 import { TourGuideRequest, useGetTourGuidesMutation } from "@/stores/services/tour-guide/tour-guide"
@@ -152,14 +151,14 @@ export function TourGuidePage() {
       {/* Header */}
       <div className="bg-white border-b border-border p-6">
         <div className="max-w-6xl mx-auto">
-          <h1 className="text-2xl font-bold text-foreground mb-4">Tour Guides</h1>
+          <h1 className="text-2xl font-bold text-foreground mb-4">Danh sách hướng dẫn viên du lịch</h1>
 
           {/* Search and Filters */}
           <div className="flex flex-col md:flex-row gap-4">
             <div className="relative flex-1">
               <Input
                 type="text"
-                placeholder="Search by name..."
+                placeholder="Tìm kiếm theo tên..."
                 value={searchName}
                 onChange={(e) => setSearchName(e.target.value)}
                 className="w-56"
@@ -172,7 +171,7 @@ export function TourGuidePage() {
                   <SelectValue placeholder="Location" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Locations</SelectItem>
+                  <SelectItem value="all">Tất cả địa điểm</SelectItem>
                   {locations.map(loc => (
                     <SelectItem key={loc} value={loc}>
                       {formatLocation(loc)}
@@ -187,7 +186,7 @@ export function TourGuidePage() {
                   <SelectValue placeholder="Language" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Languages</SelectItem>
+                  <SelectItem value="all">Tất cả ngôn ngữ</SelectItem>
                   {languages.map(lang => (
                     <SelectItem key={lang} value={lang}>
                       {formatLanguage(lang)}
@@ -202,11 +201,11 @@ export function TourGuidePage() {
                   <SelectValue placeholder="Price" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="any">Any Price</SelectItem>
-                  <SelectItem value="50">From $50</SelectItem>
-                  <SelectItem value="100">From $100</SelectItem>
-                  <SelectItem value="150">From $150</SelectItem>
-                  <SelectItem value="200">From $200</SelectItem>
+                  <SelectItem value="any">Mọi giá</SelectItem>
+                  <SelectItem value="50">Từ 100,000 VND</SelectItem>
+                  <SelectItem value="100">Từ 500,000 VND</SelectItem>
+                  <SelectItem value="150">Từ 1,000,000 VND</SelectItem>
+                  <SelectItem value="200">Từ 1,500,00 VNĐ</SelectItem>
                 </SelectContent>
               </Select>
 
@@ -216,7 +215,7 @@ export function TourGuidePage() {
                   <SelectValue placeholder="Vehicle" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">Any Vehicle</SelectItem>
+                  <SelectItem value="all">Tất cả phương tiện</SelectItem>
                   {vehicleTypes.map(v => (
                     <SelectItem key={v} value={v}>
                       {formatVehicle(v)}
@@ -231,7 +230,7 @@ export function TourGuidePage() {
                   <SelectValue placeholder="Specialty" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Specialties</SelectItem>
+                  <SelectItem value="all">Tất cả thế mạnh</SelectItem>
                   {specialtyTypes.map(s => (
                     <SelectItem key={s} value={s}>
                       {formatSpecialty(s)}
@@ -246,7 +245,7 @@ export function TourGuidePage() {
                 onClick={resetFilters}
                 className="px-4"
               >
-                Reset Filters
+                Đặt lại bộ lọc
               </Button>
             </div>
           </div>
@@ -257,7 +256,7 @@ export function TourGuidePage() {
       <div className="flex-1 p-6 overflow-y-auto">
         <div className="max-w-6xl mx-auto">
           <div className="mb-4 text-sm text-muted-foreground">
-            Showing {tourGuides.length} of {totalResults} tour guides
+            Hiển thị {tourGuides.length} trong số {totalResults} hướng dẫn viên
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -274,8 +273,8 @@ export function TourGuidePage() {
 
           {tourGuides.length === 0 && (
             <div className="text-center py-12">
-              <div className="text-muted-foreground mb-2">No tour guides found</div>
-              <div className="text-sm text-muted-foreground">Try adjusting your search or filters</div>
+              <div className="text-muted-foreground mb-2">Không tìm thấy hướng dẫn viên nào</div>
+              <div className="text-sm text-muted-foreground">Hãy thử chọn lại bộ lọc </div>
             </div>
           )}
           {/* Load More Button */}
@@ -294,7 +293,7 @@ export function TourGuidePage() {
                   <div className="w-2 h-2 bg-black rounded-full"></div>
                   <div className="w-2 h-2 bg-black rounded-full"></div>
                 </div>
-                {isLoadingMore ? 'Loading...' : 'Load More Tour Guides'}
+                {isLoadingMore ? 'Đang tải...' : 'Tải thêm hướng dẫn viên'}
               </Button>
             </div>
           )}

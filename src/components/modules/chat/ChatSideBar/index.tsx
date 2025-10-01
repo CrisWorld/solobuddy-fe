@@ -19,10 +19,10 @@ export function ChatSidebar() {
   const { user, logout, openLogin } = useAuth()
 
   const menuItems = [
-    { id: "chat", label: "Chat", icon: MessageCircle, href: "/chat" },
-    { id: "tour-guide", label: "Tour guide", icon: MapPin, href: "/tour-guides" },
-    { id: "favourite", label: "Favourite", icon: Heart, href: "/favourite" },
-    { id: "journey", label: "Bookings", icon: Route, href: "/bookings-history" },
+    { id: "chat", label: "Trợ lý AI", icon: MessageCircle, href: "/chat" },
+    { id: "tour-guide", label: "Hướng dẫn viên", icon: MapPin, href: "/tour-guides" },
+    { id: "favourite", label: "Yêu thích", icon: Heart, href: "/favourite" },
+    { id: "journey", label: "Danh sách đặt Tour", icon: Route, href: "/bookings-history" },
   ]
 
   return (
@@ -78,17 +78,17 @@ export function ChatSidebar() {
           <DropdownMenuContent align="end" className="w-48">
             <DropdownMenuItem onClick={() => router.push("/profile")}>
               <User className="h-4 w-4 mr-2" />
-              Profile
+              Hồ sơ cá nhân
             </DropdownMenuItem>
             {user ? (
               <DropdownMenuItem onClick={logout}>
                 <LogOut className="h-4 w-4 mr-2" />
-                Logout
+                Đăng xuất
               </DropdownMenuItem>
             ) : (
               <DropdownMenuItem onClick={openLogin}>
                 <LogOut className="h-4 w-4 mr-2" />
-                Sign In
+                Đăng nhập
               </DropdownMenuItem>
             )}
           </DropdownMenuContent>

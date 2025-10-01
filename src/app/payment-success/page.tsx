@@ -17,9 +17,9 @@ export default function PaymentSuccessPage() {
           </div>
 
           <div className="space-y-2">
-            <h1 className="text-2xl font-bold text-gray-900">Payment Successful!</h1>
+            <h1 className="text-2xl font-bold text-gray-900">Thanh toán thành công!</h1>
             <p className="text-gray-600">
-              Your booking has been confirmed.
+              Bạn đã đặt Tour thành công.
             </p>
           </div>
 
@@ -27,7 +27,7 @@ export default function PaymentSuccessPage() {
             onClick={() => router.push("/bookings-history")}
             className="w-full bg-gradient-to-r from-green-400 to-green-500 text-white hover:from-green-500 hover:to-green-600 py-3"
           >
-            View Bookings
+            Xem lịch sử đặt Tour
           </Button>
         </CardContent>
       </Card>

@@ -9,7 +9,6 @@ import { TourGuide } from "@/stores/types/types"
 import { TourGuideRequest, useGetTourGuidesMutation } from "@/stores/services/tour-guide/tour-guide"
 import { formatLanguage, formatLocation, formatSpecialty, formatVehicle, languages, vehicleTypes, locations, specialtyTypes, createRegexPattern } from "@/lib/utils"
 import { useDebounce } from "@/lib/useDebounce"
-import { set } from "lodash"
 
 export function TourGuides() {
   const [tourGuides, setTourGuides] = useState<TourGuide[]>([])
@@ -152,14 +151,14 @@ export function TourGuides() {
         {/* Header */}
         <div className="text-center mb-12">
           <h2 className="text-3xl lg:text-4xl font-bold text-foreground mb-4">
-            Our Tour Guides
+            Các Hướng Dẫn Viên Du Lịch Của Chúng Tôi
           </h2>
           <p className="text-muted-foreground text-lg">
-            Find the perfect tour guide for your Vietnam adventure
+            Tìm hướng dẫn viên hoàn hảo cho chuyến phiêu lưu một mình của bạn.
           </p>
           {totalResults > 0 && (
             <p className="text-sm text-muted-foreground mt-2">
-              Showing {tourGuides.length} of {totalResults} tour guides
+              Hiển thị {tourGuides.length} trong số {totalResults} hướng dẫn viên
             </p>
           )}
         </div>
@@ -179,79 +178,106 @@ export function TourGuides() {
               <SelectValue placeholder="Experience" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="any">Any Experience</SelectItem>
-              <SelectItem value="1">From 1 year</SelectItem>
-              <SelectItem value="3">From 3 years</SelectItem>
-              <SelectItem value="5">From 5 years</SelectItem>
-              <SelectItem value="10">From 10 years</SelectItem>
+              <SelectItem value="any">Năm kinh nghiệm</SelectItem>
+              <SelectItem value="1">Từ 1 năm</SelectItem>
+              <SelectItem value="3">Từ 3 năm</SelectItem>
+              <SelectItem value="5">Từ 5 năm</SelectItem>
+              <SelectItem value="10">Từ 10 năm</SelectItem>
             </SelectContent>
           </Select>
 
           <Select value={location} onValueChange={setLocation}>
-            <SelectTrigger className="w-32"><SelectValue placeholder="Location" /></SelectTrigger>
+            <SelectTrigger className="w-32">
+              <SelectValue placeholder="Location" />
+            </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Locations</SelectItem>
+              <SelectItem value="all">Tất cả địa điểm</SelectItem>
               {locations.map(loc => (
-                <SelectItem key={loc} value={loc}>{formatLocation(loc)}</SelectItem>
+                <SelectItem key={loc} value={loc}>
+                  {formatLocation(loc)}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>
 
+          {/* Language */}
           <Select value={language} onValueChange={setLanguage}>
-            <SelectTrigger className="w-32"><SelectValue placeholder="Language" /></SelectTrigger>
+            <SelectTrigger className="w-32">
+              <SelectValue placeholder="Language" />
+            </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Languages</SelectItem>
+              <SelectItem value="all">Tất cả ngôn ngữ</SelectItem>
               {languages.map(lang => (
-                <SelectItem key={lang} value={lang}>{formatLanguage(lang)}</SelectItem>
+                <SelectItem key={lang} value={lang}>
+                  {formatLanguage(lang)}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>
 
+          {/* Price Range */}
           <Select value={priceRange} onValueChange={setPriceRange}>
-            <SelectTrigger className="w-32"><SelectValue placeholder="Price" /></SelectTrigger>
+            <SelectTrigger className="w-32">
+              <SelectValue placeholder="Price" />
+            </SelectTrigger>
             <SelectContent>
-              <SelectItem value="any">Any Price</SelectItem>
-              <SelectItem value="50">From $50</SelectItem>
-              <SelectItem value="100">From $100</SelectItem>
-              <SelectItem value="150">From $150</SelectItem>
-              <SelectItem value="200">From $200</SelectItem>
+              <SelectItem value="any">Mọi giá</SelectItem>
+              <SelectItem value="50">Từ 100,000 VND</SelectItem>
+              <SelectItem value="100">Từ 500,000 VND</SelectItem>
+              <SelectItem value="150">Từ 1,000,000 VND</SelectItem>
+              <SelectItem value="200">Từ 1,500,00 VNĐ</SelectItem>
             </SelectContent>
           </Select>
 
+          {/* Vehicle */}
           <Select value={vehicle} onValueChange={setVehicle}>
-            <SelectTrigger className="w-32"><SelectValue placeholder="Vehicle" /></SelectTrigger>
+            <SelectTrigger className="w-32">
+              <SelectValue placeholder="Vehicle" />
+            </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">Any Vehicle</SelectItem>
+              <SelectItem value="all">Tất cả phương tiện</SelectItem>
               {vehicleTypes.map(v => (
-                <SelectItem key={v} value={v}>{formatVehicle(v)}</SelectItem>
+                <SelectItem key={v} value={v}>
+                  {formatVehicle(v)}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>
 
+          {/* Specialty */}
           <Select value={specialty} onValueChange={setSpecialty}>
-            <SelectTrigger className="w-40"><SelectValue placeholder="Specialty" /></SelectTrigger>
+            <SelectTrigger className="w-40">
+              <SelectValue placeholder="Specialty" />
+            </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Specialties</SelectItem>
+              <SelectItem value="all">Tất cả thế mạnh</SelectItem>
               {specialtyTypes.map(s => (
-                <SelectItem key={s} value={s}>{formatSpecialty(s)}</SelectItem>
+                <SelectItem key={s} value={s}>
+                  {formatSpecialty(s)}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>
 
-          <Button variant="outline" onClick={resetFilters} className="px-4">
-            Reset Filters
+          {/* Reset Filters */}
+          <Button
+            variant="outline"
+            onClick={resetFilters}
+            className="px-4"
+          >
+            Đặt lại bộ lọc
           </Button>
         </div>
 
         {/* Loading & No Results */}
         {isFetching && tourGuides.length === 0 && (
           <div className="text-center py-12">
-            <p className="text-muted-foreground">Loading tour guides...</p>
+            <p className="text-muted-foreground">Đang tải hướng dẫn viên...</p>
           </div>
         )}
         {!isFetching && tourGuides.length === 0 && (
           <div className="text-center py-12">
-            <p className="text-muted-foreground">No tour guides found. Try adjusting your filters.</p>
+            <p className="text-muted-foreground">Không tìm thấy hướng dẫn viên. Hãy thử thay đổi bộ lọc.</p>
           </div>
         )}
 
@@ -280,7 +306,7 @@ export function TourGuides() {
               onClick={handleLoadMore}
               disabled={isLoadingMore}
             >
-              {isLoadingMore ? "Loading..." : "Load More Tour Guides"}
+              {isLoadingMore ? "Đang tải..." : "Tải thêm hướng dẫn viên"}
             </Button>
           </div>
         )}

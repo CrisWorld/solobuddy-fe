@@ -45,7 +45,7 @@ export function SuggestionCard({ guide, favouriteGuides, toggleFavourite }: Sugg
                   <MapPin className="h-3 w-3" />
                   {formatLocation(guide.location)}
                   <span className="mx-2">•</span>
-                  <span>{formatPrice(guide.price)}</span>
+                  <span>{formatPrice(guide.price)}/ngày</span>
                 </div>
               </div>
 
@@ -94,7 +94,7 @@ export function SuggestionCard({ guide, favouriteGuides, toggleFavourite }: Sugg
           className="absolute bottom-4 right-4 bg-primary text-primary-foreground hover:bg-primary/90"
           onClick={handleDetail}
         >
-          Detail
+          Xem chi tiết
         </Button>
       </CardContent>
     </Card>

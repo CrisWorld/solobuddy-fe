@@ -1,14 +1,12 @@
 "use client"
 
 import { useState, useEffect, useCallback, useMemo } from "react"
-import { useParams } from "next/navigation"
 import { format } from "date-fns"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
-import { Input } from "@/components/ui/input"
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover"
 import { Calendar } from "@/components/ui/calendar"
 
@@ -160,14 +158,14 @@ export function TourGuideDetailPage({ guideId }: TourGuideDetailPageProps) {
             <Button variant="ghost" size="icon" onClick={handleBack}>
               <ArrowLeft className="h-5 w-5" />
             </Button>
-            <h1 className="text-2xl font-bold text-foreground">Tour Guide Details</h1>
+            <h1 className="text-2xl font-bold text-foreground">Tour Guide</h1>
           </div>
           <div className="text-center py-12">
             <p className="text-lg text-muted-foreground">
               {guideError ? 'Error loading guide details' : 'Guide not found'}
             </p>
             <Button variant="outline" onClick={handleBack} className="mt-4">
-              Go Back
+              Quay lại
             </Button>
           </div>
         </div>
@@ -183,7 +181,7 @@ export function TourGuideDetailPage({ guideId }: TourGuideDetailPageProps) {
           <Button variant="ghost" size="icon" onClick={handleBack}>
             <ArrowLeft className="h-5 w-5" />
           </Button>
-          <h1 className="text-2xl font-bold text-foreground">Tour Guide Details</h1>
+          <h1 className="text-2xl font-bold text-foreground">Tour Guide</h1>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -215,12 +213,12 @@ export function TourGuideDetailPage({ guideId }: TourGuideDetailPageProps) {
                             </Badge>
                           )}
                         </div>
-                        <p className="text-sm text-muted-foreground mb-2">{guide.experienceYears} years experience</p>
+                        <p className="text-sm text-muted-foreground mb-2">{guide.experienceYears} năm kinh nghiệm</p>
                         <div className="flex items-center gap-4 text-sm">
                           <div className="flex items-center gap-1">
                             <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
                             <span className="font-medium">{guide.ratingAvg || 0}</span>
-                            <span className="text-muted-foreground">({guide.ratingCount || 0} reviews)</span>
+                            <span className="text-muted-foreground">({guide.ratingCount || 0} đánh giá)</span>
                           </div>
                           <div className="flex items-center gap-1">
                             <MapPin className="h-4 w-4 text-muted-foreground" />
@@ -238,7 +236,7 @@ export function TourGuideDetailPage({ guideId }: TourGuideDetailPageProps) {
 
                     <div className="text-right mt-4">
                       <div className="text-2xl font-bold text-foreground">{formatPrice(guide.pricePerDay)}</div>
-                      <div className="text-sm text-muted-foreground">/ day</div>
+                      <div className="text-sm text-muted-foreground">/ ngày</div>
                     </div>
                   </div>
                 </div>
@@ -253,7 +251,7 @@ export function TourGuideDetailPage({ guideId }: TourGuideDetailPageProps) {
                     <div>
                       <div className="flex items-center gap-2 mb-4">
                         <Award className="h-5 w-5 text-blue-500" />
-                        <h3 className="font-semibold text-foreground">Specialties</h3>
+                        <h3 className="font-semibold text-foreground">Thế mạnh</h3>
                       </div>
                       <div className="flex flex-wrap gap-2">
                         {guide.specialties.map((specialty, index) => (
@@ -274,7 +272,7 @@ export function TourGuideDetailPage({ guideId }: TourGuideDetailPageProps) {
                     <div>
                       <div className="flex items-center gap-2 mb-4">
                         <Sparkles className="h-5 w-5 text-purple-500" />
-                        <h3 className="font-semibold text-foreground">Interests & Hobbies</h3>
+                        <h3 className="font-semibold text-foreground">Sở thích</h3>
                       </div>
                       <div className="flex flex-wrap gap-2">
                         {guide.favourites.map((favourite) => (
@@ -305,7 +303,7 @@ export function TourGuideDetailPage({ guideId }: TourGuideDetailPageProps) {
             {guide.bio && (
               <Card>
                 <CardContent className="p-6">
-                  <h3 className="font-semibold text-foreground mb-4">About Tour Guide {guide.user?.name}</h3>
+                  <h3 className="font-semibold text-foreground mb-4">Sơ lược về tôi</h3>
                   <div className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line">{guide.bio}</div>
                 </CardContent>
               </Card>
@@ -344,13 +342,13 @@ export function TourGuideDetailPage({ guideId }: TourGuideDetailPageProps) {
 
                   <div className="space-y-4 mb-6">
                     <div>
-                      <label className="text-sm font-medium text-foreground mb-2 block">Select Tour</label>
+                      <label className="text-sm font-medium text-foreground mb-2 block">Chọn Tour</label>
                       <select
                         value={selectedTourId}
                         onChange={handleTourChange}
                         className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400"
                       >
-                        <option value="">Choose a tour</option>
+                        <option value="">Chọn 1 tour</option>
                         {filteredTours.map((tour) => (
                           <option key={tour.id} value={tour.id}>
                             {tour.title} - {formatPrice(tour.price)} {tour.unit && `/ ${tour.unit}`}
@@ -360,12 +358,12 @@ export function TourGuideDetailPage({ guideId }: TourGuideDetailPageProps) {
                     </div>
 
                     <div>
-                      <label className="text-sm font-medium text-foreground mb-2 block">From Date</label>
+                      <label className="text-sm font-medium text-foreground mb-2 block">Từ ngày</label>
                       <Popover>
                         <PopoverTrigger asChild>
                           <Button variant="outline" className="w-full justify-start text-left bg-transparent">
                             <CalendarIcon className="h-4 w-4 mr-2" />
-                            {fromDate ? format(fromDate, "PPP") : "Pick start date"}
+                            {fromDate ? format(fromDate, "PPP") : "Chọn ngày bắt đầu"}
                           </Button>
                         </PopoverTrigger>
                         <PopoverContent className="w-auto p-0">
@@ -385,7 +383,7 @@ export function TourGuideDetailPage({ guideId }: TourGuideDetailPageProps) {
                     </div>
 
                     <div>
-                      <label className="text-sm font-medium text-foreground mb-2 block">To Date</label>
+                      <label className="text-sm font-medium text-foreground mb-2 block">Đến ngày</label>
                       <Popover>
                         <PopoverTrigger asChild>
                           <Button
@@ -394,7 +392,7 @@ export function TourGuideDetailPage({ guideId }: TourGuideDetailPageProps) {
                             disabled={!fromDate}
                           >
                             <CalendarIcon className="h-4 w-4 mr-2" />
-                            {toDate ? format(toDate, "PPP") : "Pick end date"}
+                            {toDate ? format(toDate, "PPP") : "Chọn ngày kết thúc"}
                           </Button>
                         </PopoverTrigger>
                         <PopoverContent className="w-auto p-0">
@@ -418,7 +416,7 @@ export function TourGuideDetailPage({ guideId }: TourGuideDetailPageProps) {
                     onClick={handleBookNow}
                     disabled={!selectedTourId || !fromDate || !toDate}
                   >
-                    {!selectedTourId ? 'Select Tour to Book' : !fromDate || !toDate ? 'Select Dates' : 'Book Now'}
+                    {!selectedTourId ? 'Chọn tour trước khi đặt' : !fromDate || !toDate ? 'Hãy chọn ngày' : 'Đặt ngay'}
                   </Button>
 
                   {/* Guide Info */}
@@ -427,7 +425,7 @@ export function TourGuideDetailPage({ guideId }: TourGuideDetailPageProps) {
                       <div className="flex items-start gap-2">
                         <MapPin className="h-4 w-4 text-muted-foreground mt-0.5" />
                         <div>
-                          <div className="font-medium text-foreground">Location</div>
+                          <div className="font-medium text-foreground">Địa điểm</div>
                           <div className="text-muted-foreground">{formatLocation(guide.location)}</div>
                         </div>
                       </div>
@@ -437,7 +435,7 @@ export function TourGuideDetailPage({ guideId }: TourGuideDetailPageProps) {
                       <div className="flex items-start gap-2">
                         <Globe className="h-4 w-4 text-muted-foreground mt-0.5" />
                         <div>
-                          <div className="font-medium text-foreground">Languages</div>
+                          <div className="font-medium text-foreground">Ngôn ngữ giao tiếp</div>
                           <div className="text-muted-foreground">{formatLanguages(guide.languages)}</div>
                         </div>
                       </div>
@@ -447,8 +445,8 @@ export function TourGuideDetailPage({ guideId }: TourGuideDetailPageProps) {
                       <div className="flex items-start gap-2">
                         <Award className="h-4 w-4 text-muted-foreground mt-0.5" />
                         <div>
-                          <div className="font-medium text-foreground">Experience</div>
-                          <div className="text-muted-foreground">{guide.experienceYears} years</div>
+                          <div className="font-medium text-foreground">Kinh nghiệm</div>
+                          <div className="text-muted-foreground">{guide.experienceYears} năm</div>
                         </div>
                       </div>
                     )}
@@ -457,7 +455,7 @@ export function TourGuideDetailPage({ guideId }: TourGuideDetailPageProps) {
                       <div className="flex items-start gap-2">
                         <Clock className="h-4 w-4 text-muted-foreground mt-0.5" />
                         <div>
-                          <div className="font-medium text-foreground">Vehicle</div>
+                          <div className="font-medium text-foreground">Phương tiện</div>
                           <div className="text-muted-foreground">{formatVehicle(guide.vehicle)}</div>
                         </div>
                       </div>

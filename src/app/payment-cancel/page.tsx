@@ -17,15 +17,15 @@ export default function PaymentCancelledPage() {
           </div>
 
           <div className="space-y-2">
-            <h1 className="text-2xl font-bold text-gray-900">Payment Cancelled</h1>
-            <p className="text-gray-600">Your payment was cancelled.</p>
+            <h1 className="text-2xl font-bold text-gray-900">Thanh toán bị hủy</h1>
+            <p className="text-gray-600">Đơn đặt Tour của bạn đã bị hủy.</p>
           </div>
 
           <Button
             onClick={() => router.push("/")}
             className="w-full bg-gradient-to-r from-gray-400 to-gray-500 text-white hover:from-gray-500 hover:to-gray-600 py-3"
           >
-            Back to Home
+            Trở về trang chủ
           </Button>
         </CardContent>
       </Card>

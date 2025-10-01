@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Sparkles, Star, Phone } from "lucide-react"
+import { Sparkles } from "lucide-react"
 import { useRouter } from "next/navigation"
 
 export function HeroSection() {
@@ -46,16 +46,16 @@ export function HeroSection() {
           <div className="space-y-8">
             <div className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-full text-sm font-medium">
               <Sparkles className="w-4 h-4" />
-              Explore the World
+              Khám phá thế giới
             </div>
 
             <div className="space-y-6">
               <h1 className="text-4xl lg:text-6xl font-bold text-foreground leading-tight text-balance">
-                Discover the World's Wonders, One Solo Journey at a Time
+                Khám phá những kỳ quan thế giới, từng hành trình một mình
               </h1>
 
               <p className="text-lg text-muted-foreground leading-relaxed">
-                Embrace the freedom. Explore the unknown. Travel solo, live fully.
+                Sống tự do. Khám phá điều mới lạ. Du lịch một mình, tận hưởng trọn vẹn.
               </p>
             </div>
 
@@ -64,7 +64,7 @@ export function HeroSection() {
               <div className="flex flex-col sm:flex-row gap-4">
                 <div className="flex-1">
                   <Input
-                    placeholder="Where do you wanna go ?"
+                    placeholder="Bạn muốn đi đâu?"
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
                     className="h-12 text-base"
@@ -72,7 +72,7 @@ export function HeroSection() {
                 </div>
                 <Button className="h-12 px-8 bg-black hover:bg-black/90 text-white rounded-full" onClick={handleClick} >
                   <Sparkles className="w-4 h-4 mr-2" />
-                  AI Suggestion
+                  Gợi ý từ AI
                 </Button>
               </div>
             </div>
@@ -81,7 +81,7 @@ export function HeroSection() {
 
           <div className="relative">
             <div className="relative z-10">
-              <img src="/happy-solo-female-traveler-with-backpack-and-suitc.jpg" alt="Solo traveler" className="w-full h-auto rounded-2xl" />
+              <img src="/happy-solo-female-traveler-with-backpack-and-suitc.jpg" alt="Người đi du lịch một mình" className="w-full h-auto rounded-2xl" />
             </div>
 
             <div className="absolute bottom-4 left-4 bg-white p-3 rounded-xl shadow-lg border border-border z-20">
@@ -95,20 +95,7 @@ export function HeroSection() {
         </div>
       </div>
 
-      {/* Payment Methods */}
-      <div className="border-t border-border bg-white/50">
-        <div className="container mx-auto px-4 py-8">
-          <div className="flex flex-wrap justify-center items-center gap-8 ">
-            <img src="/paypal-logo.png" alt="PayPal" className="h-8" />
-            <img src="/stripe-logo.png" alt="Stripe" className="h-8" />
-            <img src="/payoneer-logo.png" alt="Payoneer" className="h-8" />
-            <img src="/visa-logo-generic.png" alt="Visa" className="h-8" />
-            <img src="/cash-app-logo.jpg" alt="Cash App" className="h-8" />
-            <img src="/bitcoin-logo.png" alt="Bitcoin" className="h-8" />
-            <img src="/discover-logo.png" alt="Discover" className="h-8" />
-          </div>
-        </div>
-      </div>
+      
     </section>
   )
 }

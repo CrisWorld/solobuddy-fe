@@ -265,7 +265,7 @@ export default function JourneyPage() {
       <div className="flex-1 flex flex-col bg-gradient-to-b from-gray-50 to-white">
         <div className="bg-white border-b border-border shadow-sm p-6">
           <div className="max-w-7xl mx-auto">
-            <h1 className="text-3xl font-bold text-foreground mb-2">My Journey</h1>
+            <h1 className="text-3xl font-bold text-foreground mb-2">My Bookings</h1>
             <p className="text-muted-foreground">Track your tours and travel experiences</p>
           </div>
         </div>

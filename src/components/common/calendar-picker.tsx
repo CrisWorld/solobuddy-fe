@@ -31,10 +31,10 @@ export function CalendarPicker({ selectedDates, onDatesChange, disabled }: Calen
         <Card>
             <CardHeader>
                 <div className="flex items-center justify-between">
-                    <CardTitle className="text-sm">Available Dates</CardTitle>
+                    <CardTitle className="text-sm">Ngày khả dụng</CardTitle>
                     {selectedDateObjects.length > 0 && (
                         <Button variant="outline" size="sm" onClick={clearDates} disabled={disabled}>
-                            Clear All
+                            Clear
                         </Button>
                     )}
                 </div>
@@ -49,7 +49,7 @@ export function CalendarPicker({ selectedDates, onDatesChange, disabled }: Calen
                 />
                 {selectedDateObjects.length > 0 && (
                     <div className="mt-4">
-                        <p className="text-sm font-medium mb-2">Selected dates ({selectedDateObjects.length}):</p>
+                        <p className="text-sm font-medium mb-2">Các ngày đã chọn ({selectedDateObjects.length}):</p>
                         <div className="flex flex-wrap gap-1">
                             {selectedDateObjects.slice(0, 5).map((date, index) => (
                                 <Badge key={index} variant="secondary" className="text-xs">
@@ -58,7 +58,7 @@ export function CalendarPicker({ selectedDates, onDatesChange, disabled }: Calen
                             ))}
                             {selectedDateObjects.length > 5 && (
                                 <Badge variant="outline" className="text-xs">
-                                    +{selectedDateObjects.length - 5} more
+                                    +{selectedDateObjects.length - 5}
                                 </Badge>
                             )}
                         </div>

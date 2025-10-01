@@ -13,8 +13,8 @@ export function TourGuideTours({ tours }: TourGuideToursProps) {
     return (
       <Card>
         <CardContent className="p-6">
-          <h3 className="font-semibold text-foreground mb-6">Tours Offered</h3>
-          <p className="text-muted-foreground">No tours available at the moment.</p>
+          <h3 className="font-semibold text-foreground mb-6">Các tour cung cấp</h3>
+          <p className="text-muted-foreground">Hiện tại chưa có tour nào.</p>
         </CardContent>
       </Card>
     )
@@ -23,7 +23,7 @@ export function TourGuideTours({ tours }: TourGuideToursProps) {
   return (
     <Card>
       <CardContent className="p-6">
-        <h3 className="font-semibold text-foreground mb-6">Tours Offered</h3>
+        <h3 className="font-semibold text-foreground mb-6">Các tour cung cấp</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {tours.map((tour) => (
             <div key={tour.id} className="bg-white rounded-lg overflow-hidden shadow-sm border">
@@ -38,7 +38,7 @@ export function TourGuideTours({ tours }: TourGuideToursProps) {
                 <h4 className="font-medium text-foreground mb-2">{tour.title}</h4>
                 <p className="text-xs text-muted-foreground mb-3 line-clamp-2">{tour.description}</p>
                 <div className="flex items-center justify-between">
-                  <div className="text-xs text-muted-foreground">Duration: {tour.duration}</div>
+                  <div className="text-xs text-muted-foreground">Thời lượng: {tour.duration}</div>
                   <div className="text-sm font-bold text-foreground">
                     {formatPrice(tour.price)} {tour.unit && `/ ${tour.unit}`}
                   </div>

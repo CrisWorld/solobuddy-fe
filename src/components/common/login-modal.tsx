@@ -30,7 +30,7 @@ export function LoginModal({ isOpen, onSwitchToSignUp }: LoginModalProps) {
   const [login, { isLoading }] = useLoginMutation();
   const { closeLogin } = useAuth();
 
-  // Reset toàn bộ form
+  // Reset form
   const resetForm = () => {
     setEmail("");
     setPassword("");
@@ -40,7 +40,6 @@ export function LoginModal({ isOpen, onSwitchToSignUp }: LoginModalProps) {
     setShowPassword(false);
   };
 
-  // Đóng modal và reset form
   const handleClose = () => {
     closeLogin();
     resetForm();
@@ -59,7 +58,7 @@ export function LoginModal({ isOpen, onSwitchToSignUp }: LoginModalProps) {
     } else setEmailError("");
 
     if (!validatePassword(password)) {
-      setPasswordError("Mật khẩu phải ≥ 8 ký tự, gồm cả chữ và số");
+      setPasswordError("Mật khẩu phải có ít nhất 8 ký tự, gồm cả chữ và số");
       valid = false;
     } else setPasswordError("");
 
@@ -72,10 +71,10 @@ export function LoginModal({ isOpen, onSwitchToSignUp }: LoginModalProps) {
     try {
       const result = await login({ email, password }).unwrap();
       setUser(result.user);
-      showToast(`Welcome ${result.user.name}!`, "success");
-      handleClose(); // đóng modal sau khi login thành công
+      showToast(`Chào mừng ${result.user.name}!`, "success");
+      handleClose();
     } catch (error: any) {
-      showToast(error?.data?.message || "Login failed", "error");
+      showToast(error?.data?.message || "Đăng nhập thất bại", "error");
     }
   };
 
@@ -87,11 +86,16 @@ export function LoginModal({ isOpen, onSwitchToSignUp }: LoginModalProps) {
           transition={{ duration: 0.5 }}
         >
           <DialogHeader>
-            <DialogTitle className="text-2xl font-bold text-center">Login</DialogTitle>
+            <DialogTitle className="text-2xl font-bold text-center">
+              Đăng nhập
+            </DialogTitle>
             <p className="text-center text-muted-foreground">
-              {"Don't have an account? "}
-              <button onClick={onSwitchToSignUp} className="text-blue-500 hover:underline">
-                Sign Up
+              {"Chưa có tài khoản? "}
+              <button
+                onClick={onSwitchToSignUp}
+                className="text-blue-500 hover:underline"
+              >
+                Đăng ký
               </button>
             </p>
           </DialogHeader>
@@ -110,9 +114,9 @@ export function LoginModal({ isOpen, onSwitchToSignUp }: LoginModalProps) {
               {emailError && <p className="text-sm text-red-500">{emailError}</p>}
             </div>
 
-            {/* Password */}
+            {/* Mật khẩu */}
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password">Mật khẩu</Label>
               <div className="relative">
                 <Input
                   id="password"
@@ -136,10 +140,12 @@ export function LoginModal({ isOpen, onSwitchToSignUp }: LoginModalProps) {
               <div className="flex items-center space-x-2">
                 <Checkbox id="remember" />
                 <Label htmlFor="remember" className="text-sm">
-                  Remember me
+                  Ghi nhớ đăng nhập
                 </Label>
               </div>
-              <button className="text-sm text-blue-500 hover:underline">Forgot Password ?</button>
+              <button className="text-sm text-blue-500 hover:underline">
+                Quên mật khẩu?
+              </button>
             </div>
 
             <Button
@@ -147,7 +153,7 @@ export function LoginModal({ isOpen, onSwitchToSignUp }: LoginModalProps) {
               disabled={isLoading}
               className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
             >
-              {isLoading ? "Logging in..." : "Log In"}
+              {isLoading ? "Đang đăng nhập..." : "Đăng nhập"}
             </Button>
           </div>
         </motion.div>

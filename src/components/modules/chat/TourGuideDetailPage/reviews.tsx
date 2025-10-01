@@ -90,7 +90,7 @@ export function TourGuideReviews({ reviews, ratingAvg, ratingCount }: TourGuideR
               </div>
             ))
           ) : (
-            <p className="text-muted-foreground text-center py-4">No reviews yet.</p>
+            <p className="text-muted-foreground text-center py-4">Chưa có đánh giá nào.</p>
           )}
         </div>
       </CardContent>

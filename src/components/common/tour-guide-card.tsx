@@ -83,7 +83,7 @@ export function TourGuideCard({
                             {guide.name}
                         </h3>
                         <span className="text-base font-bold text-foreground">
-                            {formatPrice(guide.price)+"/day"}
+                            {formatPrice(guide.price)+"/ngày"}
                         </span>
                     </div>
 
@@ -134,7 +134,7 @@ export function TourGuideCard({
                     transition-all duration-200"
                         onClick={() => handleDetailClick(guide.id)}
                     >
-                        Detail
+                        Xem chi tiết
                     </Button>
 
                 </CardContent>
@@ -185,7 +185,7 @@ export function TourGuideCard({
                                 <span className="text-sm font-medium">{guide.rating}</span>
                             </div>
                             <span className="text-sm text-muted-foreground">•</span>
-                            <span className="text-sm font-medium text-primary">{formatPrice(guide.price)+"/day"}</span>
+                            <span className="text-sm font-medium text-primary">{formatPrice(guide.price)+"/ngày"}</span>
                         </div>
 
                         {guide.description && (
@@ -219,7 +219,7 @@ export function TourGuideCard({
                                 className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90"
                                 onClick={() => handleDetailClick(guide.id)}
                             >
-                                Details
+                                Xem chi tiết
                             </Button>
                         </div>
                     </div>
