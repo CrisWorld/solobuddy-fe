@@ -152,6 +152,17 @@ export interface CreateTourRequest {
   duration: string;
 }
 
+export interface UpdateTourRequest {
+  id: string;
+  title?: string;
+  description?: string;
+  price?: number;
+  image?: string;
+  unit?: string;
+  duration?: string;
+}
+
+
 // interface cho request update
 export interface UpdateTourGuideProfileRequest {
   bio?: string;
@@ -206,7 +217,25 @@ export const tourGuideApi = baseApi.injectEndpoints({
         body
       })
     }),
-    // thêm API update profile (không cần id, đã có JWT xác thực)
+    updateTour: build.mutation<Tour, UpdateTourRequest>({
+      query: ({ id, ...body }) => ({
+        url: `${endpoints.tourGuideEndpoints.UPDATE_TOUR}/${id}`,
+        method: "PATCH",
+        body,
+      }),
+    }),
+    deleteTour: build.mutation<{ success: boolean }, string>({
+      query: (id) => ({
+        url: `${endpoints.tourGuideEndpoints.DELETE_TOUR}/${id}`,
+        method: "DELETE",
+      }),      
+      transformResponse: (__, meta: FetchBaseQueryMeta) => {
+        if (meta?.response?.status === 204) {
+          return { success: true }
+        }
+        return { success: false }
+      },
+    }),
     updateTourGuideProfile: build.mutation<UpdateResponse, UpdateTourGuideProfileRequest>({
       query: (body) => ({
         url: endpoints.tourGuideEndpoints.UPDATE_TOUR_GUIDE_PROFILE,
@@ -253,7 +282,9 @@ export const {
   useGetTourGuidesMutation,
   useGetTourGuideDetailQuery,
   useGetToursByGuideMutation,
-  useCreateTourMutation,
+  useCreateTourMutation,  
+  useUpdateTourMutation,
+  useDeleteTourMutation,
   useUpdateTourGuideProfileMutation,
   useUpdateAvailableDatesMutation,
   useUpdateWorkDaysMutation

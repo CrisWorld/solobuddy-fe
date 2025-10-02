@@ -1,5 +1,4 @@
 "use client"
-import Image from "next/image"
 import { usePathname, useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -58,13 +57,11 @@ export function ChatSidebar() {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="w-full justify-start gap-3 h-10">
-              <Avatar className="h-6 w-6">
-                <Image
+              <Avatar className="h-8 w-8">
+                <img
                   src={user?.avatar || "/default-avatar.png"}
                   alt={user?.name || "Traveler"}
-                  width={24}
-                  height={24}
-                  className="rounded-full"
+                  className="w-8 h-8 rounded-full object-cover"
                 />
                 <AvatarFallback>
                   {user?.name?.[0]?.toUpperCase() || "T"}

@@ -14,10 +14,11 @@ const tourGuideEndpoints = {
   GET_TOUR_GUIDES: '/tour-guides',
   GET_TOUR_GUIDE_DETAIL: '/tour-guides/detail',
   CREATE_TOUR: '/tour-guides/tour',
+  UPDATE_TOUR: '/tours',
+  DELETE_TOUR: '/tours',
   UPDATE_TOUR_GUIDE_PROFILE: '/tour-guides/profile',
   UPDATE_AVAILABLE_DATES: '/tour-guides/available-dates',
   UPDATE_WORK_DAYS: '/tour-guides/work-days',
-  BOOK_TOUR: '',
 };
 const tourEndpoints = {
   GET_TOURS: '/tours',

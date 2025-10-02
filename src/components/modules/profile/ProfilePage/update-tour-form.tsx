@@ -1,7 +1,6 @@
 "use client"
 
 import type React from "react"
-
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -11,41 +10,43 @@ import { Upload, X, Loader2 } from "lucide-react"
 import { uploadToCloudinary } from "@/lib/cloundinary"
 import { Editor } from "@tinymce/tinymce-react"
 import { constants } from "@/config"
-import { useCreateTourMutation } from "@/stores/services/tour-guide/tour-guide"
 import { useApp } from "@/lib/app-context"
+import { useUpdateTourMutation } from "@/stores/services/tour-guide/tour-guide"
+import { decodeHtml } from "@/lib/utils"
 
-export interface AddTourFormData {
+export interface Tour {
+  id: string
   title: string
   description: string
   image?: string
   price: number
   duration: string
-}
-interface AddTourFormProps {
-  refreshTours: () => Promise<void>
+  unit?: string
 }
 
-export function AddTourForm({refreshTours} : AddTourFormProps) {
-  const [createTour, { isLoading: isSubmitting }] = useCreateTourMutation()
-  const {showToast} = useApp()
-  
-  const [formData, setFormData] = useState<AddTourFormData>({
-    title: "",
-    description: "",
-    image: undefined,
-    price: 0,
-    duration: "",
+interface UpdateTourFormProps {
+  tour: Tour
+  onUpdated: () => void
+}
+
+export function UpdateTourForm({ tour, onUpdated }: UpdateTourFormProps) {
+  const [updateTour, { isLoading: isSubmitting }] = useUpdateTourMutation()
+  const { showToast } = useApp()
+
+  const [formData, setFormData] = useState<Tour>({
+    ...tour,
+    description: decodeHtml(tour.description),
   })
 
+
   const [imageFile, setImageFile] = useState<File | null>(null)
-  const [imagePreview, setImagePreview] = useState<string | null>(null)
+  const [imagePreview, setImagePreview] = useState<string | null>(tour.image || null)
   const [isUploadingImage, setIsUploadingImage] = useState(false)
 
   const handleImageSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
 
-    // Create preview
     const reader = new FileReader()
     reader.onloadend = () => {
       setImagePreview(reader.result as string)
@@ -53,9 +54,8 @@ export function AddTourForm({refreshTours} : AddTourFormProps) {
     reader.readAsDataURL(file)
 
     setImageFile(file)
-
-    // Upload to Cloudinary
     setIsUploadingImage(true)
+
     try {
       const url = await uploadToCloudinary(file)
       if (url) {
@@ -63,7 +63,7 @@ export function AddTourForm({refreshTours} : AddTourFormProps) {
       }
     } catch (error) {
       console.error("Error uploading image:", error)
-      showToast("Không thể tải hình ảnh. Vui lòng thử lại!",  "error" )
+      showToast("Không thể tải hình ảnh. Vui lòng thử lại!", "error")
     } finally {
       setIsUploadingImage(false)
     }
@@ -77,51 +77,36 @@ export function AddTourForm({refreshTours} : AddTourFormProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    
+
     try {
-      const tourData = {
+      const result = await updateTour({
+        id: formData.id,
         title: formData.title,
         description: formData.description,
         price: formData.price,
-        image: formData.image || undefined,
+        image: formData.image,
         duration: formData.duration,
-        unit: "person"
-      }
-
-      const result = await createTour(tourData).unwrap()
-      
-      // Reset form
-      setFormData({
-        title: "",
-        description: "",
-        image: undefined,
-        price: 0,
-        duration: "",
-      })
-      setImageFile(null)
-      setImagePreview(null)
-      showToast("Thêm tour thành công!", "success")
-      await refreshTours()
+        unit: formData.unit ?? "person",
+      }).unwrap()
+      onUpdated()
     } catch (error: any) {
-      console.error("Error creating tour:", error)
-      showToast(error?.data?.message || "Không thể thêm tour. Vui lòng thử lại!", "error")
+      console.error("Error updating tour:", error)
+      showToast(error?.data?.message || "Không thể cập nhật tour. Vui lòng thử lại!", "error")
     }
   }
 
-  const isFormValid = formData.title && formData.description && formData.price > 0 && formData.duration
+  const isFormValid =
+    formData.title && formData.description && formData.price > 0 && formData.duration
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Title */}
       <div className="space-y-2">
-        <Label htmlFor="title">
-          Tên tour <span className="text-destructive">*</span>
-        </Label>
+        <Label htmlFor="title">Tên tour <span className="text-destructive">*</span></Label>
         <Input
           id="title"
           value={formData.title}
           onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-          placeholder="Nhập tên tour"
           required
           disabled={isSubmitting}
         />
@@ -151,7 +136,6 @@ export function AddTourForm({refreshTours} : AddTourFormProps) {
                   <>
                     <Upload className="h-8 w-8 text-muted-foreground" />
                     <p className="text-sm text-muted-foreground">Nhấp để tải lên hoặc kéo thả hình ảnh</p>
-                    <p className="text-xs text-muted-foreground">PNG, JPG, GIF tối đa 10MB</p>
                   </>
                 )}
               </div>
@@ -187,62 +171,26 @@ export function AddTourForm({refreshTours} : AddTourFormProps) {
         )}
       </div>
 
-      {/* Description with TinyMCE */}
+      {/* Description */}
       <div className="space-y-2">
-        <Label htmlFor="description">
-          Mô tả <span className="text-destructive">*</span>
-        </Label>
+        <Label htmlFor="description">Mô tả <span className="text-destructive">*</span></Label>
         <Editor
           apiKey={constants.TINYMCE_API_KEY}
           value={formData.description}
           onEditorChange={(content) => setFormData({ ...formData, description: content })}
           disabled={isSubmitting}
-          init={{
-            height: 300,
-            menubar: false,
-            plugins: [
-              "advlist",
-              "autolink",
-              "lists",
-              "link",
-              "image",
-              "charmap",
-              "preview",
-              "anchor",
-              "searchreplace",
-              "visualblocks",
-              "code",
-              "fullscreen",
-              "insertdatetime",
-              "media",
-              "table",
-              "code",
-              "help",
-              "wordcount",
-            ],
-            toolbar:
-              "undo redo | blocks | " +
-              "bold italic forecolor | alignleft aligncenter " +
-              "alignright alignjustify | bullist numlist outdent indent | " +
-              "removeformat | help",
-            content_style: "body { font-family:Helvetica,Arial,sans-serif; font-size:14px }",
-          }}
+          init={{ height: 300, menubar: false }}
         />
       </div>
 
       {/* Price */}
       <div className="space-y-2">
-        <Label htmlFor="price">
-          Giá (VNĐ/người) <span className="text-destructive">*</span>
-        </Label>
+        <Label htmlFor="price">Giá (VNĐ/người) <span className="text-destructive">*</span></Label>
         <Input
           id="price"
           type="number"
-          min="0"
-          step="1000"
           value={formData.price}
           onChange={(e) => setFormData({ ...formData, price: Number(e.target.value) })}
-          placeholder="0"
           required
           disabled={isSubmitting}
         />
@@ -250,14 +198,11 @@ export function AddTourForm({refreshTours} : AddTourFormProps) {
 
       {/* Duration */}
       <div className="space-y-2">
-        <Label htmlFor="duration">
-          Thời lượng <span className="text-destructive">*</span>
-        </Label>
+        <Label htmlFor="duration">Thời lượng <span className="text-destructive">*</span></Label>
         <Input
           id="duration"
           value={formData.duration}
           onChange={(e) => setFormData({ ...formData, duration: e.target.value })}
-          placeholder="Ví dụ: 3 ngày 2 đêm"
           required
           disabled={isSubmitting}
         />
@@ -276,7 +221,7 @@ export function AddTourForm({refreshTours} : AddTourFormProps) {
               Đang lưu...
             </>
           ) : (
-            "Thêm Tour"
+            "Cập nhật Tour"
           )}
         </Button>
       </div>

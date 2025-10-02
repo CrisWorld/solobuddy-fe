@@ -30,14 +30,12 @@ export function Header() {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <div className="flex items-center gap-2 cursor-pointer">
-                  <Image
+                  <span>{user.name}</span>
+                  <img
                     src={user.avatar || "/default-avatar.png"}
                     alt={user.name}
-                    width={32}
-                    height={32}
-                    className="rounded-full"
-                  />
-                  <span>{user.name}</span>
+                    className="w-10 h-10 rounded-full object-cover"
+                  />                  
                   <ChevronDown className="w-4 h-4" />
                 </div>
               </DropdownMenuTrigger>
@@ -50,14 +48,14 @@ export function Header() {
               <Button variant="ghost" onClick={openLogin}>
                 Đăng nhập
               </Button>
-              
+
             </>
           )}
           <Link href="/chat">
-                <Button className="bg-primary text-white rounded-full px-6">
-                  Bắt đầu ngay
-                </Button>
-              </Link>
+            <Button className="bg-primary text-white rounded-full px-6">
+              Bắt đầu ngay
+            </Button>
+          </Link>
         </div>
 
         {/* Mobile toggle */}
@@ -107,12 +105,10 @@ export function Header() {
                 {user ? (
                   <>
                     <div className="flex items-center gap-2">
-                      <Image
+                      <img
                         src={user.avatar || "/default-avatar.png"}
                         alt={user.name}
-                        width={40}
-                        height={40}
-                        className="rounded-full"
+                        className="w-12 h-12 rounded-full object-cover"
                       />
                       <span className="font-medium">{user.name}</span>
                     </div>
@@ -136,7 +132,7 @@ export function Header() {
                       }}
                     >
                       Đăng nhập
-                    </Button>                    
+                    </Button>
                   </>
                 )}
 

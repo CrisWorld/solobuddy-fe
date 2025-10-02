@@ -29,9 +29,9 @@ import { DaySelector } from "@/components/common/day-selector"
 import { CalendarPicker } from "@/components/common/calendar-picker"
 import { uploadToCloudinary } from "@/lib/cloundinary"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { TourGuideTours } from "../../chat/TourGuideDetailPage/tours"
 import { useApp } from "@/lib/app-context"
 import { AddTourForm } from "./add-tour-form"
+import { ToursList } from "./tours"
 
 export function ProfilePage() {
   const [isEditingProfile, setIsEditingProfile] = useState(false)
@@ -66,6 +66,23 @@ export function ProfilePage() {
       fetchTours()
     }
   }, [profileData, getToursByGuide])
+
+  const refreshTours = async () => {
+    if (!profileData || profileData.role !== "guide" || !profileData.tourGuides || profileData.tourGuides.length === 0) return;
+    setToursLoading(true)
+    try {
+      const res = await getToursByGuide({
+        filter: { guideId: profileData.tourGuides[0].id },
+        options: { limit: 6, page: 1 }
+      }).unwrap()
+      setTours(res.results || [])
+    } catch (err) {
+      console.error(err)
+      setTours([])
+    } finally {
+      setToursLoading(false)
+    }
+  }
 
   // Mutations for updating tour guide data
   const [updateTourGuideProfile, { isLoading: isUpdatingProfile }] = useUpdateTourGuideProfileMutation()
@@ -833,7 +850,7 @@ export function ProfilePage() {
                       <DialogTitle>Thêm Tour mới</DialogTitle>
                     </DialogHeader>
                     {/* Form thêm tour */}
-                    <AddTourForm />
+                    <AddTourForm refreshTours={refreshTours}  />
                       
                   </DialogContent>
                 </Dialog>
@@ -842,7 +859,7 @@ export function ProfilePage() {
                 {toursLoading ? (
                   <p className="text-muted-foreground">Đang load các tour...</p>
                 ) : (
-                  <TourGuideTours tours={tours} />
+                  <ToursList refreshTours={refreshTours} tours={tours} />
                 )}
               </CardContent>
             </Card>

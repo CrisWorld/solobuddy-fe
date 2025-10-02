@@ -102,6 +102,12 @@ export interface AddBookingResponse {
   checkoutUrl: string; 
 }
 
+export interface UpdateUserInfoRequest {
+  name?: string;
+  country?: string;
+  avatar?: string; // URL
+  phone?: string;
+}
 
 
 export const userApi = baseApi.injectEndpoints({
