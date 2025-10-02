@@ -15,7 +15,7 @@ import {
   CalendarIcon, Globe, Clock
 } from "lucide-react"
 
-import { formatLanguages, formatLocation, formatPrice, formatSpecialty, formatVehicle } from "@/lib/utils"
+import { decodeHtml, formatLanguages, formatLocation, formatPrice, formatSpecialty, formatVehicle } from "@/lib/utils"
 import { useGetTourGuideDetailQuery, useGetToursByGuideMutation } from "@/stores/services/tour-guide/tour-guide"
 import { useGetReviewsQuery } from "@/stores/services/review/review"
 import { PhotoCarousel } from "@/components/common/photos-list"
@@ -304,7 +304,8 @@ export function TourGuideDetailPage({ guideId }: TourGuideDetailPageProps) {
               <Card>
                 <CardContent className="p-6">
                   <h3 className="font-semibold text-foreground mb-4">Sơ lược về tôi</h3>
-                  <div className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line">{guide.bio}</div>
+                  <div className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line"
+                  dangerouslySetInnerHTML={{ __html: decodeHtml(guide.bio) }}/>
                 </CardContent>
               </Card>
             )}

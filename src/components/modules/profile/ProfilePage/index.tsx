@@ -23,7 +23,7 @@ import {
   UpdateWorkDaysRequest,
   useGetToursByGuideMutation
 } from "@/stores/services/tour-guide/tour-guide"
-import { countries, favourites, formatFavourite, formatPrice, formatSpecialty, formatVehicle, languages, specialtyTypes, vehicleTypes } from "@/lib/utils"
+import { countries, decodeHtml, favourites, formatFavourite, formatPrice, formatSpecialty, formatVehicle, languages, specialtyTypes, vehicleTypes } from "@/lib/utils"
 import { PhotoUpload } from "@/components/common/photo-upload"
 import { DaySelector } from "@/components/common/day-selector"
 import { CalendarPicker } from "@/components/common/calendar-picker"
@@ -32,6 +32,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { useApp } from "@/lib/app-context"
 import { AddTourForm } from "./add-tour-form"
 import { ToursList } from "./tours"
+import { constants } from "@/config"
+import { Editor } from "@tinymce/tinymce-react"
 
 export function ProfilePage() {
   const [isEditingProfile, setIsEditingProfile] = useState(false)
@@ -114,7 +116,7 @@ export function ProfilePage() {
       // If user is a guide and has tour guide profile
       if (profileData.role === "guide" && profileData.tourGuides && profileData.tourGuides.length > 0) {
         const tourGuideData = profileData.tourGuides[0]
-        setEditedTourGuideProfile(tourGuideData)
+        setEditedTourGuideProfile({...tourGuideData, bio: decodeHtml(tourGuideData.bio)})
         setOriginalTourGuideProfile(tourGuideData)
       }
     }
@@ -400,7 +402,11 @@ export function ProfilePage() {
           <div className="flex items-center gap-4">
             <div className="relative">
               <Avatar className="h-20 w-20">
-                <AvatarImage src={editedProfile.avatar || "/placeholder.svg"} />
+                <img
+                  src={editedProfile.avatar || "/default-avatar.png"}
+                  alt={editedProfile.name}
+                  className="h-20 w-20 object-cover"
+                />
                 <AvatarFallback className="text-lg">
                   {editedProfile.name
                     .split(" ")
@@ -554,17 +560,29 @@ export function ProfilePage() {
                   <div className="md:col-span-2 space-y-2">
                     <Label htmlFor="bio">Giới thiệu</Label>
                     {isEditingTourGuide ? (
-                      <Textarea
+                      <Editor
                         id="bio"
+                        apiKey={constants.TINYMCE_API_KEY}
                         value={editedTourGuideProfile.bio}
-                        onChange={(e) => setEditedTourGuideProfile({ ...editedTourGuideProfile, bio: e.target.value })}
-                        placeholder="Giới thiệu bản thân..."
-                        rows={3}
+                        onEditorChange={(content) =>
+                          setEditedTourGuideProfile({ ...editedTourGuideProfile, bio: content })
+                        }
+                        init={{
+                          height: 300,
+                          menubar: false,
+                          plugins: "link lists table code",
+                          toolbar:
+                            "undo redo | bold italic underline | bullist numlist | link table | code",
+                        }}
                       />
                     ) : (
-                      <div className="p-3 bg-muted rounded-md text-sm">{tourGuideProfile.bio}</div>
+                      <div
+                        className="p-3 bg-muted rounded-md text-sm prose max-w-none"
+                        dangerouslySetInnerHTML={{ __html: editedTourGuideProfile.bio }}
+                      />
                     )}
                   </div>
+
 
                   {/* Price Per Day */}
                   <div className="space-y-2">
@@ -850,8 +868,8 @@ export function ProfilePage() {
                       <DialogTitle>Thêm Tour mới</DialogTitle>
                     </DialogHeader>
                     {/* Form thêm tour */}
-                    <AddTourForm refreshTours={refreshTours}  />
-                      
+                    <AddTourForm refreshTours={refreshTours} />
+
                   </DialogContent>
                 </Dialog>
               </CardHeader>

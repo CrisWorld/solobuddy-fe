@@ -6,7 +6,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Star, Heart, MapPin } from "lucide-react"
 import { useRouter } from "next/navigation"
-import { formatLanguage, formatLocation, formatPrice, formatSpecialty } from "@/lib/utils"
+import { decodeHtml, formatLanguage, formatLocation, formatPrice, formatSpecialty } from "@/lib/utils"
 
 export interface TourGuideData {
     id: string
@@ -189,7 +189,8 @@ export function TourGuideCard({
                         </div>
 
                         {guide.description && (
-                            <p className="text-xs text-muted-foreground mt-2 line-clamp-2">{guide.description}</p>
+                            <div className="text-xs text-muted-foreground mt-2 line-clamp-2"
+                            dangerouslySetInnerHTML={{ __html: decodeHtml(guide.description) }}/>
                         )}
 
                         <div className="flex flex-wrap gap-1 mt-3">
