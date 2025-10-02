@@ -116,6 +116,7 @@ export interface Tour {
   deleted: boolean;
   title: string;
   description: string;
+  image?: string;
   price: number;
   duration: string;
   guideId: string;
@@ -146,6 +147,7 @@ export interface CreateTourRequest {
   title: string;
   description: string;
   price: number;
+  image?: string;
   unit: string;
   duration: string;
 }

@@ -13,14 +13,6 @@ interface AppContextType {
   setCurrentPage: (page: Page) => void
   favouriteGuides: string[]
   toggleFavourite: (guideId: string) => void
-  bookedTours: Array<{
-    id: number
-    guideName: string
-    location: string
-    date: string
-    status: "upcoming" | "completed"
-  }>
-  addBookedTour: (tour: any) => void
   showToast: (message: string, type?: "success" | "error" | "info") => void
   removeToast: (id: string) => void
 }
@@ -32,23 +24,6 @@ const AppContext = createContext<AppContextType | undefined>(undefined)
 export function AppProvider({ children }: { children: ReactNode }) {
   const [currentPage, setCurrentPage] = useState<Page>("chat");
   const [favouriteGuides, setFavouriteGuides] = useState<string[]>([]);
-  const [bookedTours, setBookedTours] = useState<
-    Array<{
-      id: number;
-      guideName: string;
-      location: string;
-      date: string;
-      status: "upcoming" | "completed";
-    }>
-  >([
-    {
-      id: 1,
-      guideName: "Do En Nguyen",
-      location: "Da Nang",
-      date: "2024-01-15",
-      status: "upcoming",
-    },
-  ]);
 
   // Toast hook
   const toast = useToast();
@@ -59,10 +34,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
     );
   };
 
-  const addBookedTour = (tour: any) => {
-    setBookedTours((prev) => [...prev, tour]);
-  };
-
   return (
     <AppContext.Provider
       value={{
@@ -70,8 +41,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
         setCurrentPage,
         favouriteGuides,
         toggleFavourite,
-        bookedTours,
-        addBookedTour,
         showToast: toast.showToast,
         removeToast: toast.removeToast,
       }}

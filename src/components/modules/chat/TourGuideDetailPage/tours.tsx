@@ -1,7 +1,7 @@
 "use client"
 
 import { Card, CardContent } from "@/components/ui/card"
-import { formatPrice } from "@/lib/utils"
+import { decodeHtml, formatPrice } from "@/lib/utils"
 import { Tour } from "@/stores/services/tour-guide/tour-guide"
 
 interface TourGuideToursProps {
@@ -29,18 +29,21 @@ export function TourGuideTours({ tours }: TourGuideToursProps) {
             <div key={tour.id} className="bg-white rounded-lg overflow-hidden shadow-sm border">
               <div className="aspect-video bg-gray-100">
                 <img
-                  src={`/abstract-geometric-shapes.png?height=200&width=300&query=${tour.title}`}
+                  src={tour.image || "da-nang-city-view-.jpg"}
                   alt={tour.title}
                   className="w-full h-full object-cover"
                 />
               </div>
               <div className="p-4">
                 <h4 className="font-medium text-foreground mb-2">{tour.title}</h4>
-                <p className="text-xs text-muted-foreground mb-3 line-clamp-2">{tour.description}</p>
+                <div
+                  className="text-xs text-muted-foreground mb-3 line-clamp-2"
+                  dangerouslySetInnerHTML={{ __html: decodeHtml(tour.description) }}
+                />
                 <div className="flex items-center justify-between">
                   <div className="text-xs text-muted-foreground">Thời lượng: {tour.duration}</div>
                   <div className="text-sm font-bold text-foreground">
-                    {formatPrice(tour.price)} {tour.unit && `/ ${tour.unit}`}
+                    {formatPrice(tour.price)} {tour.unit && `/ người`}
                   </div>
                 </div>
               </div>

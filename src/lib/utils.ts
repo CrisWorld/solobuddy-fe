@@ -11,6 +11,12 @@ export const createRegexPattern = (searchTerm: string): string => {
   return `.*${searchTerm.trim()}.*`;
 };
 
+
+export function decodeHtml(html: string) {
+  const doc = new DOMParser().parseFromString(html, "text/html")
+  return doc.documentElement.textContent || ""
+}
+
 // Backend constants (đã việt hóa giá trị)
 export const vehicleTypes = [
   "car",

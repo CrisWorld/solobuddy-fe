@@ -1,8 +1,11 @@
+import { constants } from "@/config";
+
+
 // utils/cloudinary.ts
 export async function uploadToCloudinary(file: File): Promise<string | null> {
   try {
-    const url = process.env.NEXT_PUBLIC_CLOUDINARY_URL as string; 
-    const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET as string;
+    const url = constants.CLOUDINARY_URL as string; 
+    const uploadPreset = constants.CLOUDINARY_UPLOAD_PRESET as string;
 
     const formData = new FormData();
     formData.append("file", file);

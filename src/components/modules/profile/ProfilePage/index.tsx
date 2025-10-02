@@ -11,7 +11,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch"
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
-import { useToast } from "@/components/ui/use-toast"
 import { Edit, Check, X, Upload, Star, AlertCircle } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { TourGuideProfile, useGetProfileQuery, UserProfile } from "@/stores/services/user/userApi"
@@ -24,7 +23,7 @@ import {
   UpdateWorkDaysRequest,
   useGetToursByGuideMutation
 } from "@/stores/services/tour-guide/tour-guide"
-import { countries, favourites, formatPrice, formatSpecialty, formatVehicle, languages, specialtyTypes, vehicleTypes } from "@/lib/utils"
+import { countries, favourites, formatFavourite, formatPrice, formatSpecialty, formatVehicle, languages, specialtyTypes, vehicleTypes } from "@/lib/utils"
 import { PhotoUpload } from "@/components/common/photo-upload"
 import { DaySelector } from "@/components/common/day-selector"
 import { CalendarPicker } from "@/components/common/calendar-picker"
@@ -32,6 +31,7 @@ import { uploadToCloudinary } from "@/lib/cloundinary"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { TourGuideTours } from "../../chat/TourGuideDetailPage/tours"
 import { useApp } from "@/lib/app-context"
+import { AddTourForm } from "./add-tour-form"
 
 export function ProfilePage() {
   const [isEditingProfile, setIsEditingProfile] = useState(false)
@@ -747,7 +747,7 @@ export function ProfilePage() {
                             className="rounded"
                           />
                           <label htmlFor={`fav-${fav}`} className="text-sm">
-                            {fav}
+                            {formatFavourite(fav)}
                           </label>
                         </div>
                       ))}
@@ -828,21 +828,13 @@ export function ProfilePage() {
                   <DialogTrigger asChild>
                     <Button variant="outline">+ Thêm Tour</Button>
                   </DialogTrigger>
-                  <DialogContent>
+                  <DialogContent className="max-w-7xl w-full h-[90vh] overflow-y-auto">
                     <DialogHeader>
                       <DialogTitle>Thêm Tour mới</DialogTitle>
                     </DialogHeader>
-                    {/* <AddTourForm
-                      onSubmit={async (data) => {
-                        try {
-                          await createTour({ guideId, ...data }).unwrap()
-                          toast({ title: "Success", description: "Tour created successfully" })
-                          refetchTours()
-                        } catch (err) {
-                          toast({ title: "Error", description: "Failed to create tour", variant: "destructive" })
-                        }
-                      }}
-                    /> */}
+                    {/* Form thêm tour */}
+                    <AddTourForm />
+                      
                   </DialogContent>
                 </Dialog>
               </CardHeader>
