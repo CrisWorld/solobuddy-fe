@@ -110,6 +110,10 @@ export const mapTourGuideDetailResponse = (data: any): TourGuideDetail => {
   };
 };
 
+export interface BookedDateResponse{
+  bookedDates : string[];
+}
+
 // Add interfaces for the new API
 export interface Tour {
   id: string;
@@ -203,6 +207,12 @@ export const tourGuideApi = baseApi.injectEndpoints({
       }),
       transformResponse: (response: any) => mapTourGuideDetailResponse(response),
     }),
+    getBookedDate: build.query<BookedDateResponse, string>({
+      query: (id) => ({
+        url: `${endpoints.tourGuideEndpoints.GET_BOOKED_DATES}/${id}`,
+        method: "GET"
+      })
+    }),
     getToursByGuide: build.mutation<GetToursByGuideResponse, GetToursByGuideRequest>({
       query: (body) => ({
         url: endpoints.tourEndpoints.GET_TOURS,
@@ -281,6 +291,7 @@ export const tourGuideApi = baseApi.injectEndpoints({
 export const {
   useGetTourGuidesMutation,
   useGetTourGuideDetailQuery,
+  useGetBookedDateQuery,
   useGetToursByGuideMutation,
   useCreateTourMutation,  
   useUpdateTourMutation,

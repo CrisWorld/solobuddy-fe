@@ -16,7 +16,7 @@ import {
 } from "lucide-react"
 
 import { decodeHtml, formatLanguages, formatLocation, formatPrice, formatSpecialty, formatVehicle } from "@/lib/utils"
-import { useGetTourGuideDetailQuery, useGetToursByGuideMutation } from "@/stores/services/tour-guide/tour-guide"
+import { useGetBookedDateQuery, useGetTourGuideDetailQuery, useGetToursByGuideMutation } from "@/stores/services/tour-guide/tour-guide"
 import { useGetReviewsQuery } from "@/stores/services/review/review"
 import { PhotoCarousel } from "@/components/common/photos-list"
 import { TourGuideTours } from "./tours"
@@ -29,7 +29,7 @@ interface TourGuideDetailPageProps {
 }
 
 export function TourGuideDetailPage({ guideId }: TourGuideDetailPageProps) {
-  const {user, openLogin} = useAuth();
+  const { user, openLogin } = useAuth();
   const [selectedTourId, setSelectedTourId] = useState<string>("")
   const [fromDate, setFromDate] = useState<Date>()
   const [toDate, setToDate] = useState<Date>()
@@ -39,6 +39,14 @@ export function TourGuideDetailPage({ guideId }: TourGuideDetailPageProps) {
 
   // Fetch tour guide detail
   const { data: guide, isLoading: guideLoading, error: guideError } = useGetTourGuideDetailQuery(guideId)
+  const { data: bookedDateResults } = useGetBookedDateQuery(guideId)
+  // Giữ bookedDates dưới dạng yyyy-mm-dd để so sánh nhanh
+  const bookedSet = useMemo(() => {
+    if (!bookedDateResults) return new Set<string>()
+    return new Set(
+      bookedDateResults.bookedDates.map((d: string) => new Date(d).toISOString().split("T")[0])
+    )
+  }, [bookedDateResults])
 
   // Fetch tours by guide with proper error handling and dependency tracking
   const [getToursByGuide] = useGetToursByGuideMutation()
@@ -84,24 +92,37 @@ export function TourGuideDetailPage({ guideId }: TourGuideDetailPageProps) {
   const filteredTours = useMemo(() => tours.filter((tour) => !tour.deleted), [tours])
   const isFavorite = false // TODO: hook vào API/Redux nếu cần
 
-  // Check if a date is available based on guide's schedule
+  // 1. Check single day
   const isDateAvailable = useCallback((date: Date) => {
     if (!guide) return false
 
+    const dateStr = date.toISOString().split("T")[0]
+    if (bookedSet.has(dateStr)) return false
+
     if (guide.isRecur) {
-      // Check day of week (0 = Sunday, 1 = Monday, ..., 6 = Saturday)
       const dayOfWeek = date.getDay()
       return guide.dayInWeek?.includes(dayOfWeek) || false
     } else {
-      // Check available dates
       if (!guide.availableDates?.length) return false
-      const dateStr = date.toISOString().split('T')[0]
       return guide.availableDates.some(availDate => {
-        const availDateStr = new Date(availDate).toISOString().split('T')[0]
+        const availDateStr = new Date(availDate).toISOString().split("T")[0]
         return availDateStr === dateStr
       })
     }
-  }, [guide])
+  }, [guide, bookedSet])
+
+  // 2. Check whole range (from → to)
+  const isRangeAvailable = useCallback((from: Date, to: Date) => {
+    let d = new Date(from)
+    while (d <= to) {
+      if (!isDateAvailable(d)) {
+        return false
+      }
+      d.setDate(d.getDate() + 1)
+    }
+    return true
+  }, [isDateAvailable])
+
 
   // Handlers
   const handleBack = useCallback(() => {
@@ -110,7 +131,7 @@ export function TourGuideDetailPage({ guideId }: TourGuideDetailPageProps) {
 
   const handleBookNow = useCallback(() => {
     if (!selectedTourId || !fromDate || !toDate) return
-    if(!user){
+    if (!user) {
       openLogin();
       return;
     }
@@ -192,7 +213,11 @@ export function TourGuideDetailPage({ guideId }: TourGuideDetailPageProps) {
               <CardContent className="p-6">
                 <div className="flex items-start gap-4">
                   <Avatar className="h-16 w-16">
-                    <AvatarImage src={guide.user?.avatar || "/placeholder.svg"} />
+                    <img
+                      src={guide.user.avatar || "/default-avatar.png"}
+                      alt={guide.user?.name}
+                      className="h-16 w-16 object-cover"
+                    />
                     <AvatarFallback>
                       {guide.user?.name
                         ?.split(" ")
@@ -305,7 +330,7 @@ export function TourGuideDetailPage({ guideId }: TourGuideDetailPageProps) {
                 <CardContent className="p-6">
                   <h3 className="font-semibold text-foreground mb-4">Sơ lược về tôi</h3>
                   <div className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line"
-                  dangerouslySetInnerHTML={{ __html: decodeHtml(guide.bio) }}/>
+                    dangerouslySetInnerHTML={{ __html: decodeHtml(guide.bio) }} />
                 </CardContent>
               </Card>
             )}
@@ -330,7 +355,11 @@ export function TourGuideDetailPage({ guideId }: TourGuideDetailPageProps) {
                 <CardContent className="p-6">
                   <div className="text-center mb-6">
                     <Avatar className="h-16 w-16 mx-auto mb-3">
-                      <AvatarImage src={guide.user?.avatar || "/placeholder.svg"} />
+                      <img
+                        src={guide.user.avatar || "/default-avatar.png"}
+                        alt={guide.user?.name}
+                        className="h-16 w-16 object-cover"
+                      />
                       <AvatarFallback>
                         {guide.user?.name
                           ?.split(" ")
@@ -404,7 +433,10 @@ export function TourGuideDetailPage({ guideId }: TourGuideDetailPageProps) {
                             initialFocus
                             disabled={(date) => {
                               if (!fromDate) return true
-                              return date < fromDate || !isDateAvailable(date)
+                              return (
+                                date < fromDate ||
+                                !isRangeAvailable(fromDate, date) // range có ngày booked → disabled
+                              )
                             }}
                           />
                         </PopoverContent>
@@ -469,21 +501,21 @@ export function TourGuideDetailPage({ guideId }: TourGuideDetailPageProps) {
         </div>
       </div>
       {user && isBookingModalOpen &&
-      <BookingConfirmModal
-        isOpen={isBookingModalOpen}
-        onClose={() => setIsBookingModalOpen(false)}
-        guide={guide}
-        tour={filteredTours.find(t => t.id === selectedTourId)}
-        fromDate={fromDate!}
-        toDate={toDate!}
-        traveler={{
-          id: user.id, 
-          name: user.name,
-          email: user.email,
-        }}     
-      />      
+        <BookingConfirmModal
+          isOpen={isBookingModalOpen}
+          onClose={() => setIsBookingModalOpen(false)}
+          guide={guide}
+          tour={filteredTours.find(t => t.id === selectedTourId)}
+          fromDate={fromDate!}
+          toDate={toDate!}
+          traveler={{
+            id: user.id,
+            name: user.name,
+            email: user.email,
+          }}
+        />
       }
-      
+
 
     </div>
 

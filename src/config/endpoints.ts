@@ -19,6 +19,7 @@ const tourGuideEndpoints = {
   UPDATE_TOUR_GUIDE_PROFILE: '/tour-guides/profile',
   UPDATE_AVAILABLE_DATES: '/tour-guides/available-dates',
   UPDATE_WORK_DAYS: '/tour-guides/work-days',
+  GET_BOOKED_DATES: '/tour-guides/booked-dates',
 };
 const tourEndpoints = {
   GET_TOURS: '/tours',
@@ -28,6 +29,7 @@ const reviewEndpoints = {
 }
 const userEndpoints = {
   GET_PROFILE: '/users/private/me',
+  UPDATE_PROFILE: '/users',
   BOOKING: '/bookings',
 }
 export default {

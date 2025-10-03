@@ -56,12 +56,11 @@ export function TourGuideReviews({ reviews, ratingAvg, ratingCount }: TourGuideR
           {reviews.length > 0 ? (
             reviews.map((review) => (
               <div key={review._id} className="flex gap-3">
-                <Avatar className="h-8 w-8">
-                  <AvatarImage
-                    src={
-                      review.traveler?.avatar ||
-                      `/reviewer-.jpg?height=32&width=32&query=reviewer ${review.traveler?.name}`
-                    }
+                <Avatar className="h-10 w-10">
+                  <img
+                    src={review.traveler?.avatar || "/default-avatar.png"}
+                    alt={review.traveler?.name}
+                    className="h-10 w-10 object-cover"
                   />
                   <AvatarFallback>
                     {review.traveler?.name

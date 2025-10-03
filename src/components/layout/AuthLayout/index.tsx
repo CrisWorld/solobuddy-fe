@@ -11,6 +11,10 @@ type User = {
   name: string
   email: string
   avatar?: string
+  role: string
+  country?: string
+  phone?: string
+  isEmailVerified: boolean
 } | null
 
 interface AuthContextProps {
@@ -24,7 +28,8 @@ interface AuthContextProps {
   openLogin: () => void
   openRegister: () => void
   closeLogin: () => void
-    closeRegister: () => void
+  closeRegister: () => void
+  updateUser: (user: User) => void
 }
 
 
@@ -39,6 +44,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const storedUser = webLocalStorage.get("user")
     setUser(storedUser)
   }, [])
+
+  const updateUser = (user: User) => {
+    setUser(user)
+    webLocalStorage.set("user", user)
+  }
 
   const logout = () => {
     localStorage.removeItem("user")
@@ -71,6 +81,7 @@ const closeRegister = () => setIsRegisterOpen(false)
         openRegister,
         closeLogin,
         closeRegister,
+        updateUser,
       }}
     >
       {children}

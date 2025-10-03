@@ -8,7 +8,16 @@ import cookieStorageClient from "@/lib/cookieStorageClient";
 interface RegisterRequest { name: string; email: string; password: string; }
 interface LoginRequest { email: string; password: string; }
 
-interface AuthUser { id: string; email: string; name: string; role: string; }
+interface AuthUser { 
+  id: string
+  name: string
+  email: string
+  avatar?: string
+  role: string
+  country?: string
+  phone?: string
+  isEmailVerified: boolean
+ }
 
 interface AuthResponse {
   user: AuthUser;

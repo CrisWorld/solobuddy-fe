@@ -3,7 +3,8 @@
 import { endpoints } from "@/config";
 import { baseApi } from "../base";
 import { Booking, Favourite } from "@/stores/types/types";
-import { get } from "lodash";
+import { get, update } from "lodash";
+import { FetchBaseQueryMeta } from "@reduxjs/toolkit/query";
 
 export interface UserProfile {
   id: string;
@@ -13,6 +14,7 @@ export interface UserProfile {
   name: string;
   email: string;
   country?: string;
+  phone?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -55,6 +57,7 @@ export const mapUserProfileResponse = (data: any): ProfileResponse => {
     name: data.name,
     email: data.email,
     country: data.country,
+    phone: data.phone,
     createdAt: data.createdAt,
     updatedAt: data.updatedAt,
   };
@@ -119,6 +122,19 @@ export const userApi = baseApi.injectEndpoints({
       }),
       transformResponse: (response: any) => mapUserProfileResponse(response),
     }),
+    updateProfile: build.mutation<{success: boolean}, UpdateUserInfoRequest>({
+      query: (body) => ({
+        url: endpoints.userEndpoints.UPDATE_PROFILE,
+        method: "PATCH",
+        body,
+      }),
+      transformResponse: (response: any, meta: FetchBaseQueryMeta) => {
+        if (meta?.response?.status === 200) {
+          return { success: true };
+        }
+        return { success: false, message: response?.message || "Update profile failed" };
+      }
+    }),
     addBooking: build.mutation<AddBookingResponse, AddBookingRequest>({
       query: (body) => ({
         url: endpoints.userEndpoints.BOOKING,
@@ -135,7 +151,8 @@ export const userApi = baseApi.injectEndpoints({
   }),
 });
 
-export const { useGetProfileQuery
-, useAddBookingMutation,
+export const { useGetProfileQuery,
+  useUpdateProfileMutation,
+  useAddBookingMutation,
   useGetBookingsHistoryQuery
  } = userApi;

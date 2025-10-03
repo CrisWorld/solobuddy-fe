@@ -11,9 +11,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch"
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
-import { Edit, Check, X, Upload, Star, AlertCircle } from "lucide-react"
+import { Edit, Check, X, Upload, Star, AlertCircle, Loader2 } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { TourGuideProfile, useGetProfileQuery, UserProfile } from "@/stores/services/user/userApi"
+import { TourGuideProfile, useGetProfileQuery, UserProfile, useUpdateProfileMutation } from "@/stores/services/user/userApi"
 import {
   useUpdateTourGuideProfileMutation,
   useUpdateAvailableDatesMutation,
@@ -34,6 +34,8 @@ import { AddTourForm } from "./add-tour-form"
 import { ToursList } from "./tours"
 import { constants } from "@/config"
 import { Editor } from "@tinymce/tinymce-react"
+import { set } from "lodash"
+import { useAuth } from "@/components/layout/AuthLayout"
 
 export function ProfilePage() {
   const [isEditingProfile, setIsEditingProfile] = useState(false)
@@ -90,6 +92,7 @@ export function ProfilePage() {
   const [updateTourGuideProfile, { isLoading: isUpdatingProfile }] = useUpdateTourGuideProfileMutation()
   const [updateAvailableDates, { isLoading: isUpdatingDates }] = useUpdateAvailableDatesMutation()
   const [updateWorkDays, { isLoading: isUpdatingWorkDays }] = useUpdateWorkDaysMutation()
+  const [updateProfile, { isLoading: isUpdatingUserProfile }] = useUpdateProfileMutation()
 
   // Local state for editing
   const [editedProfile, setEditedProfile] = useState<UserProfile | null>(null)
@@ -106,36 +109,58 @@ export function ProfilePage() {
         name: profileData.name,
         email: profileData.email,
         country: profileData.country,
+        phone: profileData.phone,
         role: profileData.role,
         isEmailVerified: profileData.isEmailVerified,
         avatar: profileData.avatar,
         createdAt: profileData.createdAt,
         updatedAt: profileData.updatedAt,
       })
-
+      console.log(profileData);
       // If user is a guide and has tour guide profile
       if (profileData.role === "guide" && profileData.tourGuides && profileData.tourGuides.length > 0) {
         const tourGuideData = profileData.tourGuides[0]
-        setEditedTourGuideProfile({...tourGuideData, bio: decodeHtml(tourGuideData.bio)})
+        setEditedTourGuideProfile({ ...tourGuideData, bio: decodeHtml(tourGuideData.bio) })
         setOriginalTourGuideProfile(tourGuideData)
       }
     }
   }, [profileData])
 
+  const {user, updateUser} = useAuth();
+
   const handleSaveProfile = async () => {
     if (!editedProfile) return
+    if (isUpdatingUserProfile) return; // Prevent multiple simultaneous requests
 
     try {
-      // TODO: Add API call to update user profile
-      // await updateProfile(editedProfile)
-
+      const result = await updateProfile({
+        name: editedProfile.name,
+        country: editedProfile.country,
+        phone: editedProfile.phone,
+        avatar: editedProfile.avatar,
+      })
+      if (!result.data?.success) {
+        showToast("Có lỗi trong lúc update hồ sơ: " + (result as any).message || "", "error");
+        setIsEditingProfile(false);
+        return;
+      }
       setIsEditingProfile(false)
+
       showToast("Hồ sơ cá nhân đã được update thành công", "success");
       // Refetch data to get updated profile
       refetch()
+      updateUser({
+        ...user,
+        name: editedProfile.name,
+        country: editedProfile.country,
+        phone: editedProfile.phone,
+        avatar: editedProfile.avatar,
+      } as any)
     } catch (error) {
       console.error('Có lỗi trong lúc update hồ sơ:', error)
       showToast("Có lỗi trong lúc update hồ sơ", "error");
+      setIsEditingProfile(false);
+      refetch()
     }
   }
 
@@ -302,14 +327,27 @@ export function ProfilePage() {
     setIsEditingTourGuide(false)
   }
 
+  const [isUploading, setIsUploading] = useState(false)
+  const [preview, setPreview] = useState<string | null>(null)
+
   const handleAvatarUpload = async (file: File) => {
-    if (!editedProfile) return;
+    if (!editedProfile) return
 
-    const url = await uploadToCloudinary(file); // upload thật sự
-    if (!url) return;
+    // Preview ảnh trước
+    const localUrl = URL.createObjectURL(file)
+    setPreview(localUrl)
+    setIsUploading(true)
 
-    setEditedProfile({ ...editedProfile, avatar: url });
-  };
+    try {
+      const url = await uploadToCloudinary(file) // upload thật sự
+      if (!url) return
+      setEditedProfile({ ...editedProfile, avatar: url })
+    } finally {
+      setIsUploading(false)
+      // Giải phóng URL tạm sau khi upload xong
+      URL.revokeObjectURL(localUrl)
+    }
+  }
 
   // Loading state
   if (isLoading) {
@@ -416,14 +454,28 @@ export function ProfilePage() {
               </Avatar>
               {isEditingProfile && (
                 <div className="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center">
-                  <input type="file" accept="image/*" className="hidden" id="avatar-upload" />
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    id="avatar-upload"
+                    onChange={(e) => {
+                      if (e.target.files?.[0]) {
+                        handleAvatarUpload(e.target.files[0])
+                      }
+                    }}
+                  />
                   <Button
                     variant="ghost"
                     size="sm"
                     className="text-white hover:text-white"
                     onClick={() => document.getElementById("avatar-upload")?.click()}
                   >
-                    <Upload className="h-4 w-4" />
+                    {isUploading ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Upload className="h-4 w-4" />
+                    )}
                   </Button>
                 </div>
               )}
@@ -497,6 +549,19 @@ export function ProfilePage() {
                     <div className="p-3 bg-muted rounded-md text-sm">
                       {profileData.country ? profileData.country.charAt(0).toUpperCase() + profileData.country.slice(1) : "Chưa có"}
                     </div>
+                  )}
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="name">Số điện thoại</Label>
+                  {isEditingProfile ? (
+                    <Input
+                      id="phone"
+                      value={editedProfile.phone ?? ""} 
+                      onChange={(e) => setEditedProfile({ ...editedProfile, phone: e.target.value })}
+                      placeholder="Nhập số điện thoại"
+                    />
+                  ) : (
+                    <div className="p-3 bg-muted rounded-md text-sm">{profileData.phone || "Chưa có số điện thoại"}</div>
                   )}
                 </div>
 
