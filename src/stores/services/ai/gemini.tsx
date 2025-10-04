@@ -43,6 +43,7 @@ interface APITourGuide {
   user: {
     name: string;
     email: string;
+    avatar?: string;
   };
 }
 
@@ -56,7 +57,7 @@ const mapAPIToTourGuide = (apiGuide: APITourGuide): TourGuide => {
     rating: apiGuide.ratingAvg,
     languages: apiGuide.languages,
     specialties: apiGuide.specialties,
-    avatar: '/default-avatar.png', // Use first photo as avatar or empty string
+    avatar: apiGuide.user.avatar || "default-avatar.png", // Use first photo as avatar or empty string
     description: apiGuide.bio
   };
 };
@@ -69,11 +70,6 @@ interface GuideResponse {
   totalResults: number;
 }
 
-interface AnswerResponse {
-  response: AIResponse;
-  guides: GuideResponse;
-}
-
 // Create the API endpoint with mapping
 export const geminiApi = baseApi.injectEndpoints({
   endpoints: (build) => ({
@@ -83,6 +79,7 @@ export const geminiApi = baseApi.injectEndpoints({
         method: 'POST',
         body,
       }),
+      extraOptions: { skipAuth: true },
       transformResponse: (response: { response: AIResponse; guides: GuideResponse }) => {
         return {
           ...response,

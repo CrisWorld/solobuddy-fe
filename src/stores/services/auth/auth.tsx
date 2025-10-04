@@ -8,7 +8,7 @@ import cookieStorageClient from "@/lib/cookieStorageClient";
 interface RegisterRequest { name: string; email: string; password: string; }
 interface LoginRequest { email: string; password: string; }
 
-interface AuthUser { 
+interface AuthUser {
   id: string
   name: string
   email: string
@@ -17,7 +17,7 @@ interface AuthUser {
   country?: string
   phone?: string
   isEmailVerified: boolean
- }
+}
 
 interface AuthResponse {
   user: AuthUser;
@@ -26,6 +26,10 @@ interface AuthResponse {
     refresh: { token: string; expires: string; };
   };
 }
+interface TokenRefreshResponse {
+  access: { token: string; expires: string; };
+  refresh: { token: string; expires: string; };
+}
 
 interface LogoutRequest { refreshToken: string; }
 
@@ -33,6 +37,8 @@ function handleAuthSuccess(data: AuthResponse) {
   cookieStorageClient.setToken(data.tokens.access.token);
   cookieStorageClient.setRefreshToken(data.tokens.refresh.token);
   webLocalStorage.set("user", data.user);
+  cookieStorageClient.set("token-expiry", data.tokens.access.expires);
+  cookieStorageClient.set("refresh-token-expiry", data.tokens.refresh.expires);
 }
 
 export const authApi = baseApi.injectEndpoints({
@@ -87,6 +93,26 @@ export const authApi = baseApi.injectEndpoints({
         }
       },
     }),
+    refreshToken: build.mutation<TokenRefreshResponse, void>({
+      query: () => ({
+        url: endpoints.authEndpoints.REFRESH_TOKEN,
+        method: "POST",
+        body: { refreshToken: cookieStorageClient.getRefreshToken() },
+      }),
+      async onQueryStarted(arg, { queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled;
+          cookieStorageClient.setToken(data.access.token);
+          cookieStorageClient.setRefreshToken(data.refresh.token);
+          cookieStorageClient.set("token-expiry", data.access.expires);
+          cookieStorageClient.set("refresh-token-expiry", data.refresh.expires);
+        } catch (err) {
+          console.error("Refresh token failed", err);
+          cookieStorageClient.removeAll();
+          localStorage.clear();
+        }
+      },
+    }),
   }),
 });
 
@@ -94,4 +120,5 @@ export const {
   useRegisterMutation,
   useLoginMutation,
   useLogoutMutation,
+  useRefreshTokenMutation,
 } = authApi;

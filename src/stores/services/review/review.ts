@@ -41,7 +41,8 @@ export const reviewApi = baseApi.injectEndpoints({
         url: endpoints.reviewEndpoints.GET_REVIEWS,
         method: "GET",
         params: { guideId, page, limit }
-      })
+      }),
+      extraOptions: { skipAuth: true }
     }),
 
     createReview: build.mutation<Review, CreateReviewRequest>({

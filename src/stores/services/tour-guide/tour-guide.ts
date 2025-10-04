@@ -198,6 +198,7 @@ export const tourGuideApi = baseApi.injectEndpoints({
         method: "POST",
         body,
       }),
+      extraOptions: { skipAuth: true },
       transformResponse: (response: any) => mapTourGuideApiResponse(response),
     }),
     getTourGuideDetail: build.query<TourGuideDetail, string>({
@@ -205,20 +206,23 @@ export const tourGuideApi = baseApi.injectEndpoints({
         url: `${endpoints.tourGuideEndpoints.GET_TOUR_GUIDE_DETAIL}/${id}`,
         method: "GET"
       }),
+      extraOptions: { skipAuth: true },
       transformResponse: (response: any) => mapTourGuideDetailResponse(response),
     }),
     getBookedDate: build.query<BookedDateResponse, string>({
       query: (id) => ({
         url: `${endpoints.tourGuideEndpoints.GET_BOOKED_DATES}/${id}`,
         method: "GET"
-      })
+      }),
+      extraOptions: { skipAuth: true },
     }),
     getToursByGuide: build.mutation<GetToursByGuideResponse, GetToursByGuideRequest>({
       query: (body) => ({
         url: endpoints.tourEndpoints.GET_TOURS,
         method: 'POST',
         body
-      })
+      }),
+      extraOptions: { skipAuth: true },
     }),
     createTour: build.mutation<Tour, CreateTourRequest>({
       query: (body) => ({

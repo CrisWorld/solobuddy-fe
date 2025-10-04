@@ -116,7 +116,6 @@ export function ProfilePage() {
         createdAt: profileData.createdAt,
         updatedAt: profileData.updatedAt,
       })
-      console.log(profileData);
       // If user is a guide and has tour guide profile
       if (profileData.role === "guide" && profileData.tourGuides && profileData.tourGuides.length > 0) {
         const tourGuideData = profileData.tourGuides[0]

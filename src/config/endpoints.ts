@@ -9,6 +9,7 @@ const authEndpoints = {
   REGISTER: '/auth/register',
   LOGIN: '/auth/login',
   LOGOUT: '/auth/logout',
+  REFRESH_TOKEN: '/auth/refresh-tokens',
 };
 const tourGuideEndpoints = {
   GET_TOUR_GUIDES: '/tour-guides',

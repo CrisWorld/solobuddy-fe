@@ -23,6 +23,7 @@ import { TourGuideTours } from "./tours"
 import { TourGuideReviews } from "./reviews"
 import { BookingConfirmModal } from "./booking-confirm"
 import { useAuth } from "@/components/layout/AuthLayout"
+import { useApp } from "@/lib/app-context"
 
 interface TourGuideDetailPageProps {
   guideId: string
@@ -36,7 +37,7 @@ export function TourGuideDetailPage({ guideId }: TourGuideDetailPageProps) {
   const [tours, setTours] = useState<any[]>([])
   const [toursLoading, setToursLoading] = useState(false)
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false)
-
+  const {showToast} = useApp();
   // Fetch tour guide detail
   const { data: guide, isLoading: guideLoading, error: guideError } = useGetTourGuideDetailQuery(guideId)
   const { data: bookedDateResults } = useGetBookedDateQuery(guideId)
@@ -134,6 +135,9 @@ export function TourGuideDetailPage({ guideId }: TourGuideDetailPageProps) {
     if (!user) {
       openLogin();
       return;
+    }
+    if (user.role !== 'user') {
+      showToast("Chỉ có khách du lịch mới có thể đặt tour.","error")
     }
     setIsBookingModalOpen(true)
   }, [selectedTourId, fromDate, toDate])

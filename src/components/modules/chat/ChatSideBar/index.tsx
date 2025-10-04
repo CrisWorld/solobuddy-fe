@@ -1,7 +1,7 @@
 "use client"
 import { usePathname, useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,18 +11,49 @@ import {
 import { MessageCircle, MapPin, Heart, Route, User, LogOut } from "lucide-react"
 import { Logo } from "@/components/common/Logo"
 import { useAuth } from "@/components/layout/AuthLayout"
+import { useEffect, useState } from "react"
 
 export function ChatSidebar() {
   const pathname = usePathname()
   const router = useRouter()
   const { user, logout, openLogin } = useAuth()
+  const [mounted, setMounted] = useState(false)
 
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  if (!mounted) {
+    // tránh render mismatch SSR/CSR
+    return null
+  }
+
+  // define all menu items
   const menuItems = [
     { id: "chat", label: "Trợ lý AI", icon: MessageCircle, href: "/chat" },
     { id: "tour-guide", label: "Hướng dẫn viên", icon: MapPin, href: "/tour-guides" },
-    { id: "favourite", label: "Yêu thích", icon: Heart, href: "/favourite" },
-    { id: "journey", label: "Danh sách đặt Tour", icon: Route, href: "/bookings-history" },
+    {
+      id: "favourite",
+      label: "Yêu thích",
+      icon: Heart,
+      href: "/favourite",
+      roles: ["user"], // chỉ cho user
+    },
+    {
+      id: "journey",
+      label: "Danh sách đặt Tour",
+      icon: Route,
+      href: "/bookings-history",
+      roles: ["user", "guide"], // cho user & guide
+    },
   ]
+
+  // filter theo role
+  const visibleMenu = menuItems.filter((item) => {
+    if (!item.roles) return true // không giới hạn role
+    if (!user) return false // chưa login thì không thấy
+    return item.roles.includes(user.role)
+  })
 
   return (
     <div className="w-64 bg-white border-r border-border flex flex-col">
@@ -34,7 +65,7 @@ export function ChatSidebar() {
       {/* Navigation */}
       <div className="flex-1 p-4">
         <nav className="space-y-2">
-          {menuItems.map((item) => {
+          {visibleMenu.map((item) => {
             const Icon = item.icon
             const isActive = pathname === item.href
             return (

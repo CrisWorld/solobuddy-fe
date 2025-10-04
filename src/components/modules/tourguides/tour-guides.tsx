@@ -167,7 +167,7 @@ export function TourGuides() {
         <div className="flex flex-wrap gap-4 mb-8 justify-center">
           <Input
             type="text"
-            placeholder="Search by name..."
+            placeholder="Tìm kiếm theo tên..."
             value={searchName}
             onChange={(e) => setSearchName(e.target.value)}
             className="w-56"
