@@ -99,6 +99,7 @@ export const authApi = baseApi.injectEndpoints({
         method: "POST",
         body: { refreshToken: cookieStorageClient.getRefreshToken() },
       }),
+      extraOptions: {refreshToken: true },
       async onQueryStarted(arg, { queryFulfilled }) {
         try {
           const { data } = await queryFulfilled;

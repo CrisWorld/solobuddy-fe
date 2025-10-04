@@ -11,6 +11,7 @@ import { useApp } from "@/lib/app-context"
 import { SuggestionCard } from "@/components/common/suggestion-card"
 import { TourGuide } from "@/stores/types/types"
 import { usePostAnswerMutation } from "@/stores/services/ai/gemini"
+import ReactMarkdown from "react-markdown"
 
 interface Message {
   id: number
@@ -137,7 +138,7 @@ export function ChatContent() {
                 Chào mừng đến với SoloBuddy Assistant!
               </h2>
               <p className="text-sm text-muted-foreground max-w-md">
-                Tôi ở đây để giúp bạn tìm hướng dẫn viên du lịch phù hợp nhất.  
+                Tôi ở đây để giúp bạn tìm hướng dẫn viên du lịch phù hợp nhất.
                 Hãy hỏi tôi về địa điểm, ngôn ngữ, chuyên môn, hoặc yêu cầu cụ thể!
               </p>
               <div className="mt-4 p-3 bg-white rounded-lg shadow-sm">
@@ -167,9 +168,10 @@ export function ChatContent() {
                     <AvatarFallback>AI</AvatarFallback>
                   </Avatar>
                   <div className="flex-1 max-w-[60%]">
-                    <div className="bg-white rounded-2xl py-2 px-4 shadow-sm">
-                      <p className="text-sm text-foreground whitespace-pre-wrap">{msg.content}</p>
+                    <div className="bg-white rounded-2xl py-2 px-4 shadow-sm prose prose-sm max-w-none">
+                      <ReactMarkdown>{msg.content}</ReactMarkdown>
                     </div>
+
 
                     {msg.tourGuides && msg.tourGuides.length > 0 && (
                       <div className="mt-3">

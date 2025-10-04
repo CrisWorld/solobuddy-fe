@@ -5,6 +5,7 @@ import { FetchArgs, FetchBaseQueryError } from "@reduxjs/toolkit/query"
 
 interface CustomExtraOptions {
   skipAuth?: boolean
+  refreshToken?: boolean
 }
 
 // Cache token expiry check để tránh gọi lại nhiều lần
@@ -89,7 +90,7 @@ const baseQuery: BaseQueryFn<
   CustomExtraOptions
 > = async (args, api, extraOptions) => {
   // Nếu skipAuth, bỏ qua mọi logic authentication
-  if (extraOptions?.skipAuth) {
+  if (extraOptions?.skipAuth || extraOptions?.refreshToken) {
     return rawBaseQuery(args, { ...api, extra: extraOptions }, extraOptions || {})
   }
 

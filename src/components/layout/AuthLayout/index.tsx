@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button"
 import { useRefreshTokenMutation } from "@/stores/services/auth/auth"
 import cookieStorageClient from "@/lib/cookieStorageClient"
+import { clearTokenCache } from "@/stores/services/base"
 
 type User = {
   id: string
@@ -46,7 +47,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // --- thêm xử lý session expired ---
   const [isSessionExpired, setIsSessionExpired] = useState(false)
   const [pendingAction, setPendingAction] = useState<(() => Promise<any>) | null>(null)
-  const [refreshToken] = useRefreshTokenMutation()
+  const [refreshToken, { isLoading: isRefreshing }] = useRefreshTokenMutation()
 
   useEffect(() => {
     ;(window as any).authContextRef = {
@@ -69,6 +70,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = () => {
     localStorage.removeItem("user")
     cookieStorageClient.removeAll()
+    clearTokenCache() // Clear cache khi logout
     setUser(null)
     router.push("/")
   }
@@ -77,12 +79,33 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const handleContinue = async () => {
     try {
       const res = await refreshToken().unwrap()
+      
       if (res.access?.token) {
+        // Set token mới vào cookie
+        await cookieStorageClient.set("token", res.access.token)
+        
+        // Set expiry nếu có
+        if (res.access?.expires) {
+          await cookieStorageClient.set("token-expiry", res.access.expires)
+        }
+        
+        // QUAN TRỌNG: Clear cache để force check lại token
+        clearTokenCache()
+        
+        // Đợi một chút để đảm bảo cookie đã được set
+        await new Promise(resolve => setTimeout(resolve, 100))
+        
+        // Đóng modal trước
         setIsSessionExpired(false)
+        
+        // Sau đó mới gọi pending action
         if (pendingAction) {
           await pendingAction()
           setPendingAction(null)
         }
+      } else {
+        console.error("No access token in response")
+        handleLogout()
       }
     } catch (err) {
       console.error("Refresh token failed", err)
@@ -140,10 +163,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             Bạn có muốn tiếp tục phiên làm việc không?
           </p>
           <div className="flex justify-end gap-2 mt-4">
-            <Button variant="outline" onClick={handleLogout}>
+            <Button variant="outline" onClick={handleLogout} disabled={isRefreshing}>
               Đăng xuất
             </Button>
-            <Button onClick={handleContinue}>Tiếp tục</Button>
+            <Button onClick={handleContinue} disabled={isRefreshing}>
+              {isRefreshing ? "Đang xử lý..." : "Tiếp tục"}
+            </Button>
           </div>
         </DialogContent>
       </Dialog>
