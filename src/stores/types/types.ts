@@ -27,9 +27,6 @@ export interface Booking {
   guideSnapshot: GuideSnapshot;
   travelerSnapshot: TravelerSnapshot;
   status: "pending" | "wait-payment" | "confirmed" | "cancelled" | "completed"; // có thể mở rộng
-  travelerId: string;
-  tourGuideId: string;
-  tourId: string;
   totalPrice: number;
   fromDate: string; // ISO string
   toDate: string;   // ISO string
@@ -44,8 +41,12 @@ export interface TourSnapshot {
 }
 
 export interface GuideSnapshot {
-  id: string;
-  country: string;
+  guideid: string;
+  name: string;
+  avatar: string;
+  email: string;
+  country?: string;
+  phone?: string;
   location: string;
   pricePerDay: number;
 }
@@ -54,4 +55,7 @@ export interface TravelerSnapshot {
   id: string;
   name: string;
   email: string;
+  avatar?: string;
+  phone?: string;
+  country?: string;
 }

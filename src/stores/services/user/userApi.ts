@@ -19,9 +19,9 @@ export interface UserProfile {
   updatedAt: string;
 }
 export interface UpdateProfileRequest {
-    name?: string;
-    country?: string;
-    avatar?: string; // URL
+  name?: string;
+  country?: string;
+  avatar?: string; // URL
 }
 export interface TourGuideProfile {
   id: string;
@@ -102,7 +102,7 @@ export interface AddBookingRequest {
 
 export interface AddBookingResponse {
   booking: Booking;
-  checkoutUrl: string; 
+  checkoutUrl: string;
 }
 
 export interface UpdateUserInfoRequest {
@@ -122,7 +122,7 @@ export const userApi = baseApi.injectEndpoints({
       }),
       transformResponse: (response: any) => mapUserProfileResponse(response),
     }),
-    updateProfile: build.mutation<{success: boolean}, UpdateUserInfoRequest>({
+    updateProfile: build.mutation<{ success: boolean }, UpdateUserInfoRequest>({
       query: (body) => ({
         url: endpoints.userEndpoints.UPDATE_PROFILE,
         method: "PATCH",
@@ -142,11 +142,48 @@ export const userApi = baseApi.injectEndpoints({
         body,
       }),
     }),
-    getBookingsHistory: build.query< Booking[] , void>({
+    getBookingsHistory: build.query<Booking[], void>({
       query: () => ({
         url: endpoints.userEndpoints.BOOKING,
         method: 'GET',
       }),
+      transformResponse: (response: any[]): Booking[] => {
+        return response.map((item) => {
+          const booking: Booking = {
+            id: item._id,
+            status: item.status,
+            totalPrice: Number(item.totalPrice?.$numberDecimal ?? item.totalPrice),
+            fromDate: item.fromDate,
+            toDate: item.toDate,
+            quanity: item.quanity,
+            travelerSnapshot: {
+              id: item.travelerId,
+              name: item.travelerSnapshot?.name,
+              email: item.travelerSnapshot?.email,
+              avatar: item.traveler?.avatar,
+              phone: item.traveler?.phone,
+              country: item.traveler?.country,
+            },
+            tourSnapshot: {
+              id: item.tourId,
+              title: item.tourSnapshot?.title,
+              price: item.tourSnapshot?.price,
+              duration: item.tourSnapshot?.duration,
+            },
+            guideSnapshot: {
+              guideid: item.guideSnapshot?.id,
+              name: item.tourGuideUser?.name,
+              avatar: item.tourGuideUser?.avatar,
+              email: item.tourGuideUser?.email,
+              phone: item.tourGuideUser?.phone,
+              country: item.guideSnapshot?.country ?? item.tourGuideUser?.country,
+              location: item.guideSnapshot?.location,
+              pricePerDay: item.guideSnapshot?.pricePerDay,
+            },
+          };
+          return booking;
+        });
+      },
     })
   }),
 });
@@ -155,4 +192,4 @@ export const { useGetProfileQuery,
   useUpdateProfileMutation,
   useAddBookingMutation,
   useGetBookingsHistoryQuery
- } = userApi;
+} = userApi;

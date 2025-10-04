@@ -1,4 +1,4 @@
-import JourneyPage from "@/components/modules/tour/UserTours";
+import JourneyPage from "@/components/modules/booking/BookingHistory";
 
 export default function Page() {
     return <><JourneyPage/></>;

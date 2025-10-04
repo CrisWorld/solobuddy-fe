@@ -83,7 +83,7 @@ export function TourGuideCard({
                             {guide.name}
                         </h3>
                         <span className="text-base font-bold text-foreground">
-                            {formatPrice(guide.price)+"/ngày"}
+                            {formatPrice(guide.price) + "/ngày"}
                         </span>
                     </div>
 
@@ -148,7 +148,11 @@ export function TourGuideCard({
             <CardContent className="p-6">
                 <div className="flex items-start gap-4">
                     <Avatar className="h-16 w-16">
-                        <AvatarImage src={guide.avatar || guide.image || "/placeholder.svg"} />
+                        <img
+                            src={guide.avatar || "/default-avatar.png"}
+                            alt={guide.name}
+                            className="h-16 w-16 object-cover"
+                        />
                         <AvatarFallback>
                             {guide.name
                                 .split(" ")
@@ -185,12 +189,12 @@ export function TourGuideCard({
                                 <span className="text-sm font-medium">{guide.rating}</span>
                             </div>
                             <span className="text-sm text-muted-foreground">•</span>
-                            <span className="text-sm font-medium text-primary">{formatPrice(guide.price)+"/ngày"}</span>
+                            <span className="text-sm font-medium text-primary">{formatPrice(guide.price) + "/ngày"}</span>
                         </div>
 
                         {guide.description && (
                             <div className="text-xs text-muted-foreground mt-2 line-clamp-2"
-                            dangerouslySetInnerHTML={{ __html: decodeHtml(guide.description) }}/>
+                                dangerouslySetInnerHTML={{ __html: decodeHtml(guide.description) }} />
                         )}
 
                         <div className="flex flex-wrap gap-1 mt-3">

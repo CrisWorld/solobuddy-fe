@@ -73,10 +73,12 @@ export function ChatSidebar() {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-48">
-            <DropdownMenuItem onClick={() => router.push("/profile")}>
-              <User className="h-4 w-4 mr-2" />
-              Hồ sơ cá nhân
-            </DropdownMenuItem>
+            {user && (
+              <DropdownMenuItem onClick={() => router.push("/profile")}>
+                <User className="h-4 w-4 mr-2" />
+                Hồ sơ cá nhân
+              </DropdownMenuItem>
+            )}
             {user ? (
               <DropdownMenuItem onClick={logout}>
                 <LogOut className="h-4 w-4 mr-2" />
