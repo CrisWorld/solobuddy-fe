@@ -112,6 +112,11 @@ export interface UpdateUserInfoRequest {
   phone?: string;
 }
 
+export interface UpdateBookingStatusRequest {
+  id: string;
+  status: 'cancelled' | 'completed' | 'pending' | 'wait-payment' | 'confirmed';
+}
+
 
 export const userApi = baseApi.injectEndpoints({
   endpoints: (build) => ({
@@ -184,6 +189,19 @@ export const userApi = baseApi.injectEndpoints({
           return booking;
         });
       },
+    }),
+    updateBookingStatus: build.mutation<{ success: boolean; message?: string }, UpdateBookingStatusRequest>({
+      query: ({ id, ...body }) => ({
+        url: `${endpoints.userEndpoints.BOOKING}/${id}/status`,
+        method: 'PATCH',
+        body,
+      }),
+      transformResponse: (response: any, meta: FetchBaseQueryMeta) => {
+        if (meta?.response?.status === 200) {
+          return { success: true };
+        }
+        return { success: false, message: response?.message || "Update booking status failed" };
+      }
     })
   }),
 });
@@ -191,5 +209,6 @@ export const userApi = baseApi.injectEndpoints({
 export const { useGetProfileQuery,
   useUpdateProfileMutation,
   useAddBookingMutation,
-  useGetBookingsHistoryQuery
+  useGetBookingsHistoryQuery,
+  useUpdateBookingStatusMutation
 } = userApi;

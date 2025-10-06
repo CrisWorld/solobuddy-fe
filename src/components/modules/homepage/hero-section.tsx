@@ -11,7 +11,19 @@ export function HeroSection() {
   const router = useRouter()
 
   const handleClick = () => {
-    router.push("/chat")
+    // Nếu có message, truyền qua URL params
+    if (message.trim()) {
+      router.push(`/chat?message=${encodeURIComponent(message)}`)
+    } else {
+      router.push("/chat")
+    }
+  }
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      e.preventDefault()
+      handleClick()
+    }
   }
 
   return (
@@ -64,13 +76,17 @@ export function HeroSection() {
               <div className="flex flex-col sm:flex-row gap-4">
                 <div className="flex-1">
                   <Input
-                    placeholder="Bạn muốn đi đâu?"
+                    placeholder="Bạn cân gợi ý gì hôm nay?"
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
+                    onKeyPress={handleKeyPress}
                     className="h-12 text-base"
                   />
                 </div>
-                <Button className="h-12 px-8 bg-black hover:bg-black/90 text-white rounded-full" onClick={handleClick} >
+                <Button 
+                  className="h-12 px-8 bg-black hover:bg-black/90 text-white rounded-full" 
+                  onClick={handleClick}
+                >
                   <Sparkles className="w-4 h-4 mr-2" />
                   Gợi ý từ AI
                 </Button>
@@ -81,15 +97,7 @@ export function HeroSection() {
 
           <div className="relative">
             <div className="relative z-10">
-              <img src="/happy-solo-female-traveler-with-backpack-and-suitc.jpg" alt="Người đi du lịch một mình" className="w-full h-auto rounded-2xl" />
-            </div>
-
-            <div className="absolute bottom-4 left-4 bg-white p-3 rounded-xl shadow-lg border border-border z-20">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 bg-gray-200 rounded-full"></div>
-                <div className="w-8 h-8 bg-gray-300 rounded-full -ml-2"></div>
-                <div className="w-8 h-8 bg-gray-400 rounded-full -ml-2"></div>
-              </div>
+              <img src="/anh-bia-du-lich-o-da-lat.jpg" alt="Người đi du lịch một mình" className="w-full h-auto rounded-2xl" />
             </div>
           </div>
         </div>

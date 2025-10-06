@@ -23,7 +23,7 @@ import {
   UpdateWorkDaysRequest,
   useGetToursByGuideMutation
 } from "@/stores/services/tour-guide/tour-guide"
-import { countries, decodeHtml, favourites, formatFavourite, formatPrice, formatSpecialty, formatVehicle, languages, specialtyTypes, vehicleTypes } from "@/lib/utils"
+import { countries, decodeHtml, favourites, formatFavourite, formatLanguage, formatPrice, formatSpecialty, formatVehicle, languages, specialtyTypes, vehicleTypes } from "@/lib/utils"
 import { PhotoUpload } from "@/components/common/photo-upload"
 import { DaySelector } from "@/components/common/day-selector"
 import { CalendarPicker } from "@/components/common/calendar-picker"
@@ -770,7 +770,7 @@ export function ProfilePage() {
                     <div className="flex flex-wrap gap-2">
                       {tourGuideProfile.languages.map((lang) => (
                         <Badge key={lang} variant="secondary">
-                          {lang.charAt(0).toUpperCase() + lang.slice(1)}
+                          {formatLanguage(lang)}
                         </Badge>
                       ))}
                     </div>
@@ -856,7 +856,7 @@ export function ProfilePage() {
                     <div className="flex flex-wrap gap-2">
                       {tourGuideProfile.favourites.map((fav) => (
                         <Badge key={fav._id} variant="secondary">
-                          {fav.name}
+                          {formatFavourite(fav.name)}
                         </Badge>
                       ))}
                     </div>

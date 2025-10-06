@@ -28,7 +28,11 @@ export function SuggestionCard({ guide, favouriteGuides, toggleFavourite }: Sugg
       <CardContent >
         <div className="flex items-start gap-4">
           <Avatar className="h-12 w-12">
-            <AvatarImage src={guide.avatar || "/placeholder.svg"} />
+            <img
+              src={guide.avatar || "/default-avatar.png"}
+              alt={guide.name}
+              className="h-12 w-12 object-cover"
+            />
             <AvatarFallback>
               {guide.name
                 .split(" ")
@@ -61,11 +65,10 @@ export function SuggestionCard({ guide, favouriteGuides, toggleFavourite }: Sugg
                   className="h-8 w-8"
                 >
                   <Heart
-                    className={`h-4 w-4 ${
-                      favouriteGuides.includes(guide.id)
+                    className={`h-4 w-4 ${favouriteGuides.includes(guide.id)
                         ? "fill-red-500 text-red-500"
                         : "text-gray-400"
-                    }`}
+                      }`}
                   />
                 </Button>
               </div>

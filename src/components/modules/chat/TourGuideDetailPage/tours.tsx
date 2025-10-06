@@ -1,7 +1,8 @@
 "use client"
 
+import TourDescription from "@/components/common/tour-description"
 import { Card, CardContent } from "@/components/ui/card"
-import { decodeHtml, formatPrice } from "@/lib/utils"
+import {  formatPrice } from "@/lib/utils"
 import { Tour } from "@/stores/services/tour-guide/tour-guide"
 
 interface TourGuideToursProps {
@@ -36,12 +37,9 @@ export function TourGuideTours({ tours }: TourGuideToursProps) {
               </div>
               <div className="p-4">
                 <h4 className="font-medium text-foreground mb-2">{tour.title}</h4>
-                <div
-                  className="text-xs text-muted-foreground mb-3 line-clamp-2"
-                  dangerouslySetInnerHTML={{ __html: decodeHtml(tour.description) }}
-                />
+                <TourDescription description={tour.description} />
                 <div className="flex items-center justify-between">
-                  <div className="text-xs text-muted-foreground">Thời lượng: {tour.duration}</div>
+                  <div className="text-sm text-muted-foreground">Thời lượng: {tour.duration}</div>
                   <div className="text-sm font-bold text-foreground">
                     {formatPrice(tour.price)} {tour.unit && `/ người`}
                   </div>

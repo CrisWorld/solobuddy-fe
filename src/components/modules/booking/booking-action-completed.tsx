@@ -1,5 +1,4 @@
 import { Button } from "@/components/ui/button"
-import { Star } from "lucide-react"
 import type { Booking } from "@/stores/types/types"
 import { useRouter } from "next/navigation"
 import ReviewDialog from "./review-dialog"

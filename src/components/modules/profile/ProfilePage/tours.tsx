@@ -1,13 +1,14 @@
 "use client"
 
 import { Card, CardContent } from "@/components/ui/card"
-import { decodeHtml, formatPrice } from "@/lib/utils"
+import {formatPrice } from "@/lib/utils"
 import { Tour, useDeleteTourMutation } from "@/stores/services/tour-guide/tour-guide"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { useState } from "react"
 import { useApp } from "@/lib/app-context"
 import { UpdateTourForm } from "./update-tour-form"
+import TourDescription from "@/components/common/tour-description"
 
 interface TourGuideToursProps {
     tours: Tour[]
@@ -63,10 +64,7 @@ export function ToursList({ tours, refreshTours }: TourGuideToursProps) {
                             </div>
                             <div className="p-4 flex flex-col flex-1">
                                 <h4 className="font-medium text-foreground mb-2">{tour.title}</h4>
-                                <div
-                                    className="text-xs text-muted-foreground mb-3 line-clamp-2"
-                                    dangerouslySetInnerHTML={{ __html: decodeHtml(tour.description) }}
-                                />
+                                <TourDescription description={tour.description} />
                                 <div className="flex items-center justify-between mb-3">
                                     <div className="text-xs text-muted-foreground">Thời lượng: {tour.duration}</div>
                                     <div className="text-sm font-bold text-foreground">

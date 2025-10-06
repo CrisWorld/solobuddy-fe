@@ -138,6 +138,7 @@ export function TourGuideDetailPage({ guideId }: TourGuideDetailPageProps) {
     }
     if (user.role !== 'user') {
       showToast("Chỉ có khách du lịch mới có thể đặt tour.","error")
+      return;
     }
     setIsBookingModalOpen(true)
   }, [selectedTourId, fromDate, toDate])
@@ -333,7 +334,7 @@ export function TourGuideDetailPage({ guideId }: TourGuideDetailPageProps) {
               <Card>
                 <CardContent className="p-6">
                   <h3 className="font-semibold text-foreground mb-4">Sơ lược về tôi</h3>
-                  <div className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line"
+                  <div className="text-base text-muted-foreground leading-relaxed whitespace-pre-line"
                     dangerouslySetInnerHTML={{ __html: decodeHtml(guide.bio) }} />
                 </CardContent>
               </Card>

@@ -66,7 +66,7 @@ export function TourGuideCard({
                     <div className="absolute bottom-3 left-3 bg-white/90 px-2 py-0.5 rounded-full shadow-sm">
                         <div className="flex items-center gap-1">
                             <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                            <span className="text-sm font-semibold">{guide.rating}</span>
+                            <span className="text-sm font-semibold">{guide.rating === 0 ? 'N/A' : guide.rating}</span>
                             {guide.reviews && (
                                 <span className="text-xs text-muted-foreground">
                                     ({guide.reviews})
@@ -127,7 +127,7 @@ export function TourGuideCard({
                     <Button
                         variant="outline"
                         size="sm"
-                        className="absolute bottom-3 right-3 
+                        className="absolute bottom-22 right-3 
                     hover:bg-primary hover:text-primary-foreground 
                     hover:shadow-md hover:scale-105 
                     active:scale-95 active:shadow-sm 
@@ -186,7 +186,7 @@ export function TourGuideCard({
                         <div className="flex items-center gap-2 mt-2">
                             <div className="flex items-center gap-1">
                                 <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                                <span className="text-sm font-medium">{guide.rating}</span>
+                                <span className="text-sm font-medium">{guide.rating === 0 ? 'N/A' : guide.rating}</span>
                             </div>
                             <span className="text-sm text-muted-foreground">•</span>
                             <span className="text-sm font-medium text-primary">{formatPrice(guide.price) + "/ngày"}</span>

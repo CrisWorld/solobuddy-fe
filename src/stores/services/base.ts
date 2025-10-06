@@ -30,7 +30,6 @@ async function isAccessTokenExpired(): Promise<boolean> {
 
   const expired = new Date(expiry as string) <= new Date()
   cachedTokenCheck = { expired, timestamp: now }
-  console.log("isAccessTokenExpired:", expired)
   return expired
 }
 

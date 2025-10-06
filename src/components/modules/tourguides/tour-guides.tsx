@@ -222,10 +222,10 @@ export function TourGuides() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="any">Mọi giá</SelectItem>
-              <SelectItem value="50">Từ 100,000 VND</SelectItem>
-              <SelectItem value="100">Từ 500,000 VND</SelectItem>
-              <SelectItem value="150">Từ 1,000,000 VND</SelectItem>
-              <SelectItem value="200">Từ 1,500,00 VNĐ</SelectItem>
+              <SelectItem value="100000">Từ 100,000 VND</SelectItem>
+              <SelectItem value="500000">Từ 500,000 VND</SelectItem>
+              <SelectItem value="1000000">Từ 1,000,000 VND</SelectItem>
+              <SelectItem value="1500000">Từ 1,500,000 VNĐ</SelectItem>
             </SelectContent>
           </Select>
 

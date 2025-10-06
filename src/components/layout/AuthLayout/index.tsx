@@ -74,10 +74,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   const logout = () => {
+    setIsSessionExpired(false)
+    setPendingAction(null)
     localStorage.removeItem("user")
     cookieStorageClient.removeAll()
     clearTokenCache()
     setUser(null)
+    setIsLoading(true)
     router.push("/")
   }
 
@@ -108,13 +111,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
-  const handleLogout = () => {
-    setIsSessionExpired(false)
-    setPendingAction(null)
+  const handleLogout = () => {    
     logout()
   }
 
   const openLogin = () => {
+    setIsLoading(false)
     setIsRegisterOpen(false)
     setIsLoginOpen(true)
   }
@@ -131,7 +133,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     <AuthContext.Provider
       value={{
         user,
-        isLoading, // 🟢 thêm isLoading vào context
+        isLoading, 
         setUser,
         logout,
         isLoginOpen,

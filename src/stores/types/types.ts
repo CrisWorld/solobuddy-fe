@@ -22,7 +22,7 @@ export interface Favourite {
 }
 
 export interface Booking {
-  id?: string;
+  id: string;
   tourSnapshot: TourSnapshot;
   guideSnapshot: GuideSnapshot;
   travelerSnapshot: TravelerSnapshot;

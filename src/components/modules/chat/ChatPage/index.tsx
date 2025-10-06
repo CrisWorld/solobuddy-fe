@@ -2,7 +2,8 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect, useRef } from "react"
+import { useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -26,9 +27,27 @@ export function ChatContent() {
   const [isLoading, setIsLoading] = useState(false)
   const [messages, setMessages] = useState<Message[]>([])
   const [expandedResponses, setExpandedResponses] = useState<{ [key: number]: boolean }>({})
+  const hasRunInitialMessage = useRef(false)
 
+  const searchParams = useSearchParams()
   const [postAnswer] = usePostAnswerMutation()
   const { favouriteGuides, toggleFavourite } = useApp()
+
+  // Xử lý message từ URL params khi component mount
+  useEffect(() => {
+    const initialMessage = searchParams.get("message")
+
+    if (
+      initialMessage &&
+      !hasRunInitialMessage.current &&
+      messages.length === 0 &&
+      !isLoading
+    ) {
+      hasRunInitialMessage.current = true
+      setMessage(initialMessage)
+      setTimeout(() => handleSendMessageWithText(initialMessage), 100)
+    }
+  }, [searchParams, messages.length, isLoading])
 
   const toggleExpanded = (messageId: number) => {
     setExpandedResponses(prev => ({
@@ -37,13 +56,13 @@ export function ChatContent() {
     }))
   }
 
-  const handleSendMessage = async () => {
-    if (!message.trim() || isLoading) return
+  const handleSendMessageWithText = async (text: string) => {
+    if (!text.trim() || isLoading) return
 
     const userMessage: Message = {
       id: Date.now(),
       type: "user",
-      content: message,
+      content: text,
       timestamp: new Date(),
     }
     setMessages(prev => [...prev, userMessage])
@@ -60,7 +79,7 @@ export function ChatContent() {
 
       messageHistory.push({
         role: "user",
-        text: message
+        text: text
       })
 
       const response = await postAnswer({
@@ -95,6 +114,10 @@ export function ChatContent() {
     }
   }
 
+  const handleSendMessage = async () => {
+    await handleSendMessageWithText(message)
+  }
+
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault()
@@ -106,6 +129,7 @@ export function ChatContent() {
     setMessages([]);
     setMessage("");
     setExpandedResponses({});
+    hasRunInitialMessage.current = false;
   };
 
   return (
@@ -129,7 +153,7 @@ export function ChatContent() {
       <div className="flex-1 p-4 md:p-6 overflow-y-auto">
         <div className="max-w-2xl mx-auto space-y-4">
           {/* Welcome Banner */}
-          {messages.length === 0 && (
+          {messages.length === 0 && !isLoading && (
             <div className="flex flex-col items-center justify-center py-8 px-4 text-center">
               <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center mb-4">
                 <MessageCircle className="h-6 w-6 text-primary" />

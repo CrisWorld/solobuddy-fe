@@ -66,16 +66,14 @@ export const languages = [
 ]
 
 export const locations = [
-  "vietnam",
-  "thailand",
-  "france",
-  "spain",
-  "china",
-  "japan",
-  "korea",
-  "usa",
-  "uk",
-  "germany",
+  "Đà Nẵng",
+  "Đà Lạt",
+  "Nha Trang",
+  "Hà Nội",
+  "TP Hồ Chí Minh",
+  "Hạ Long",
+  "Cần Thơ",
+  "Phú Quốc"
 ]
 
 export const countries = [

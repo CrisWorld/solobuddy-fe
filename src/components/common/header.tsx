@@ -35,15 +35,19 @@ export function Header() {
                     src={user.avatar || "/default-avatar.png"}
                     alt={user.name}
                     className="w-10 h-10 rounded-full object-cover"
-                  />                  
+                  />
                   <ChevronDown className="w-4 h-4" />
                 </div>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <Link href="/profile">
-                  <DropdownMenuItem>Hồ sơ cá nhân</DropdownMenuItem>
-                </Link>
-                <DropdownMenuItem onClick={logout}>Đăng xuất</DropdownMenuItem>                
+                <DropdownMenuItem
+                  onClick={() => {
+                    window.location.href = "/profile"
+                  }}
+                >
+                  Hồ sơ cá nhân
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={logout}>Đăng xuất</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
@@ -115,25 +119,30 @@ export function Header() {
                       />
                       <span className="font-medium">{user.name}</span>
                     </div>
-                    <Link href="/profile" onClick={() => setIsMenuOpen(false)}>
-                      <Button variant="outline" >
-                        Hồ sơ cá nhân
-                      </Button>
-                    </Link>
                     <Button
                       variant="outline"
+                      className="w-full bg-primary rounded-full px-6"
+                      onClick={() => {
+                        setIsMenuOpen(false)
+                        window.location.href = "/profile" // reload thật sự
+                      }}
+                    >
+                      Hồ sơ cá nhân
+                    </Button>
+                    <Button
+                      variant="outline" className="w-full bg-primary rounded-full px-6"
                       onClick={() => {
                         logout()
                         setIsMenuOpen(false)
                       }}
                     >
                       Đăng xuất
-                    </Button>                    
+                    </Button>
                   </>
                 ) : (
                   <>
                     <Button
-                      variant="outline"
+                      variant="outline" className="w-full bg-primary rounded-full px-6"
                       onClick={() => {
                         openLogin()
                         setIsMenuOpen(false)

@@ -46,7 +46,11 @@ export default function BookingCard({ booking, isUpcoming }: { booking: Booking;
           <div className="flex flex-col items-center md:items-start md:w-1/3">
             <div className="flex items-center gap-4">
               <Avatar className="h-20 w-20 border-4 border-white shadow-md">
-                <AvatarImage src={target.avatar || "/default-avatar.png"} />
+                <img
+                  src={target.avatar || "/default-avatar.png"}
+                  alt={target.name}
+                  className="h-20 w-20 object-cover"
+                />
                 <AvatarFallback className="bg-gradient-to-br from-blue-400 to-indigo-500 text-white text-lg font-bold">
                   {target.name?.slice(0, 2).toUpperCase()}
                 </AvatarFallback>
@@ -96,8 +100,8 @@ export default function BookingCard({ booking, isUpcoming }: { booking: Booking;
               {isUpcoming && (
                 <Badge
                   className={`px-3 py-1 rounded-full text-sm font-medium ${getDaysUntilTour(booking.fromDate) === "Đang diễn ra"
-                      ? "bg-green-100 text-green-700 border-green-200"
-                      : "bg-blue-50 text-blue-700 border-blue-200"
+                    ? "bg-green-100 text-green-700 border-green-200"
+                    : "bg-blue-50 text-blue-700 border-blue-200"
                     }`}
                 >
                   {getDaysUntilTour(booking.fromDate)}
