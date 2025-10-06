@@ -168,6 +168,9 @@ export interface UpdateTourRequest {
 
 
 // interface cho request update
+export interface FavouriteRequest {
+  name: string;
+}
 export interface UpdateTourGuideProfileRequest {
   bio?: string;
   pricePerDay?: number;
@@ -177,7 +180,7 @@ export interface UpdateTourGuideProfileRequest {
   photos?: string[];
   vehicle?: string;
   specialties?: string[];
-  favourites?: string[];
+  favourites?: FavouriteRequest[];
 }
 
 export interface UpdateAvailableDatesRequest {

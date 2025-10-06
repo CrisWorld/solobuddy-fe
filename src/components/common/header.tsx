@@ -40,7 +40,10 @@ export function Header() {
                 </div>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={logout}>Đăng xuất</DropdownMenuItem>
+                <Link href="/profile">
+                  <DropdownMenuItem>Hồ sơ cá nhân</DropdownMenuItem>
+                </Link>
+                <DropdownMenuItem onClick={logout}>Đăng xuất</DropdownMenuItem>                
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
@@ -112,6 +115,11 @@ export function Header() {
                       />
                       <span className="font-medium">{user.name}</span>
                     </div>
+                    <Link href="/profile" onClick={() => setIsMenuOpen(false)}>
+                      <Button variant="outline" >
+                        Hồ sơ cá nhân
+                      </Button>
+                    </Link>
                     <Button
                       variant="outline"
                       onClick={() => {
@@ -120,7 +128,7 @@ export function Header() {
                       }}
                     >
                       Đăng xuất
-                    </Button>
+                    </Button>                    
                   </>
                 ) : (
                   <>

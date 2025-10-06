@@ -7,23 +7,25 @@ import { Loader2 } from "lucide-react"
 
 interface ProtectedRouteProps {
   children: React.ReactNode
-  roles?: string[] // Optional array of roles that are allowed to access the route
+  roles?: string[]
 }
 
 export default function ProtectedRoute({ children, roles }: ProtectedRouteProps) {
-  const { user } = useAuth()
+  const { user, isLoading } = useAuth()
   const router = useRouter()
   const [isChecking, setIsChecking] = useState(true)
 
   useEffect(() => {
+    if (isLoading) return // 🔸 đợi load user xong
+
     if (!user || (roles && !roles.includes(user.role))) {
       router.replace("/forbidden")
     } else {
       setIsChecking(false)
     }
-  }, [user, roles, router])
+  }, [user, roles, router, isLoading])
 
-  if (isChecking) {
+  if (isLoading || isChecking) {
     return (
       <div className="flex h-screen w-full items-center justify-center">
         <Loader2 className="h-10 w-10 animate-spin text-primary" />

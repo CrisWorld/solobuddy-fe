@@ -15,7 +15,7 @@ import {
   CalendarIcon, Globe, Clock
 } from "lucide-react"
 
-import { decodeHtml, formatLanguages, formatLocation, formatPrice, formatSpecialty, formatVehicle } from "@/lib/utils"
+import { decodeHtml, formatFavourite, formatLanguages, formatLocation, formatPrice, formatSpecialty, formatVehicle } from "@/lib/utils"
 import { useGetBookedDateQuery, useGetTourGuideDetailQuery, useGetToursByGuideMutation } from "@/stores/services/tour-guide/tour-guide"
 import { useGetReviewsQuery } from "@/stores/services/review/review"
 import { PhotoCarousel } from "@/components/common/photos-list"
@@ -310,7 +310,7 @@ export function TourGuideDetailPage({ guideId }: TourGuideDetailPageProps) {
                             variant="outline"
                             className="text-sm bg-purple-50 border-purple-200 text-purple-700"
                           >
-                            {favourite.name}
+                            {formatFavourite(favourite.name)}
                           </Badge>
                         ))}
                       </div>

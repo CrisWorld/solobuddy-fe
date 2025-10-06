@@ -125,7 +125,7 @@ export function ProfilePage() {
     }
   }, [profileData])
 
-  const {user, updateUser} = useAuth();
+  const { user, updateUser } = useAuth();
 
   const handleSaveProfile = async () => {
     if (!editedProfile) return
@@ -228,9 +228,10 @@ export function ProfilePage() {
       const editedFavouriteNames = editedTourGuideProfile.favourites.map(f => f.name)
       const originalFavouriteNames = originalTourGuideProfile.favourites.map(f => f.name)
       if (JSON.stringify(editedFavouriteNames) !== JSON.stringify(originalFavouriteNames)) {
-        profileChanges.favourites = editedFavouriteNames
+        profileChanges.favourites = editedFavouriteNames.map(name => ({ name }))
         hasProfileChanges = true
       }
+
 
       // 2. Update available dates
       const originalDates = new Set(originalTourGuideProfile.availableDates)
@@ -555,7 +556,7 @@ export function ProfilePage() {
                   {isEditingProfile ? (
                     <Input
                       id="phone"
-                      value={editedProfile.phone ?? ""} 
+                      value={editedProfile.phone ?? ""}
                       onChange={(e) => setEditedProfile({ ...editedProfile, phone: e.target.value })}
                       placeholder="Nhập số điện thoại"
                     />
@@ -650,7 +651,7 @@ export function ProfilePage() {
 
                   {/* Price Per Day */}
                   <div className="space-y-2">
-                    <Label htmlFor="pricePerDay">Giá thuê mỗi ngày ($)</Label>
+                    <Label htmlFor="pricePerDay">Giá thuê mỗi ngày (VNĐ)</Label>
                     {isEditingTourGuide ? (
                       <Input
                         id="pricePerDay"

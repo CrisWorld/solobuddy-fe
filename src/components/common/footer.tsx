@@ -86,7 +86,7 @@ export function Footer() {
 
         {/* Bottom */}
         <div className="flex flex-col lg:flex-row justify-between items-center mt-12 pt-8 border-t border-gray-800">
-          <div className="text-gray-400 text-sm">© 2024 SoloBuddy Inc.</div>
+          <div className="text-gray-400 text-sm">© 2025 SoloBuddy Inc.</div>
           <div className="text-gray-400 text-sm mt-4 lg:mt-0">Theo dõi chúng tôi</div>
         </div>
       </div>

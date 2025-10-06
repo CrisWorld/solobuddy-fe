@@ -12,9 +12,9 @@ export default function BookingActionsUpcoming({ booking }: { booking: Booking }
   const fromDate = new Date(booking.fromDate)
   return (
     <div className="flex flex-wrap gap-2">
-      <Button size="sm" variant="outline" className="flex-1">
+      {/* <Button size="sm" variant="outline" className="flex-1">
         {isUser ? "Liên hệ Hướng dẫn viên" : "Liên hệ Khách du lịch"}
-      </Button>
+      </Button> */}
 
       {isUser && (
         <Button

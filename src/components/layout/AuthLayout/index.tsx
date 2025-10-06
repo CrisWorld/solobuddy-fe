@@ -24,6 +24,7 @@ type User = {
 
 interface AuthContextProps {
   user: User
+  isLoading: boolean
   setUser: (user: User) => void
   logout: () => void
 
@@ -41,10 +42,11 @@ const AuthContext = createContext<AuthContextProps | undefined>(undefined)
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User>(null)
+  const [isLoading, setIsLoading] = useState(true) 
   const [isLoginOpen, setIsLoginOpen] = useState(false)
   const [isRegisterOpen, setIsRegisterOpen] = useState(false)
 
-  // --- thêm xử lý session expired ---
+  // --- session expired handling ---
   const [isSessionExpired, setIsSessionExpired] = useState(false)
   const [pendingAction, setPendingAction] = useState<(() => Promise<any>) | null>(null)
   const [refreshToken, { isLoading: isRefreshing }] = useRefreshTokenMutation()
@@ -57,9 +59,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   const router = useRouter()
+
   useEffect(() => {
     const storedUser = webLocalStorage.get("user")
-    setUser(storedUser)
+    if (storedUser) {
+      setUser(storedUser)
+    }
+    setIsLoading(false) // Khi đã đọc xong localStorage
   }, [])
 
   const updateUser = (user: User) => {
@@ -70,35 +76,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = () => {
     localStorage.removeItem("user")
     cookieStorageClient.removeAll()
-    clearTokenCache() // Clear cache khi logout
+    clearTokenCache()
     setUser(null)
     router.push("/")
   }
 
-  // handle confirm tiếp tục session
   const handleContinue = async () => {
     try {
       const res = await refreshToken().unwrap()
-      
+
       if (res.access?.token) {
-        // Set token mới vào cookie
         await cookieStorageClient.set("token", res.access.token)
-        
-        // Set expiry nếu có
         if (res.access?.expires) {
           await cookieStorageClient.set("token-expiry", res.access.expires)
         }
-        
-        // QUAN TRỌNG: Clear cache để force check lại token
         clearTokenCache()
-        
-        // Đợi một chút để đảm bảo cookie đã được set
         await new Promise(resolve => setTimeout(resolve, 100))
-        
-        // Đóng modal trước
+
         setIsSessionExpired(false)
-        
-        // Sau đó mới gọi pending action
         if (pendingAction) {
           await pendingAction()
           setPendingAction(null)
@@ -136,6 +131,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     <AuthContext.Provider
       value={{
         user,
+        isLoading, // 🟢 thêm isLoading vào context
         setUser,
         logout,
         isLoginOpen,
