@@ -6,7 +6,7 @@ import type { Booking } from "@/stores/types/types"
 import { useAuth } from "@/components/layout/AuthLayout"
 import BookingActionsUpcoming from "./booking-action-upcoming"
 import BookingActionsCompleted from "./booking-action-completed"
-import { formatPrice } from "@/lib/utils"
+import { formatLocation, formatPrice } from "@/lib/utils"
 
 const formatDateRange = (from: string, to: string) => {
   const f = new Date(from)
@@ -69,9 +69,9 @@ export default function BookingCard({ booking, isUpcoming }: { booking: Booking;
                 )}
                 <div className="flex items-center gap-1 text-sm text-muted-foreground mt-1">
                   <MapPin className="h-3 w-3 text-blue-500" />
-                  {!isUser
-                    ? `${(target as any).location || ""}${target.country ? ", " + target.country : ""}`
-                    : target.country || "Chưa rõ"}
+                  {isUser
+                    ? `${(target as any).location || ""}${target.country ? ", " + formatLocation(target.country) : ""}`
+                    : target.country?  formatLocation(target.country): "Chưa rõ"}
                 </div>
               </div>
             </div>
