@@ -23,7 +23,7 @@ import {
   UpdateWorkDaysRequest,
   useGetToursByGuideMutation
 } from "@/stores/services/tour-guide/tour-guide"
-import { countries, decodeHtml, favourites, formatFavourite, formatLanguage, formatPrice, formatSpecialty, formatVehicle, languages, specialtyTypes, vehicleTypes } from "@/lib/utils"
+import { countries, decodeHtml, favourites, formatFavourite, formatLanguage, formatLocation, formatPrice, formatSpecialty, formatVehicle, languages, specialtyTypes, vehicleTypes } from "@/lib/utils"
 import { PhotoUpload } from "@/components/common/photo-upload"
 import { DaySelector } from "@/components/common/day-selector"
 import { CalendarPicker } from "@/components/common/calendar-picker"
@@ -547,7 +547,7 @@ export function ProfilePage() {
                     </Select>
                   ) : (
                     <div className="p-3 bg-muted rounded-md text-sm">
-                      {profileData.country ? profileData.country.charAt(0).toUpperCase() + profileData.country.slice(1) : "Chưa có"}
+                      {profileData.country ? formatLocation(profileData.country) : "Chưa có"}
                     </div>
                   )}
                 </div>
