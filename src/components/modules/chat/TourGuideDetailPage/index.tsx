@@ -95,22 +95,27 @@ export function TourGuideDetailPage({ guideId }: TourGuideDetailPageProps) {
 
   // 1. Check single day
   const isDateAvailable = useCallback((date: Date) => {
-    if (!guide) return false
+  if (!guide) return false
 
-    const dateStr = date.toISOString().split("T")[0]
-    if (bookedSet.has(dateStr)) return false
+  const dateStr = date.toLocaleDateString("en-CA") // yyyy-mm-dd theo local
+  const bookedDates = new Set(
+    Array.from(bookedSet).map(d => new Date(d).toLocaleDateString("en-CA"))
+  )
 
-    if (guide.isRecur) {
-      const dayOfWeek = date.getDay()
-      return guide.dayInWeek?.includes(dayOfWeek) || false
-    } else {
-      if (!guide.availableDates?.length) return false
-      return guide.availableDates.some(availDate => {
-        const availDateStr = new Date(availDate).toISOString().split("T")[0]
-        return availDateStr === dateStr
-      })
-    }
-  }, [guide, bookedSet])
+  if (bookedDates.has(dateStr)) return false
+
+  if (guide.isRecur) {
+    const dayOfWeek = date.getDay()
+    return guide.dayInWeek?.includes(dayOfWeek) || false
+  } else {
+    if (!guide.availableDates?.length) return false
+    return guide.availableDates.some(availDate => {
+      const availDateStr = new Date(availDate).toLocaleDateString("en-CA")
+      return availDateStr === dateStr
+    })
+  }
+}, [guide, bookedSet])
+
 
   // 2. Check whole range (from → to)
   const isRangeAvailable = useCallback((from: Date, to: Date) => {
