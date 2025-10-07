@@ -50,7 +50,7 @@ export function Footer() {
               </li>
               <li>
                 <a href="#" className="hover:text-white transition-colors">
-                  Đặt lịch hẹn 
+                  Đặt lịch hẹn
                 </a>
               </li>
               <li>
@@ -66,10 +66,16 @@ export function Footer() {
             <h3 className="font-semibold text-lg mb-6">Pháp lý</h3>
             <ul className="grid grid-cols-2 gap-3 text-gray-300">
               <li>
-                <a href="#" className="hover:text-white transition-colors">
+                <a
+                  href="/policy.pdf"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-white transition-colors"
+                >
                   Điều khoản dịch vụ
                 </a>
               </li>
+
               <li>
                 <a href="#" className="hover:text-white transition-colors">
                   Chính sách bảo mật
@@ -82,7 +88,7 @@ export function Footer() {
               </li>
             </ul>
           </div>
-        </div>      
+        </div>
 
         {/* Bottom */}
         <div className="flex flex-col lg:flex-row justify-between items-center mt-12 pt-8 border-t border-gray-800">

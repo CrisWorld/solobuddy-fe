@@ -3,7 +3,7 @@ import { endpoints } from "@/config";
 import { TourGuide } from "@/stores/types/types";
 import { baseApi } from "../base";
 
-// Define types for the request and response
+// Define types
 interface Message {
   role: string;
   text: string;
@@ -18,10 +18,9 @@ interface MongoFilter {
 
 interface AIResponse {
   response_text: string;
-  mongo_filter: MongoFilter;
+  mongo_filter?: MongoFilter;
 }
 
-// Define API response interface
 interface APITourGuide {
   _id: string;
   languages: string[];
@@ -47,52 +46,54 @@ interface APITourGuide {
   };
 }
 
-// Add mapping function
-const mapAPIToTourGuide = (apiGuide: APITourGuide): TourGuide => {
-  return {
-    id: apiGuide._id, // Convert last 6 chars of _id to number
-    name: apiGuide.user.name,
-    location: apiGuide.location,
-    price: apiGuide.pricePerDay,
-    rating: apiGuide.ratingAvg,
-    languages: apiGuide.languages,
-    specialties: apiGuide.specialties,
-    avatar: apiGuide.user.avatar || "default-avatar.png", // Use first photo as avatar or empty string
-    description: apiGuide.bio
-  };
-};
+const mapAPIToTourGuide = (apiGuide: APITourGuide): TourGuide => ({
+  id: apiGuide._id,
+  name: apiGuide.user.name,
+  location: apiGuide.location,
+  price: apiGuide.pricePerDay,
+  rating: apiGuide.ratingAvg,
+  languages: apiGuide.languages,
+  specialties: apiGuide.specialties,
+  avatar: apiGuide.user.avatar || "default-avatar.png",
+  description: apiGuide.bio,
+});
 
 interface GuideResponse {
-  results: APITourGuide[]; // Change to APITourGuide
-  page: number;
-  limit: number;
-  totalPages: number;
-  totalResults: number;
+  results?: APITourGuide[];
+  page?: number;
+  limit?: number;
+  totalPages?: number;
+  totalResults?: number;
 }
 
-// Create the API endpoint with mapping
 export const geminiApi = baseApi.injectEndpoints({
   endpoints: (build) => ({
-    postAnswer: build.mutation<{ response: AIResponse; guides: GuideResponse & { mappedResults: TourGuide[] } }, { messages: Message[] }>({
+    postAnswer: build.mutation<
+      { response: AIResponse; guides: GuideResponse & { mappedResults: TourGuide[] } },
+      { messages: Message[] }>({
       query: (body) => ({
         url: endpoints.geminiEndpoints.SEND_MESSAGE,
-        method: 'POST',
+        method: "POST",
         body,
       }),
       extraOptions: { skipAuth: true },
-      transformResponse: (response: { response: AIResponse; guides: GuideResponse }) => {
+      transformResponse: (response: { response: AIResponse; guides?: GuideResponse | [] }) => {
+        // Nếu guides là mảng rỗng [], tạo cấu trúc mặc định
+        const guidesData =
+          Array.isArray(response.guides)
+            ? { results: [], page: 1, limit: 0, totalPages: 0, totalResults: 0 }
+            : response.guides || { results: [], page: 1, limit: 0, totalPages: 0, totalResults: 0 };
+
         return {
           ...response,
           guides: {
-            ...response.guides,
-            mappedResults: response.guides.results.map(mapAPIToTourGuide)
-          }
+            ...guidesData,
+            mappedResults: guidesData.results?.map(mapAPIToTourGuide) || [],
+          },
         };
       },
     }),
   }),
 });
 
-export const {
-  usePostAnswerMutation
-} = geminiApi;
+export const { usePostAnswerMutation } = geminiApi;
